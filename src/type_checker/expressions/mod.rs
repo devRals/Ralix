@@ -1,0 +1,26 @@
+use crate::{CheckerResult, Expression, TypeChecker, types::Type};
+
+mod inferers;
+
+impl TypeChecker<'_> {
+    pub fn check_expression(&mut self, expr: &Expression) -> CheckerResult<Type> {
+        use Expression as E;
+
+        match expr {
+            E::String(_) => Ok(Type::String),
+            E::Char(_) => Ok(Type::Char),
+            E::Float(_) => Ok(Type::Float),
+            E::Integer(_) => Ok(Type::Int),
+            E::Boolean(_) => Ok(Type::Bool),
+            E::Null => Ok(Type::Null),
+            E::Identifier(ident) => self.infer_identifier(ident),
+            E::Copy(ident) => self.infer_copy_expression(ident),
+            E::Infix {
+                left,
+                operator,
+                right,
+            } => self.check_infix_expression(left, operator, right),
+            E::Prefix { operator, right } => self.check_prefix_expression(operator, right),
+        }
+    }
+}
