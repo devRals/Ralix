@@ -125,6 +125,7 @@ pub enum Token {
     Or,
     Mutable,
     Copy,
+    TypeOf,
 
     // Type Keywords
     /// "int"
@@ -172,6 +173,7 @@ impl Token {
             "dyn" => Token::Dyn,
             "mut" => Token::Mutable,
             "copy" => Token::Copy,
+            "typeof" => Token::TypeOf,
             lit => Token::Ident(Literal::from(lit)),
         }
     }
@@ -269,6 +271,7 @@ impl Display for Token {
             T::Dyn => "dyn",
             T::Mutable => "mut",
             T::Copy => "copy",
+            T::TypeOf => "typeof",
         })
     }
 }

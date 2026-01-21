@@ -27,8 +27,14 @@ impl Parser<'_> {
     }
 
     fn parse_primary_type(&mut self, initial_type: Type) -> ParserResult<Type> {
-        match &self.peek_token {
-            _ => Ok(initial_type),
-        }
+        let ty = match &self.peek_token {
+            Token::Asterisk => {
+                self.next_token();
+                Type::Addr(Box::new(initial_type))
+            }
+            _ => return Ok(initial_type),
+        };
+
+        self.parse_primary_type(ty)
     }
 }

@@ -12,6 +12,7 @@ pub enum CheckerError {
     Unsatisfied(Type, Type),
     InfixTypeMismatched(Type, InfixOperator, Type),
     PrefixTypeMismatched(PrefixOperator, Type),
+    CannotDereference(Type),
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -41,7 +42,8 @@ impl Display for CheckerError {
             E::Undefined(ident) => format!("`{ident}` is not found in the current scope"),
             E::Unsatisfied(t1, t2) => format!("Type `{t1}` does not satisfy the type `{t2}`"),
             E::InfixTypeMismatched(left_ty,operator, right_ty) => format!("Left type `{left_ty}` of `{operator}` infix operator doesn't match with type `{right_ty}`"),
-            E::PrefixTypeMismatched(operator,  right_ty) => format!("Operator `{operator}` does not expects a value type of `{right_ty}`")
+            E::PrefixTypeMismatched(operator,  right_ty) => format!("Operator `{operator}` does not expects a value type of `{right_ty}`"),
+            E::CannotDereference(t) => format!("Type `{t}` cannot be dereferenced")
         })
     }
 }

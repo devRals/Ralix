@@ -34,6 +34,7 @@ impl Parser<'_> {
         let operator = match &self.current_token {
             Token::Bang | Token::Not => PrefixOperator::Not,
             Token::Minus => PrefixOperator::Neg,
+            Token::Asterisk => PrefixOperator::Deref,
             t => return Err(ParserError::UnknownInfixOp(t.literal())),
         };
 
@@ -44,5 +45,21 @@ impl Parser<'_> {
             operator,
             right: Box::new(right),
         })
+    }
+
+    pub fn parse_lparen_items(&mut self) -> ParserResult<Expression> {
+        self.consume_current_token(Token::LParen);
+        if self.is_current_token(Token::RParen) {
+            return Ok(Expression::Null);
+        }
+
+        let expr = self.parse_expression(Precedence::Lowest)?;
+
+        self.next_token();
+        if self.is_current_token(Token::RParen) {
+            Ok(expr)
+        } else {
+            todo!("Tuple expressions not implemented... YET!")
+        }
     }
 }

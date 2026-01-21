@@ -19,4 +19,5 @@ pub enum InfixOperator {
 pub enum PrefixOperator {
     Not,
     Neg,
+    Deref,
 }

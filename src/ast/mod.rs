@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{Literal, expressions::Identifier};
+use crate::{Literal, expressions::Identifier, types::Type};
 
 pub mod expressions;
 mod impls;
@@ -32,7 +32,10 @@ pub enum Expression {
     String(Literal),
     Char(char),
     Copy(Identifier),
+    AddrOf(Identifier), // a basic Pointer
     Null,
+    TypeOf(Box<Expression>),
+    Type(Type),
 
     Infix {
         left: Box<Expression>,

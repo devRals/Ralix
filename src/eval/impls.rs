@@ -19,7 +19,7 @@ macro_rules! impl_infix_op {
                             $objects => $evaluation,
                         )*
                         (o1, o2) => return EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
-                            o1.object_type(), InfixOperator::$op_err_ty, o2.object_type()
+                            o1.r#type(), InfixOperator::$op_err_ty, o2.r#type()
                         ))
                     }.into()
                 }
@@ -44,7 +44,7 @@ macro_rules! impl_prefix_op {
                             $objects => $evaluation,
                         )*
                         o => return EvalResult::Err(EvaluationError::UnsupportedPrefixOperation(
-                            PrefixOperator::$op_err_ty, o.object_type()
+                            PrefixOperator::$op_err_ty, o.r#type()
                         ))
                     }.into()
                 }

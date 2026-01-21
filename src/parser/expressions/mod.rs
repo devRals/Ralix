@@ -1,10 +1,12 @@
-use crate::{Expression, Parser, ParserError, ParserResult, Token};
+use crate::{Expression, Parser, ParserError, ParserResult, Token, types::Type};
 
+mod address;
 mod copy;
 mod identifier;
 mod infix_prefix;
 mod number;
 mod string;
+mod types;
 
 #[derive(PartialEq, PartialOrd)]
 pub enum Precedence {
@@ -20,7 +22,7 @@ pub enum Precedence {
     Sum,
     /// `2 * 5; 10 / 2;`
     Product,
-    /// `!true; -10;`
+    /// `!true; -10; *ptr;`
     Prefix,
     /// `func(param1, param2);`
     Call,
@@ -58,15 +60,23 @@ impl Parser<'_> {
             Token::False => Expression::Boolean(false),
             Token::Null => Expression::Null,
             Token::Ident(ident) => Expression::Identifier(ident),
-            Token::Minus | Token::Bang | Token::Not => self.parse_prefix_expression()?,
+            Token::TyInt | Token::TyChar | Token::Bool | Token::TyFloat | Token::TyString => {
+                Expression::Type(Type::from_token(&self.current_token).unwrap())
+            }
+            Token::Minus | Token::Bang | Token::Not | Token::Asterisk => {
+                self.parse_prefix_expression()?
+            }
+            Token::LParen => self.parse_lparen_items()?,
             Token::Copy => self.parse_copy_expression()?,
+            Token::TypeOf => self.parse_typeof_expression()?,
+            Token::Ampersant => self.parse_address_expression()?,
             t => return Err(ParserError::ExpressionMistake(t.clone())),
         };
 
-        self.parse_infix_expressions(initial_expression, precedence)
+        self.parse_primary_expressions(initial_expression, precedence)
     }
 
-    fn parse_infix_expressions(
+    pub fn parse_primary_expressions(
         &mut self,
         mut initial_expression: Expression,
         precedence: Precedence,

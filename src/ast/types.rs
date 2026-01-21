@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::Token;
 
-#[derive(Hash, PartialEq, Eq, Clone, Debug)]
+#[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub enum Type {
     Bool,
     Char,
@@ -10,6 +10,8 @@ pub enum Type {
     Float,
     String,
     Null,
+    Addr(Box<Type>),
+    TypeAsValue(Box<Type>),
 }
 
 impl Display for Type {
@@ -22,6 +24,8 @@ impl Display for Type {
             T::Float => "float".to_string(),
             T::String => "str".to_string(),
             T::Null => "null".to_string(),
+            T::TypeAsValue(ty) => format!("{ty} as value"),
+            T::Addr(ty) => format!("{ty}*"),
         })
     }
 }
@@ -39,12 +43,15 @@ impl Type {
     }
 
     pub fn satisfies(&self, other: &Type) -> bool {
-        // It'll grow as the type amount increases
-        #[allow(clippy::match_single_binding)]
         match (self, other) {
-            (t1, t2) => t1 == t2,
-            // ...
+            (Type::TypeAsValue(t1), t2) => t1.is(t2),
+            (t1, Type::TypeAsValue(t2)) => t2.is(t1),
+            (t1, t2) => t1.is(t2),
         }
+    }
+
+    pub fn is(&self, other: &Type) -> bool {
+        self == other
     }
 }
 

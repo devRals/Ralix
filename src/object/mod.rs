@@ -5,13 +5,15 @@ mod environment;
 
 pub use environment::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum Object {
     Int(i64),
     Char(char),
     String(Literal),
     Float(f64),
     Boolean(bool),
+    Type(Type),
+    Address(*const Object),
     Null,
 }
 
@@ -20,7 +22,7 @@ impl Object {
     pub const FALSE: Self = Object::Boolean(false);
     pub const NULL: Self = Object::Null;
 
-    pub fn object_type(&self) -> Type {
+    pub fn r#type(&self) -> Type {
         use Object as O;
         match self {
             O::Boolean(_) => Type::Bool,
@@ -29,6 +31,8 @@ impl Object {
             O::Float(_) => Type::Float,
             O::Null => Type::Null,
             O::String(_) => Type::String,
+            O::Type(t) => t.clone(),
+            O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
         }
     }
 }
@@ -46,6 +50,8 @@ impl Display for Object {
             O::Float(val) => format!("\x1b[93m{val}{clear}"),
             O::String(val) => format!("\x1b[32m{val}{clear}"),
             O::Null => format!("\x1b[90mnull{clear}"),
+            O::Type(ty) => format!("\x1b[92m{ty}{clear}"),
+            O::Address(addr) => format!("\x1b[90m<{addr:?}>{clear}"),
         })
     }
 }

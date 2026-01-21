@@ -89,19 +89,19 @@ impl Parser<'_> {
         self.peek_token == token
     }
 
-    fn consume(&mut self, token: Token) {
+    fn consume_peek_token(&mut self, token: Token) {
         if self.is_peek_token(token) {
             self.next_token();
         }
     }
 
-    fn consume_current(&mut self, token: Token) {
+    fn consume_current_token(&mut self, token: Token) {
         if self.is_current_token(token) {
             self.next_token();
         }
     }
 
-    fn consume_peek(&mut self, token: Token) {
+    fn _skip_peek_token(&mut self, token: Token) {
         if self.is_peek_token(token) {
             self.next_token();
             self.next_token();

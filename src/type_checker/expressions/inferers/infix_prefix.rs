@@ -31,9 +31,7 @@ impl TypeChecker<'_> {
 
             (Type::String, O::Add, Type::String) => Ok(Type::String),
 
-            (t1, InfixOperator::Equals | InfixOperator::NotEquals, t2) if t1 == t2 => {
-                Ok(Type::Bool)
-            }
+            (_, InfixOperator::Equals | InfixOperator::NotEquals, _) => Ok(Type::Bool),
 
             (left_ty, operator, right_ty) => Err(CheckerError::InfixTypeMismatched(
                 left_ty, *operator, right_ty,
@@ -53,6 +51,7 @@ impl TypeChecker<'_> {
             (O::Not, Type::Bool) => Ok(Type::Bool),
             (O::Neg, Type::Float) => Ok(Type::Float),
             (O::Neg, Type::Int) => Ok(Type::Int),
+            (O::Deref, Type::Addr(t)) => Ok(*t),
             (op, ty) => Err(CheckerError::PrefixTypeMismatched(*op, ty)),
         }
     }

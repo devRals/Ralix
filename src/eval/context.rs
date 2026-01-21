@@ -7,7 +7,7 @@ pub struct Context<'env> {
 
 impl Context<'_> {
     pub fn define(&mut self, key: Key, value: Object) -> Option<Object> {
-        self.symbol_table.define(key.clone(), value.object_type());
+        self.symbol_table.define(key.clone(), value.r#type());
         self.environment.define(key, value)
     }
 
@@ -17,7 +17,10 @@ impl Context<'_> {
     }
 
     pub fn get_cloned(&mut self, name: &Key) -> Option<Object> {
-        self.symbol_table.resolve_cloned(name);
         self.environment.get_cloned(name)
+    }
+
+    pub fn get_addr(&mut self, name: &Key) -> Option<&Object> {
+        self.environment.get_ptr(name)
     }
 }

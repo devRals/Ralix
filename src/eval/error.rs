@@ -13,6 +13,8 @@ pub enum EvaluationError {
 
     UnsupportedInfixOperation(Type, InfixOperator, Type),
     UnsupportedPrefixOperation(PrefixOperator, Type),
+
+    CannotBeDereferenced(Type),
 }
 
 #[derive(Debug)]
@@ -36,6 +38,7 @@ impl Display for EvaluationError {
             E::UnsupportedPrefixOperation(op, right_ty) => {
                 format!("Operator `{op}` is not supported for type `{right_ty}`")
             }
+            E::CannotBeDereferenced(t) => format!("Type `{t}` cannot be dereferenced"),
         })
     }
 }

@@ -5,10 +5,10 @@ impl Parser<'_> {
         Ok(Expression::String(int_lit.clone()))
     }
 
-    pub fn parse_char_literal(&mut self, float_lit: Literal) -> ParserResult<Expression> {
-        let value: char = match float_lit.parse().ok() {
+    pub fn parse_char_literal(&mut self, char_lit: Literal) -> ParserResult<Expression> {
+        let value: char = match char_lit.parse().ok() {
             Some(v) => v,
-            None => return Err(ParserError::FloatParse(float_lit.clone())),
+            None => return Err(ParserError::FloatParse(char_lit.clone())),
         };
 
         Ok(Expression::Char(value))

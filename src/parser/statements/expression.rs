@@ -1,10 +1,12 @@
-use crate::{Parser, ParserResult, Statement, parser::expressions::Precedence};
+use crate::{Parser, ParserResult, Statement, Token, parser::expressions::Precedence};
 
 impl Parser<'_> {
     pub fn parse_expression_statement(&mut self) -> ParserResult<Statement> {
-        Ok(Statement::Expression(
-            self.parse_expression(Precedence::Lowest)?,
-        ))
+        let expr = self.parse_expression(Precedence::Lowest)?;
+
+        self.consume_peek_token(Token::SemiColon);
+
+        Ok(Statement::Expression(expr))
     }
 }
 

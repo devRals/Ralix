@@ -1,8 +1,6 @@
 use std::io::{self, BufRead, BufReader, Write, stderr, stdin, stdout};
 
-use rals_lang_v2::{
-    Environment, EvalResult, Evaluator, Lexer, Logger, Parser, SymbolTable, TypeChecker,
-};
+use ralix::{Environment, EvalResult, Evaluator, Lexer, Logger, Parser, SymbolTable, TypeChecker};
 
 enum PromptResult {
     Error,

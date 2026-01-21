@@ -1,3 +1,5 @@
+use std::{fmt::Display, process};
+
 use crate::{Environment, Node, NodeV, Object, Program, SymbolTable};
 
 mod context;
@@ -36,15 +38,16 @@ impl From<Option<Object>> for EvalResult<Object> {
 }
 
 impl Object {
-    pub fn copy(self) -> EvalResult<Object> {
-        if matches!(
-            self,
-            Object::Boolean(_) | Object::Int(_) | Object::Char(_) | Object::Float(_)
-        ) {
-            EvalResult::Value(self)
-        } else {
-            EvalResult::Err(EvaluationError::UnsupportedCopyType(self.object_type()))
+    pub fn copy_bits(&self) -> Option<Object> {
+        match self {
+            Object::Int(v) => Object::from(*v),
+            Object::Char(v) => Object::from(*v),
+            Object::Float(v) => Object::from(*v),
+            Object::Boolean(v) => Object::from(*v),
+            Object::Null => Object::NULL,
+            _ => return None,
         }
+        .into()
     }
 }
 
@@ -74,6 +77,7 @@ impl Evaluator<'_> {
             NodeV::Expression(expr) => self.evaluate_expression(expr),
         }
     }
+
     pub fn evaluate_program(&mut self, program: Program) -> EvalResult<Object> {
         let mut result = EvalResult::NoValue;
 
@@ -83,10 +87,17 @@ impl Evaluator<'_> {
             match &result {
                 EvalResult::Value(_) => {}
                 EvalResult::NoValue => {}
-                EvalResult::Err(err) => return EvalResult::Err(err.clone()),
+                EvalResult::Err(err) => self.panic(err),
             }
         }
 
         result
+    }
+
+    pub fn panic<M: Display>(&self, msg: M) -> ! {
+        eprintln!("{msg}");
+        // Only exit codes I know is 0 and 1 :/
+        // Sorry
+        process::exit(1)
     }
 }

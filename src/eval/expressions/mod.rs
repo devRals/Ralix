@@ -1,8 +1,10 @@
 use crate::{EvalResult, Evaluator, Expression, Object};
 
+mod address;
 mod copy;
 mod identifier;
 mod infix_prefix;
+mod r#typeof;
 
 impl Evaluator<'_> {
     pub fn evaluate_expression(&mut self, expr: Expression) -> EvalResult<Object> {
@@ -16,6 +18,7 @@ impl Evaluator<'_> {
                 false => Object::FALSE.into(),
             },
             Expression::Null => Object::NULL.into(),
+            Expression::Type(ty) => Object::Type(ty).into(),
             Expression::Identifier(ident) => self.evaluate_identifier(ident),
             Expression::Infix {
                 left,
@@ -26,6 +29,8 @@ impl Evaluator<'_> {
                 self.evaluate_prefix_expression(operator, *right)
             }
             Expression::Copy(ident) => self.evaluate_copy_expression(ident),
+            Expression::TypeOf(expr) => self.evaluate_typeof_expression(*expr),
+            Expression::AddrOf(ident) => self.evaluate_addr_expression(ident),
         }
     }
 }

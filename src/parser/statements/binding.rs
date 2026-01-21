@@ -1,5 +1,6 @@
 use crate::{
-    Parser, ParserResult, Statement, Token, parser::expressions::Precedence, statements::Binding,
+    Expression, Parser, ParserResult, Statement, Token, parser::expressions::Precedence,
+    statements::Binding,
 };
 
 impl Parser<'_> {
@@ -10,13 +11,20 @@ impl Parser<'_> {
 
         let type_annotation = self.parse_type_definition()?;
 
+        // It's not a binding
+        if !matches!(&self.peek_token, Token::Ident(_)) {
+            let expr = Expression::Type(type_annotation);
+            let primary_expr = self.parse_primary_expressions(expr, Precedence::Lowest)?;
+            return Ok(Statement::Expression(primary_expr));
+        }
+
         self.expect_ident()?;
         let ident = self.parse_identifier()?;
         self.expect_token(Token::Assign)?;
         self.next_token(); // Consume Token::Assign
 
         let value = self.parse_expression(Precedence::Lowest)?;
-        self.consume(Token::SemiColon);
+        self.consume_peek_token(Token::SemiColon);
 
         Ok(Statement::Binding(Binding {
             ident,
@@ -32,14 +40,14 @@ impl Parser<'_> {
         let mut type_annotation = None;
 
         if self.is_peek_token(Token::Colon) {
-            self.consume_peek(Token::Colon);
+            self.consume_peek_token(Token::Colon);
             type_annotation = Some(self.parse_type_definition()?);
         }
 
         self.expect_token(Token::Assign)?;
         self.next_token();
         let value = self.parse_expression(Precedence::Lowest)?;
-        self.consume(Token::SemiColon);
+        self.consume_peek_token(Token::SemiColon);
 
         Ok(Statement::Binding(Binding {
             ident,
@@ -52,7 +60,7 @@ impl Parser<'_> {
 #[cfg(test)]
 mod test {
     use crate::{
-        Expression, Lexer, Literal, Node, Parser, Statement, SymbolTable, statements::Binding,
+        Expression, Lexer, Literal, Parser, Statement, SymbolTable, statements::Binding,
         types::Type,
     };
 

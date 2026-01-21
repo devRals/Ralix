@@ -31,4 +31,9 @@ impl Environment {
     pub fn get_mut(&mut self, key: &Key) -> Option<&mut Object> {
         self.store.get_mut(key)
     }
+
+    /// Returns immutable referance
+    pub fn get_ptr(&self, key: &Key) -> Option<&Object> {
+        self.store.get(key)
+    }
 }

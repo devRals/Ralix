@@ -9,9 +9,25 @@ pub struct SymbolTable {
 
 impl Default for SymbolTable {
     fn default() -> Self {
-        Self {
+        let mut st = Self {
             scopes: vec![Scope::new()],
+        };
+
+        let primitive_types = HashMap::from([
+            ("int", Type::String),
+            ("int", Type::Int),
+            ("str", Type::String),
+            ("float", Type::Float),
+            ("char", Type::Char),
+            ("bool", Type::Bool),
+            ("null", Type::Null),
+        ]);
+
+        for (lit, ty) in primitive_types {
+            st.define(lit.into(), ty);
         }
+
+        st
     }
 }
 
@@ -47,6 +63,15 @@ impl SymbolTable {
     pub fn resolve_cloned(&mut self, name: &Literal) -> Option<Type> {
         for scope in self.scopes.iter_mut().rev() {
             if let Some(typ) = scope.get(name).cloned() {
+                return Some(typ);
+            }
+        }
+        None
+    }
+
+    pub fn resolve_ref(&mut self, name: &Literal) -> Option<&Type> {
+        for scope in self.scopes.iter_mut().rev() {
+            if let Some(typ) = scope.get(name) {
                 return Some(typ);
             }
         }

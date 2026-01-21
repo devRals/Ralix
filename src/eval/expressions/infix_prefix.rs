@@ -21,9 +21,10 @@ impl Evaluator<'_> {
             InfixOperator::Multiply => left_obj * right_obj,
             InfixOperator::Divide => left_obj / right_obj,
             InfixOperator::Remainder => left_obj % right_obj,
+            InfixOperator::Equals => Object::from(left_obj == right_obj).into(),
+            InfixOperator::NotEquals => Object::from(left_obj != right_obj).into(),
             InfixOperator::Or => Self::evaluate_or(left_obj, right_obj),
             InfixOperator::And => Self::evaluate_and(left_obj, right_obj),
-            _ => EvalResult::NoValue,
         }
     }
 
@@ -31,9 +32,9 @@ impl Evaluator<'_> {
         match (left, right) {
             (Object::Boolean(v1), Object::Boolean(v2)) => Object::from(v1 || v2).into(),
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
-                o1.object_type(),
+                o1.r#type(),
                 InfixOperator::Or,
-                o2.object_type(),
+                o2.r#type(),
             )),
         }
     }
@@ -42,9 +43,9 @@ impl Evaluator<'_> {
         match (left, right) {
             (Object::Boolean(v1), Object::Boolean(v2)) => Object::from(v1 && v2).into(),
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
-                o1.object_type(),
+                o1.r#type(),
                 InfixOperator::Or,
-                o2.object_type(),
+                o2.r#type(),
             )),
         }
     }
@@ -59,6 +60,14 @@ impl Evaluator<'_> {
         match operator {
             PrefixOperator::Not => !obj,
             PrefixOperator::Neg => -obj,
+            PrefixOperator::Deref => self.evaluate_deref_expression(obj),
+        }
+    }
+
+    pub fn evaluate_deref_expression(&mut self, obj: Object) -> EvalResult<Object> {
+        match obj {
+            Object::Address(addr) => unsafe { (*addr).clone() }.into(),
+            _ => unreachable!(),
         }
     }
 }

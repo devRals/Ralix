@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "rals-lang-v2"
+name = "ralix"
 version = "0.1.0"

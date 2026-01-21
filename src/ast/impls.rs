@@ -39,6 +39,9 @@ impl Display for Expression {
             E::Char(val) => format!("'{val}'"),
             E::Null => "null".to_string(),
             E::Copy(ident) => format!("copy {ident}"),
+            E::TypeOf(expr) => format!("typeof {expr}"),
+            E::Type(ty) => format!("{ty}"),
+            E::AddrOf(ident) => format!("&{ident}"),
             E::Infix {
                 left,
                 operator,
@@ -88,8 +91,8 @@ impl Display for InfixOperator {
             InfixOperator::Remainder => "%",
             InfixOperator::Equals => "==",
             InfixOperator::NotEquals => "!=",
-            InfixOperator::Or => "or",
-            InfixOperator::And => "and",
+            InfixOperator::Or => "||",
+            InfixOperator::And => "&&",
         })
     }
 }
@@ -99,6 +102,7 @@ impl Display for PrefixOperator {
         f.write_str(match self {
             PrefixOperator::Not => "!",
             PrefixOperator::Neg => "-",
+            PrefixOperator::Deref => "*",
         })
     }
 }
