@@ -40,7 +40,7 @@ impl Parser<'_> {
         let mut type_annotation = None;
 
         if self.is_peek_token(Token::Colon) {
-            self.consume_peek_token(Token::Colon);
+            self.skip_peek_token(Token::Colon);
             type_annotation = Some(self.parse_type_definition()?);
         }
 

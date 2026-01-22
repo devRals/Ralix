@@ -11,7 +11,6 @@ pub enum Type {
     String,
     Null,
     Addr(Box<Type>),
-    TypeAsValue(Box<Type>),
 }
 
 impl Display for Type {
@@ -24,7 +23,6 @@ impl Display for Type {
             T::Float => "float".to_string(),
             T::String => "str".to_string(),
             T::Null => "null".to_string(),
-            T::TypeAsValue(ty) => format!("{ty} as value"),
             T::Addr(ty) => format!("{ty}*"),
         })
     }
@@ -44,8 +42,7 @@ impl Type {
 
     pub fn satisfies(&self, other: &Type) -> bool {
         match (self, other) {
-            (Type::TypeAsValue(t1), t2) => t1.is(t2),
-            (t1, Type::TypeAsValue(t2)) => t2.is(t1),
+            (Type::Null, _) => true,
             (t1, t2) => t1.is(t2),
         }
     }

@@ -9,7 +9,7 @@ impl Evaluator<'_> {
                 Some(copied) => copied.into(),
                 // This object cannot copy its own bits
                 // We create a deep copy
-                None => self.ctx.get_cloned(&ident).unwrap().into(),
+                None => self.ctx.drop(&ident).unwrap().into(),
             },
             None => EvalResult::Err(EvaluationError::Undefined(ident)),
         }

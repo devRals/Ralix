@@ -1,7 +1,7 @@
 use std::{error::Error, fmt::Display};
 
 use crate::{
-    Literal,
+    Expression, Literal, Object,
     expressions::{InfixOperator, PrefixOperator},
     types::Type,
 };
@@ -15,6 +15,7 @@ pub enum EvaluationError {
     UnsupportedPrefixOperation(PrefixOperator, Type),
 
     CannotBeDereferenced(Type),
+    CannotAssign(Expression, Object),
 }
 
 #[derive(Debug)]
@@ -39,6 +40,9 @@ impl Display for EvaluationError {
                 format!("Operator `{op}` is not supported for type `{right_ty}`")
             }
             E::CannotBeDereferenced(t) => format!("Type `{t}` cannot be dereferenced"),
+            E::CannotAssign(left, value) => {
+                format!("Cannot assign value {value} using {left} expression")
+            }
         })
     }
 }

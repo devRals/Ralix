@@ -1,5 +1,6 @@
 use crate::{Parser, ParserResult, Statement, Token};
 
+mod assignment;
 mod binding;
 mod expression;
 

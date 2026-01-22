@@ -11,7 +11,7 @@ impl Context<'_> {
         self.environment.define(key, value)
     }
 
-    pub fn get(&mut self, name: &Key) -> Option<Object> {
+    pub fn drop(&mut self, name: &Key) -> Option<Object> {
         self.symbol_table.resolve(name);
         self.environment.get(name)
     }
@@ -22,5 +22,9 @@ impl Context<'_> {
 
     pub fn get_addr(&mut self, name: &Key) -> Option<&Object> {
         self.environment.get_ptr(name)
+    }
+
+    pub fn get_mut(&mut self, key: &Key) -> Option<&mut Object> {
+        self.environment.get_mut(key)
     }
 }

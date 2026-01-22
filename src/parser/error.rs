@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display};
 
-use crate::{Literal, Token};
+use crate::{Expression, Literal, Token};
 
 pub type ParserResult<N> = Result<N, ParserError>;
 
@@ -15,6 +15,7 @@ pub enum ParserError {
     FloatParse(Literal),
     UnknownInfixOp(Literal),
     UnknownPrefixOp(Literal),
+    CannotAssignTo(Expression),
 }
 
 #[derive(Debug)]
@@ -48,6 +49,7 @@ impl Display for ParserError {
             E::UnknownPrefixOp(op) => {
                 format!("`{op}` cannot be used as an opeartor in prefix expressions")
             }
+            E::CannotAssignTo(expr) => format!("Cannot assign a value to a `{expr}` expression"),
         })
     }
 }

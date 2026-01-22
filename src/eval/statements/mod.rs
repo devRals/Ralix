@@ -1,5 +1,6 @@
 use crate::{EvalResult, Evaluator, Object, Statement};
 
+mod assignment;
 mod binding;
 
 impl Evaluator<'_> {
@@ -7,6 +8,7 @@ impl Evaluator<'_> {
         match stmt {
             Statement::Binding(binding) => self.evaluate_binding(binding),
             Statement::Expression(expr) => self.evaluate_expression(expr),
+            Statement::Assign { left, value } => self.evaluate_assignment_statement(left, value),
         }
     }
 }

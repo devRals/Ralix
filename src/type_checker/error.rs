@@ -52,7 +52,7 @@ impl Error for ProgramCheckError {}
 impl Display for ProgramCheckError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for err in &self.all {
-            f.write_str(&err.to_string())?;
+            writeln!(f, "{err}")?;
         }
         Ok(())
     }

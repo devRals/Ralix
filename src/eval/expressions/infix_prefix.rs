@@ -3,6 +3,7 @@ use crate::{
     expressions::{InfixOperator, PrefixOperator},
     try_eval_result,
 };
+use std::ptr;
 
 impl Evaluator<'_> {
     pub fn evaluate_infix_expression(
@@ -44,7 +45,7 @@ impl Evaluator<'_> {
             (Object::Boolean(v1), Object::Boolean(v2)) => Object::from(v1 && v2).into(),
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
                 o1.r#type(),
-                InfixOperator::Or,
+                InfixOperator::And,
                 o2.r#type(),
             )),
         }
@@ -66,7 +67,7 @@ impl Evaluator<'_> {
 
     pub fn evaluate_deref_expression(&mut self, obj: Object) -> EvalResult<Object> {
         match obj {
-            Object::Address(addr) => unsafe { (*addr).clone() }.into(),
+            Object::Address(addr) => unsafe { ptr::read(addr) }.into(),
             _ => unreachable!(),
         }
     }

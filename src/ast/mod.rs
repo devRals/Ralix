@@ -21,9 +21,11 @@ pub enum NodeV {
 pub enum Statement {
     Binding(statements::Binding),
     Expression(Expression),
+
+    Assign { left: Expression, value: Expression },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression {
     Identifier(expressions::Identifier),
     Integer(i64),

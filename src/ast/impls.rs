@@ -62,6 +62,7 @@ impl Display for Statement {
         f.write_str(&match self {
             Self::Binding(binding) => binding.to_string(),
             Self::Expression(expr) => expr.to_string(),
+            Self::Assign { left, value } => format!("{left} = {value}"),
         })
     }
 }

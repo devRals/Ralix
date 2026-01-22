@@ -1,4 +1,4 @@
-use std::{fmt::Display, process};
+use std::{fmt::Display, process, rc::Rc};
 
 use crate::{Environment, Node, NodeV, Object, Program, SymbolTable};
 
@@ -44,6 +44,10 @@ impl Object {
             Object::Char(v) => Object::from(*v),
             Object::Float(v) => Object::from(*v),
             Object::Boolean(v) => Object::from(*v),
+            Object::String(v) => Object::String(
+                Rc::clone(v), /* Only copies the pointer that points the orijinal string value */
+            ),
+            Object::Address(addr) => Object::Address(*addr),
             Object::Null => Object::NULL,
             _ => return None,
         }
@@ -95,7 +99,7 @@ impl Evaluator<'_> {
     }
 
     pub fn panic<M: Display>(&self, msg: M) -> ! {
-        eprintln!("{msg}");
+        eprintln!("\x1b[91mPanic!\x1b[0m: {msg}");
         // Only exit codes I know is 0 and 1 :/
         // Sorry
         process::exit(1)

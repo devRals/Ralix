@@ -101,7 +101,7 @@ impl Parser<'_> {
         }
     }
 
-    fn _skip_peek_token(&mut self, token: Token) {
+    fn skip_peek_token(&mut self, token: Token) {
         if self.is_peek_token(token) {
             self.next_token();
             self.next_token();

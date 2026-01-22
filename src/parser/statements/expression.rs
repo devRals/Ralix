@@ -4,6 +4,11 @@ impl Parser<'_> {
     pub fn parse_expression_statement(&mut self) -> ParserResult<Statement> {
         let expr = self.parse_expression(Precedence::Lowest)?;
 
+        // Convert to assignment statement
+        if self.peek_token == Token::Assign {
+            return self.parse_assignment_statement(expr);
+        }
+
         self.consume_peek_token(Token::SemiColon);
 
         Ok(Statement::Expression(expr))
