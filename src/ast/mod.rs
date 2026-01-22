@@ -17,7 +17,7 @@ pub enum NodeV {
     Expression(Expression),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Statement {
     Binding(statements::Binding),
     Expression(Expression),
@@ -47,6 +47,10 @@ pub enum Expression {
     Prefix {
         operator: expressions::PrefixOperator,
         right: Box<Expression>,
+    },
+
+    Scope {
+        statements: Vec<Statement>,
     },
 }
 

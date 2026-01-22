@@ -32,6 +32,10 @@ impl Parser<'_> {
                 self.next_token();
                 Type::Addr(Box::new(initial_type))
             }
+            Token::QuestionMark => {
+                self.next_token();
+                Type::Nullable(Box::new(initial_type))
+            }
             _ => return Ok(initial_type),
         };
 

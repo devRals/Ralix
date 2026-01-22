@@ -4,6 +4,7 @@ mod address;
 mod copy;
 mod identifier;
 mod infix_prefix;
+mod scope;
 mod r#typeof;
 
 impl Evaluator<'_> {
@@ -31,6 +32,7 @@ impl Evaluator<'_> {
             Expression::Copy(ident) => self.evaluate_copy_expression(ident),
             Expression::TypeOf(expr) => self.evaluate_typeof_expression(*expr),
             Expression::AddrOf(ident) => self.evaluate_addr_expression(ident),
+            Expression::Scope { statements } => self.evaluate_scope_expression(statements),
         }
     }
 }

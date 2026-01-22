@@ -1,6 +1,7 @@
 use crate::{Expression, Parser, ParserError, ParserResult, Token, types::Type};
 
 mod address;
+mod block;
 mod copy;
 mod identifier;
 mod infix_prefix;
@@ -67,6 +68,7 @@ impl Parser<'_> {
                 self.parse_prefix_expression()?
             }
             Token::LParen => self.parse_lparen_items()?,
+            Token::LBrace => self.parse_block_expression()?,
             Token::Copy => self.parse_copy_expression()?,
             Token::TypeOf => self.parse_typeof_expression()?,
             Token::Ampersant => self.parse_address_expression()?,

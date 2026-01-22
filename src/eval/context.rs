@@ -1,4 +1,4 @@
-use crate::{Environment, Key, Object, SymbolTable};
+use crate::{Environment, Key, Object, SymbolTable, types::Type};
 
 pub struct Context<'env> {
     pub symbol_table: &'env mut SymbolTable,
@@ -6,8 +6,8 @@ pub struct Context<'env> {
 }
 
 impl Context<'_> {
-    pub fn define(&mut self, key: Key, value: Object) -> Option<Object> {
-        self.symbol_table.define(key.clone(), value.r#type());
+    pub fn define(&mut self, key: Key, value: Object, r#type: Type) -> Option<Object> {
+        self.symbol_table.define(key.clone(), r#type);
         self.environment.define(key, value)
     }
 
