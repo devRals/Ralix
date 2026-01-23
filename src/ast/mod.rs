@@ -1,6 +1,10 @@
 use std::fmt::Display;
 
-use crate::{Literal, expressions::Identifier, types::Type};
+use crate::{
+    Literal,
+    expressions::{ElseConsequence, Identifier, IfConsequence},
+    types::Type,
+};
 
 pub mod expressions;
 mod impls;
@@ -51,6 +55,11 @@ pub enum Expression {
 
     Scope {
         statements: Vec<Statement>,
+    },
+
+    IfElse {
+        consequences: Vec<IfConsequence>,
+        else_consequence: Option<ElseConsequence>,
     },
 }
 

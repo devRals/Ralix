@@ -3,6 +3,7 @@ use crate::{Expression, Parser, ParserError, ParserResult, Token, types::Type};
 mod address;
 mod copy;
 mod identifier;
+mod if_else;
 mod infix_prefix;
 mod number;
 mod scope;
@@ -72,6 +73,7 @@ impl Parser<'_> {
             Token::Copy => self.parse_copy_expression()?,
             Token::TypeOf => self.parse_typeof_expression()?,
             Token::Ampersant => self.parse_address_expression()?,
+            Token::If => self.parse_if_expression()?,
             t => return Err(ParserError::ExpressionMistake(t.clone())),
         };
 

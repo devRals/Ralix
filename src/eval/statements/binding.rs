@@ -1,9 +1,13 @@
-use crate::{EvalResult, Evaluator, Object, statements::Binding, try_eval_result};
+use crate::{EvalResult, Evaluator, Object, statements::Binding};
 
 impl Evaluator<'_> {
     pub fn evaluate_binding(&mut self, binding: Binding) -> EvalResult<Object> {
-        let value = try_eval_result!(self.evaluate_expression(binding.value));
+        let result = self.evaluate_expression(binding.value);
 
-        self.ctx.define(binding.ident, value).into()
+        match result {
+            EvalResult::Value(value) => self.ctx.define(binding.ident, value).into(),
+            EvalResult::NoValue => self.ctx.define(binding.ident, Object::NULL).into(),
+            EvalResult::Err(_) => result,
+        }
     }
 }

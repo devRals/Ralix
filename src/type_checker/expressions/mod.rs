@@ -25,6 +25,10 @@ impl TypeChecker<'_> {
                 right,
             } => self.check_infix_expression(left, operator, right),
             E::Prefix { operator, right } => self.check_prefix_expression(operator, right),
+            E::IfElse {
+                consequences,
+                else_consequence,
+            } => self.infer_if_else_expression(consequences, else_consequence.as_deref()),
         }
     }
 }

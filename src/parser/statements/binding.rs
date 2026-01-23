@@ -21,7 +21,6 @@ impl Parser<'_> {
         self.expect_ident()?;
         let ident = self.parse_identifier()?;
         self.expect_token(Token::Assign)?;
-        self.next_token(); // Consume Token::Assign
 
         let value = self.parse_expression(Precedence::Lowest)?;
         self.consume_peek_token(Token::SemiColon);
@@ -45,7 +44,6 @@ impl Parser<'_> {
         }
 
         self.expect_token(Token::Assign)?;
-        self.next_token();
         let value = self.parse_expression(Precedence::Lowest)?;
         self.consume_peek_token(Token::SemiColon);
 

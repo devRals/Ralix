@@ -35,6 +35,10 @@ impl Object {
             O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
         }
     }
+
+    pub fn is_true(&self) -> bool {
+        Object::TRUE == *self
+    }
 }
 
 impl Display for Object {

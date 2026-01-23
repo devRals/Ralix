@@ -1,8 +1,10 @@
 use std::rc::Rc;
 
+use crate::Expression;
+
 pub type Identifier = Rc<str>;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum InfixOperator {
     Add,
     Subtract,
@@ -15,9 +17,13 @@ pub enum InfixOperator {
     And,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PrefixOperator {
     Not,
     Neg,
     Deref,
 }
+
+/// (Condition, Consequence)
+pub type IfConsequence = (Expression, Expression);
+pub type ElseConsequence = Box<Expression>;

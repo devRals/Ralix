@@ -48,13 +48,26 @@ impl Type {
 
     pub fn satisfies(&self, other: &Type) -> bool {
         match (self, other) {
-            (t1, Type::Nullable(t2)) => t1.is(&Type::Null) || t1.satisfies(t2),
+            (t1, Type::Nullable(t2)) => {
+                t1.is(&Type::Null)
+                    || t1.is(&Type::Void)
+                    || matches!(t1, Type::Nullable(_))
+                    || t1.satisfies(t2)
+            }
+            (_, Type::Void) => true,
             (t1, t2) => t1.is(t2),
         }
     }
 
     pub fn is(&self, other: &Type) -> bool {
         self == other
+    }
+
+    pub fn unwrap_nullable(self) -> Type {
+        match self {
+            Type::Nullable(t) => *t,
+            t => t.unwrap_nullable(),
+        }
     }
 }
 

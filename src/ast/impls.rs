@@ -56,6 +56,33 @@ impl Display for Expression {
                     .collect::<Vec<_>>()
                     .join(";")
             ),
+
+            E::IfElse {
+                consequences,
+                else_consequence,
+            } => {
+                return {
+                    let mut first = true;
+                    for (cond, cons) in consequences {
+                        write!(
+                            f,
+                            "{}if {cond}: {cons}",
+                            if first {
+                                first = false;
+                                ""
+                            } else {
+                                " else "
+                            }
+                        )?;
+                    }
+
+                    if let Some(else_con) = else_consequence {
+                        write!(f, " else: {else_con}",)?;
+                    }
+
+                    Ok(())
+                };
+            }
         })
     }
 }

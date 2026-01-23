@@ -77,6 +77,7 @@ impl Parser<'_> {
                 got: self.current_token.clone(),
             });
         }
+        self.next_token();
 
         Ok(())
     }
