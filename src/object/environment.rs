@@ -5,7 +5,7 @@ use crate::{Literal, Object};
 pub type Key = Literal;
 type Store = HashMap<Key, Object>;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Environment {
     store: Store,
 }
