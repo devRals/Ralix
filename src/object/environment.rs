@@ -1,39 +1,81 @@
 use std::collections::HashMap;
 
-use crate::{Literal, Object};
+use crate::{Object, expressions::Identifier};
 
-pub type Key = Literal;
-type Store = HashMap<Key, Object>;
+type Scope = HashMap<Identifier, Object>;
 
-#[derive(Default, Debug)]
+#[derive(Debug, Clone)]
 pub struct Environment {
-    store: Store,
+    scopes: Vec<Scope>,
+}
+
+impl Default for Environment {
+    fn default() -> Self {
+        Environment {
+            scopes: vec![Scope::new()],
+        }
+    }
 }
 
 impl Environment {
-    pub fn define(&mut self, key: Key, value: Object) -> Option<Object> {
-        self.store.insert(key, value)
+    pub fn define(&mut self, key: Identifier, value: Object) -> Option<Object> {
+        if let Some(last_scope) = self.scopes.last_mut()
+            && let Some(old_v) = last_scope.insert(key, value)
+        {
+            return old_v.into();
+        }
+        None
     }
 
     /// Drops it if exists
-    pub fn get(&mut self, key: &Key) -> Option<Object> {
-        self.store.remove(key)
+    pub fn drop(&mut self, key: &Identifier) -> Option<Object> {
+        for s in self.scopes.iter_mut().rev() {
+            if let Some(val) = s.remove(key) {
+                return val.into();
+            }
+        }
+        None
     }
 
     /// Deep copies the value its holding and returns it
     /// Does not drops the value
-    pub fn get_cloned(&mut self, key: &Key) -> Option<Object> {
-        self.store.get(key).cloned()
+    pub fn get_cloned(&self, key: &Identifier) -> Option<Object> {
+        for s in self.scopes.iter().rev() {
+            if let Some(val) = s.get(key).cloned() {
+                return val.into();
+            }
+        }
+        None
     }
 
     /// Can be used when changing the already bindings values
     /// `let a = 3; a = 5;` for example
-    pub fn get_mut(&mut self, key: &Key) -> Option<&mut Object> {
-        self.store.get_mut(key)
+    pub fn get_mut(&mut self, key: &Identifier) -> Option<&mut Object> {
+        for s in self.scopes.iter_mut().rev() {
+            if let Some(val) = s.get_mut(key) {
+                return val.into();
+            }
+        }
+        None
     }
 
     /// Returns immutable referance
-    pub fn get_ptr(&self, key: &Key) -> Option<&Object> {
-        self.store.get(key)
+    pub fn get_ptr(&self, key: &Identifier) -> Option<&Object> {
+        for s in self.scopes.iter().rev() {
+            if let Some(val) = s.get(key) {
+                return val.into();
+            }
+        }
+        None
+    }
+
+    pub fn enter_scope(&mut self) {
+        self.scopes.push(Scope::new());
+    }
+
+    pub fn leave_scope(&mut self) {
+        if self.scopes.len() > 1 {
+            self.scopes.pop();
+        }
     }
 }

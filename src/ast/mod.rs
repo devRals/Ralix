@@ -48,6 +48,10 @@ pub enum Expression {
         operator: expressions::PrefixOperator,
         right: Box<Expression>,
     },
+
+    Scope {
+        statements: Vec<Statement>,
+    },
 }
 
 pub struct Program {

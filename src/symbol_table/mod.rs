@@ -9,25 +9,9 @@ pub struct SymbolTable {
 
 impl Default for SymbolTable {
     fn default() -> Self {
-        let mut st = Self {
+        Self {
             scopes: vec![Scope::new()],
-        };
-
-        let primitive_types = HashMap::from([
-            ("int", Type::String),
-            ("int", Type::Int),
-            ("str", Type::String),
-            ("float", Type::Float),
-            ("char", Type::Char),
-            ("bool", Type::Bool),
-            ("null", Type::Null),
-        ]);
-
-        for (lit, ty) in primitive_types {
-            st.define(lit.into(), ty);
         }
-
-        st
     }
 }
 

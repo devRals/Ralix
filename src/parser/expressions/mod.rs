@@ -5,6 +5,7 @@ mod copy;
 mod identifier;
 mod infix_prefix;
 mod number;
+mod scope;
 mod string;
 mod types;
 
@@ -66,6 +67,7 @@ impl Parser<'_> {
             Token::Minus | Token::Bang | Token::Not | Token::Asterisk => {
                 self.parse_prefix_expression()?
             }
+            Token::LBrace => self.parse_scope_expression()?,
             Token::LParen => self.parse_lparen_items()?,
             Token::Copy => self.parse_copy_expression()?,
             Token::TypeOf => self.parse_typeof_expression()?,

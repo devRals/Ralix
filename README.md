@@ -57,8 +57,8 @@ Direct memory manipulation is possible:
 
 ```c
 int a = 42
-int* ptr = &a      // Reference
-let value = *ptr  // Dereference
+int* ptr = &a    // Reference
+let value = *ptr // Dereference
 
 ```
 
@@ -72,7 +72,7 @@ myType == typeof 1 + 1 // true
 
 ## 🗺 Roadmap
 
-- [ ] **Scope Expressions**: Blocks that return values.
+- [x] **Scope Expressions**: Blocks that return values.
 - [ ] **Function Definitions**: Standard function declarations.
 - [ ] **Memory Safety**: Optional safe-wrappers for pointer operations.
 - [ ] **Standard Library**: Basic I/O and string manipulation.

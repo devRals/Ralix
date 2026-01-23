@@ -18,6 +18,7 @@ impl TypeChecker<'_> {
             E::TypeOf(expr) => self.check_expression(expr),
             E::Type(ty) => Ok(Type::AsValue(ty.clone().into())),
             E::AddrOf(ident) => self.infer_addrof_expression(ident),
+            E::Scope { statements } => self.infer_scope_expression(statements),
             E::Infix {
                 left,
                 operator,

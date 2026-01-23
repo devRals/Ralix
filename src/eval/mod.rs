@@ -1,6 +1,6 @@
 use std::{fmt::Display, process, rc::Rc};
 
-use crate::{Environment, Node, NodeV, Object, Program, SymbolTable};
+use crate::{Environment, Node, NodeV, Object, Program};
 
 mod context;
 mod error;
@@ -60,15 +60,9 @@ pub struct Evaluator<'env> {
 }
 
 impl<'env> Evaluator<'env> {
-    pub const fn new(
-        symbol_table: &'env mut SymbolTable,
-        environment: &'env mut Environment,
-    ) -> Self {
+    pub const fn new(environment: &'env mut Environment) -> Self {
         Evaluator {
-            ctx: Context {
-                environment,
-                symbol_table,
-            },
+            ctx: Context { environment },
         }
     }
 }
@@ -86,7 +80,7 @@ impl Evaluator<'_> {
         let mut result = EvalResult::NoValue;
 
         for s in program.statements {
-            result = self.evaluate(s);
+            result = self.evaluate_statement(s);
 
             match &result {
                 EvalResult::Value(_) => {}

@@ -48,6 +48,14 @@ impl Display for Expression {
                 right,
             } => format!("({left} {operator} {right})"),
             E::Prefix { operator, right } => format!("{operator}{right}"),
+            E::Scope { statements } => format!(
+                "{{ {} }}",
+                statements
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(";")
+            ),
         })
     }
 }
