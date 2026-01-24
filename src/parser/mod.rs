@@ -1,6 +1,6 @@
 use crate::{Lexer, Program, SymbolTable, Token};
 
-pub mod error;
+mod error;
 mod expressions;
 mod statements;
 mod types;

@@ -1,10 +1,12 @@
 use std::rc::Rc;
 
+use serde::Serialize;
+
 use crate::Expression;
 
 pub type Identifier = Rc<str>;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 pub enum InfixOperator {
     Add,
     Subtract,
@@ -17,7 +19,7 @@ pub enum InfixOperator {
     And,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 pub enum PrefixOperator {
     Not,
     Neg,

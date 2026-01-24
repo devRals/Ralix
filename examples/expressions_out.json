@@ -1,0 +1,17 @@
+{
+  "statements": [
+    {
+      "Expression": {
+        "Infix": {
+          "left": {
+            "Integer": 1
+          },
+          "operator": "Add",
+          "right": {
+            "Integer": 2
+          }
+        }
+      }
+    }
+  ]
+}

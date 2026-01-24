@@ -1,6 +1,6 @@
-use std::io::{self, BufRead, BufReader, Write, stderr, stdin, stdout};
+use std::io::{self, BufRead, Write};
 
-use ralix::{Environment, EvalResult, Evaluator, Lexer, Logger, Parser, SymbolTable, TypeChecker};
+use crate::{Environment, EvalResult, Evaluator, Lexer, Logger, Parser, SymbolTable, TypeChecker};
 
 enum PromptResult {
     Error,
@@ -8,7 +8,7 @@ enum PromptResult {
     Init,
 }
 
-struct Repl<W: Write, EW: Write, R: BufRead> {
+pub struct Repl<W: Write, EW: Write, R: BufRead> {
     err_out: EW,
     out: W,
     r#in: R,
@@ -16,10 +16,11 @@ struct Repl<W: Write, EW: Write, R: BufRead> {
 }
 
 const PROMPT: &str = ">>> ";
+const _HELP_PROMPT: &str = "help> ";
 const CLEAR: &str = "\x1b[0m";
 
 impl<W: Write, EW: Write, R: BufRead> Repl<W, EW, R> {
-    const fn new(r#in: R, out: W, err_out: EW) -> Self {
+    pub const fn new(r#in: R, out: W, err_out: EW) -> Self {
         Self {
             r#in,
             out,
@@ -28,7 +29,7 @@ impl<W: Write, EW: Write, R: BufRead> Repl<W, EW, R> {
         }
     }
 
-    fn run(&mut self) -> io::Result<()> {
+    pub fn run(&mut self) -> io::Result<()> {
         let mut buf = String::new();
         let mut symbol_table = SymbolTable::default();
         let mut error_logger = Logger::new(&mut self.err_out);
@@ -105,15 +106,4 @@ impl<W: Write, EW: Write, R: BufRead> Repl<W, EW, R> {
             buf.clear();
         }
     }
-}
-
-fn main() -> io::Result<()> {
-    let stdout = stdout();
-    let stderr = stderr();
-    let stdin = BufReader::new(stdin());
-
-    let mut repl = Repl::new(stdin, stdout, stderr);
-    repl.run()?;
-
-    Ok(())
 }

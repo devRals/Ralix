@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use serde::Serialize;
+
 use crate::{
     Literal,
     expressions::{ElseConsequence, Identifier, IfConsequence},
@@ -21,7 +23,7 @@ pub enum NodeV {
     Expression(Expression),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Statement {
     Binding(statements::Binding),
     Expression(Expression),
@@ -29,7 +31,7 @@ pub enum Statement {
     Assign { left: Expression, value: Expression },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Expression {
     Identifier(expressions::Identifier),
     Integer(i64),
@@ -63,6 +65,7 @@ pub enum Expression {
     },
 }
 
+#[derive(Serialize)]
 pub struct Program {
     pub statements: Vec<Statement>,
 }
