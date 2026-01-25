@@ -21,9 +21,11 @@ Ensure you have the [Rust toolchain](https://rustup.rs/) installed.
 ```bash
 git clone https://github.com/devRals/ralix
 cd ralix
-cargo build --release
+cargo install --path .
 
 ```
+
+Then you should be able have an access to the **Ralix Cli** in your terminal
 
 ## ⌨️ Usage
 
@@ -32,7 +34,7 @@ cargo build --release
 To start the interactive shell:
 
 ```bash
-./target/release/ralix
+ralix repl
 
 ```
 

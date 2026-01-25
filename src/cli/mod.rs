@@ -24,7 +24,7 @@ pub enum Commands {
     /// Run a project/source file
     Run(commands::run::RunArguments),
     /// Read-Evaluate Print Loop
-    Repl,
+    Repl(commands::repl::REPLArguments),
     /// Print/Dump `Program` AST in json format
     Ast(commands::ast::AstArguments),
     /// A Cute, fluffy kitty :3

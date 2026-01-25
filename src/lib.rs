@@ -65,15 +65,21 @@ pub fn execute_with_env(
 
 pub fn parse(source: &str) -> Result<Program, ExecuteError> {
     let mut st = SymbolTable::default();
+    parse_with_symbol_table(source, &mut st)
+}
 
+pub fn parse_with_symbol_table(
+    source: &str,
+    symbol_table: &mut SymbolTable,
+) -> Result<Program, ExecuteError> {
     let lexer = Lexer::new(source);
-    let mut parser = Parser::new(lexer, &mut st);
+    let mut parser = Parser::new(lexer, symbol_table);
     let program = match parser.parse_program() {
         Ok(p) => p,
         Err(e) => return Err(ExecuteError::ParserError(e)),
     };
 
-    let mut checker = TypeChecker::with_symbol_table(&mut st);
+    let mut checker = TypeChecker::with_symbol_table(symbol_table);
     if let Err(e) = checker.check_program(&program) {
         return Err(ExecuteError::TypeCheckerError(e));
     }

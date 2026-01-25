@@ -6,7 +6,7 @@ fn main() -> anyhow::Result<()> {
 
     Ok(match app.command {
         Commands::Run(run_args) => commands::run::run(run_args),
-        Commands::Repl => commands::repl::run(),
+        Commands::Repl(repl_args) => commands::repl::run(repl_args),
         Commands::Ast(ast_args) => commands::ast::run(ast_args),
         Commands::Meow => commands::meow::run(),
     }?)

@@ -1,6 +1,15 @@
+use crate::{
+    Environment, EvalResult, Evaluator, Lexer, Logger, Parser, SymbolTable, Token, TypeChecker,
+};
+use clap::ValueEnum;
 use std::io::{self, BufRead, Write};
 
-use crate::{Environment, EvalResult, Evaluator, Lexer, Logger, Parser, SymbolTable, TypeChecker};
+#[derive(ValueEnum, Clone, Debug)]
+pub enum REPLMode {
+    Eval,
+    Ast,
+    Tokens,
+}
 
 enum PromptResult {
     Error,
@@ -13,6 +22,7 @@ pub struct Repl<W: Write, EW: Write, R: BufRead> {
     out: W,
     r#in: R,
     last_prompt_result: PromptResult,
+    mode: REPLMode,
 }
 
 const PROMPT: &str = ">>> ";
@@ -20,12 +30,13 @@ const _HELP_PROMPT: &str = "help> ";
 const CLEAR: &str = "\x1b[0m";
 
 impl<W: Write, EW: Write, R: BufRead> Repl<W, EW, R> {
-    pub const fn new(r#in: R, out: W, err_out: EW) -> Self {
+    pub const fn new(r#in: R, out: W, err_out: EW, mode: REPLMode) -> Self {
         Self {
             r#in,
             out,
             err_out,
             last_prompt_result: PromptResult::Init,
+            mode,
         }
     }
 
@@ -62,10 +73,26 @@ impl<W: Write, EW: Write, R: BufRead> Repl<W, EW, R> {
                     continue;
                 }
 
+                "st" | "symbol_table" => {
+                    dbg!(&symbol_table);
+                    buf.clear();
+                    continue;
+                }
+
                 _ => {}
             }
 
             let lexer = Lexer::new(&buf);
+            if let REPLMode::Tokens = self.mode {
+                let tokens: Vec<Token> = lexer.collect();
+                for (i, t) in tokens.iter().enumerate() {
+                    writeln!(self.out, "{}. {t:?}", i + 1)?;
+                }
+                writeln!(self.out)?;
+                buf.clear();
+                continue;
+            }
+
             let mut parser = Parser::new(lexer, &mut symbol_table);
             let program = match parser.parse_program() {
                 Ok(program) => program,
@@ -84,6 +111,16 @@ impl<W: Write, EW: Write, R: BufRead> Repl<W, EW, R> {
                 error_logger.error(type_errors)?;
                 buf.clear();
                 writeln!(self.out)?;
+                continue;
+            }
+
+            if let REPLMode::Ast = self.mode {
+                let ast_as_json = match serde_json::to_string_pretty(&program) {
+                    Ok(res) => res,
+                    Err(err) => return Err(io::Error::other(err)),
+                };
+                writeln!(self.out, "{ast_as_json}\n")?;
+                buf.clear();
                 continue;
             }
 

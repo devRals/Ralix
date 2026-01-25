@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::{Literal, types::Type};
 
 pub type Scope = HashMap<Literal, Type>;
+#[derive(Debug)]
 pub struct SymbolTable {
     scopes: Vec<Scope>,
 }
