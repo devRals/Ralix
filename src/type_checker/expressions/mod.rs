@@ -12,11 +12,11 @@ impl TypeChecker<'_> {
             E::Float(_) => Ok(Type::Float),
             E::Integer(_) => Ok(Type::Int),
             E::Boolean(_) => Ok(Type::Bool),
+            E::Type(_) => Ok(Type::AsValue),
             E::Null => Ok(Type::Null),
             E::Identifier(ident) => self.infer_identifier(ident),
             E::Copy(ident) => self.infer_copy_expression(ident),
             E::TypeOf(expr) => self.check_expression(expr),
-            E::Type(ty) => Ok(Type::AsValue(ty.clone().into())),
             E::AddrOf(ident) => self.infer_addrof_expression(ident),
             E::Scope { statements } => self.infer_scope_expression(statements),
             E::Infix {
@@ -29,6 +29,12 @@ impl TypeChecker<'_> {
                 consequences,
                 else_consequence,
             } => self.infer_if_else_expression(consequences, else_consequence.as_deref()),
+            E::Function {
+                return_type,
+                body,
+                parameters,
+                ..
+            } => self.check_function_expression(parameters, body, return_type.clone()),
         }
     }
 }

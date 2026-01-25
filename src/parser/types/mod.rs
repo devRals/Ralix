@@ -10,14 +10,9 @@ impl Parser<'_> {
             Token::TyChar => Type::Char,
             Token::TyFloat => Type::Float,
             Token::TyString => Type::String,
-            Token::Ident(literal) => match self.symbol_table.resolve(literal) {
-                Some(t) => t.clone(),
-                None => {
-                    return Err(ParserError::Undefined(Literal::from(
-                        self.current_token.literal(),
-                    )));
-                }
-            },
+            Token::Type => Type::AsValue,
+            Token::Function => self.parse_function_type_definition()?,
+            Token::Ident(literal) => self.parse_identifier_type_definition(literal.clone())?,
             t => {
                 return Err(ParserError::TypeMistake(Literal::from(t.literal())));
             }
@@ -28,16 +23,12 @@ impl Parser<'_> {
 
     fn parse_primary_type(&mut self, initial_type: Type) -> ParserResult<Type> {
         let ty = match &self.peek_token {
-            Token::Asterisk => {
-                self.next_token();
-                Type::Addr(Box::new(initial_type))
-            }
-            Token::QuestionMark => {
-                self.next_token();
-                Type::Nullable(Box::new(initial_type))
-            }
+            Token::Asterisk => Type::Addr(Box::new(initial_type)),
+            Token::QuestionMark => Type::Nullable(Box::new(initial_type)),
             _ => return Ok(initial_type),
         };
+
+        self.next_token();
 
         self.parse_primary_type(ty)
     }

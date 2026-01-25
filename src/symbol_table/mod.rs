@@ -36,16 +36,8 @@ impl SymbolTable {
         }
     }
 
+    /// clones the type if exists
     pub fn resolve(&mut self, name: &Literal) -> Option<Type> {
-        for scope in self.scopes.iter_mut().rev() {
-            if let Some(typ) = scope.remove(name) {
-                return Some(typ);
-            }
-        }
-        None
-    }
-
-    pub fn resolve_cloned(&mut self, name: &Literal) -> Option<Type> {
         for scope in self.scopes.iter_mut().rev() {
             if let Some(typ) = scope.get(name).cloned() {
                 return Some(typ);

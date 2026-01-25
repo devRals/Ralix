@@ -24,6 +24,10 @@ impl Evaluator<'_> {
             InfixOperator::Remainder => left_obj % right_obj,
             InfixOperator::Equals => Object::from(left_obj == right_obj).into(),
             InfixOperator::NotEquals => Object::from(left_obj != right_obj).into(),
+            InfixOperator::Less => Object::from(left_obj < right_obj).into(),
+            InfixOperator::LessEq => Object::from(left_obj <= right_obj).into(),
+            InfixOperator::Greater => Object::from(left_obj > right_obj).into(),
+            InfixOperator::GreatEq => Object::from(left_obj >= right_obj).into(),
             InfixOperator::Or => Self::evaluate_or(left_obj, right_obj),
             InfixOperator::And => Self::evaluate_and(left_obj, right_obj),
         }

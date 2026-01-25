@@ -104,7 +104,6 @@ pub enum Token {
     If,
     Else,
     Function,
-    Let,
     Const,
     Return,
     True,
@@ -125,6 +124,7 @@ pub enum Token {
     Or,
     Mutable,
     Copy,
+    Type,
     TypeOf,
 
     // Type Keywords
@@ -149,7 +149,6 @@ impl Token {
             "if" => Token::If,
             "else" => Token::Else,
             "const" => Token::Const,
-            "let" => Token::Let,
             "while" => Token::While,
             "for" => Token::For,
             "return" => Token::Return,
@@ -173,6 +172,7 @@ impl Token {
             "dyn" => Token::Dyn,
             "mut" => Token::Mutable,
             "copy" => Token::Copy,
+            "type" => Token::Type,
             "typeof" => Token::TypeOf,
             lit => Token::Ident(Literal::from(lit)),
         }
@@ -251,7 +251,6 @@ impl Display for Token {
             T::If => "if",
             T::Else => "else",
             T::Function => "fn",
-            T::Let => "let",
             T::Const => "const",
             T::Return => "return",
             T::While => "while",
@@ -271,6 +270,7 @@ impl Display for Token {
             T::Dyn => "dyn",
             T::Mutable => "mut",
             T::Copy => "copy",
+            T::Type => "type",
             T::TypeOf => "typeof",
         })
     }

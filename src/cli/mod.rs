@@ -4,7 +4,7 @@ pub mod commands;
 pub mod repl;
 
 /// Ralix is a interpreter that combines the
-/// familiarity of C, Rust, Javascript syntax with the flexibility
+/// familiarity of C, Rust  syntax with the flexibility
 /// of optional semicolons and high-level type-system features.
 #[derive(Parser, Debug)]
 #[command(

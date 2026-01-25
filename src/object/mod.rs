@@ -1,11 +1,11 @@
 use std::fmt::Display;
 
-use crate::{Literal, types::Type};
+use crate::{Expression, Literal, expressions::FunctionParameter, types::Type};
 mod environment;
 
 pub use environment::*;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone)]
 pub enum Object {
     Int(i64),
     Char(char),
@@ -15,6 +15,13 @@ pub enum Object {
     Type(Type),
     Address(*const Object),
     Null,
+
+    Function {
+        parameters: Vec<FunctionParameter>,
+        return_type: Type,
+        body: Expression,
+        env: Environment,
+    },
 }
 
 impl Object {
@@ -31,8 +38,16 @@ impl Object {
             O::Float(_) => Type::Float,
             O::Null => Type::Null,
             O::String(_) => Type::String,
-            O::Type(t) => t.clone(),
+            O::Type(_) => Type::AsValue,
             O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
+            O::Function {
+                parameters,
+                return_type,
+                ..
+            } => Type::Function {
+                parameters: parameters.iter().map(|(t, _)| t.clone()).collect(),
+                return_type: Box::new(return_type.clone()),
+            },
         }
     }
 
@@ -56,6 +71,21 @@ impl Display for Object {
             O::Null => format!("\x1b[90mnull{clear}"),
             O::Type(ty) => format!("\x1b[92m{ty}{clear}"),
             O::Address(addr) => format!("\x1b[90m<{addr:?}>{clear}"),
+            O::Function {
+                parameters,
+                return_type,
+                body,
+                ..
+            } => {
+                format!(
+                    "\x1b[93mfn{clear}({}{clear}) \x1b[92m{return_type}{clear}: {body}",
+                    parameters
+                        .iter()
+                        .map(|(p_ty, p_name)| format!("\x1b[92m{p_ty} \x1b[0m{p_name}"))
+                        .collect::<Vec<_>>()
+                        .join("\x1b[0m, ")
+                )
+            }
         })
     }
 }

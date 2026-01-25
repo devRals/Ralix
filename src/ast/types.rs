@@ -13,9 +13,13 @@ pub enum Type {
     String,
     Null,
     Void,
+    AsValue,
     Nullable(Box<Type>),
-    AsValue(Box<Type>),
     Addr(Box<Type>),
+    Function {
+        parameters: Vec<Type>,
+        return_type: Box<Type>,
+    },
 }
 
 impl Display for Type {
@@ -29,9 +33,20 @@ impl Display for Type {
             T::String => "str".to_string(),
             T::Null => "null".to_string(),
             T::Void => "void".to_string(),
+            T::AsValue => "type".to_string(),
             T::Nullable(ty) => format!("{ty}?"),
-            T::AsValue(ty) => format!("{ty} as value"),
             T::Addr(ty) => format!("{ty}*"),
+            T::Function {
+                parameters: paramters,
+                return_type,
+            } => format!(
+                "fn({}) -> {return_type}",
+                paramters
+                    .iter()
+                    .map(|p| p.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
         })
     }
 }
@@ -56,7 +71,6 @@ impl Type {
                     || matches!(t1, Type::Nullable(_))
                     || t1.satisfies(t2)
             }
-            (_, Type::Void) => true,
             (t1, t2) => t1.is(t2),
         }
     }

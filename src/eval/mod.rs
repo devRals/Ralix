@@ -44,12 +44,13 @@ impl Object {
             Object::Char(v) => Object::from(*v),
             Object::Float(v) => Object::from(*v),
             Object::Boolean(v) => Object::from(*v),
+            Object::Type(v) => Object::Type(v.clone()),
             Object::String(v) => Object::String(
                 Rc::clone(v), /* Only copies the pointer that points the orijinal string value */
             ),
             Object::Address(addr) => Object::Address(*addr),
             Object::Null => Object::NULL,
-            _ => return None,
+            Object::Function { .. } => return None,
         }
         .into()
     }

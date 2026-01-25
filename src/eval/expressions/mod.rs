@@ -2,6 +2,7 @@ use crate::{EvalResult, Evaluator, Expression, Object};
 
 mod address;
 mod copy;
+mod function;
 mod identifier;
 mod if_else;
 mod infix_prefix;
@@ -38,6 +39,11 @@ impl Evaluator<'_> {
                 consequences,
                 else_consequence,
             } => self.evaluate_if_else_expression(consequences, else_consequence.map(|c| *c)),
+            Expression::Function {
+                parameters,
+                body,
+                return_type,
+            } => self.evaluate_function_expression(parameters, *body, return_type),
         }
     }
 }

@@ -3,24 +3,7 @@ use std::fmt::Display;
 use crate::{
     Expression, Node, NodeV, Program, Statement,
     expressions::{InfixOperator, PrefixOperator},
-    statements::Binding,
 };
-
-impl Display for Binding {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{} {} = {};",
-            if let Some(ty_a) = &self.type_annotation {
-                ty_a.to_string()
-            } else {
-                "let".to_string()
-            },
-            self.ident,
-            self.value
-        )
-    }
-}
 
 impl Node for Expression {
     fn downcast(self) -> NodeV {
@@ -49,10 +32,10 @@ impl Display for Expression {
             } => format!("({left} {operator} {right})"),
             E::Prefix { operator, right } => format!("{operator}{right}"),
             E::Scope { statements } => format!(
-                "{{ {} }}",
+                "{{\n{}}}",
                 statements
                     .iter()
-                    .map(ToString::to_string)
+                    .map(|stmt| format!("{stmt}\n"))
                     .collect::<Vec<_>>()
                     .join(";")
             ),
@@ -83,6 +66,19 @@ impl Display for Expression {
                     Ok(())
                 };
             }
+
+            E::Function {
+                parameters,
+                return_type,
+                body,
+            } => format!(
+                "fn({}) {return_type}: {body}",
+                parameters
+                    .iter()
+                    .map(|(p_ty, p_name)| format!("{p_ty} {p_name}"))
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            ),
         })
     }
 }
@@ -95,7 +91,20 @@ impl Node for Statement {
 impl Display for Statement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&match self {
-            Self::Binding(binding) => binding.to_string(),
+            Self::Binding {
+                ident,
+                type_annotation,
+                value,
+            } => format!(
+                "{} {} = {};",
+                if let Some(ty_a) = type_annotation {
+                    ty_a.to_string()
+                } else {
+                    "let".to_string()
+                },
+                ident,
+                value
+            ),
             Self::Expression(expr) => expr.to_string(),
             Self::Assign { left, value } => format!("{left} = {value}"),
         })
@@ -129,6 +138,10 @@ impl Display for InfixOperator {
             InfixOperator::NotEquals => "!=",
             InfixOperator::Or => "||",
             InfixOperator::And => "&&",
+            InfixOperator::Less => "<",
+            InfixOperator::LessEq => "<=",
+            InfixOperator::Greater => ">",
+            InfixOperator::GreatEq => ">=",
         })
     }
 }

@@ -2,6 +2,7 @@ use crate::{Expression, Parser, ParserError, ParserResult, Token, types::Type};
 
 mod address;
 mod copy;
+mod function;
 mod identifier;
 mod if_else;
 mod infix_prefix;
@@ -74,6 +75,7 @@ impl Parser<'_> {
             Token::TypeOf => self.parse_typeof_expression()?,
             Token::Ampersant => self.parse_address_expression()?,
             Token::If => self.parse_if_expression()?,
+            Token::Function => self.parse_function_expression()?,
             t => return Err(ParserError::ExpressionMistake(t.clone())),
         };
 
@@ -96,7 +98,12 @@ impl Parser<'_> {
                 | Token::Equal
                 | Token::NotEqual
                 | Token::Or
-                | Token::And => self.parse_infix_expression(initial_expression)?,
+                | Token::And
+                | Token::LessThan
+                | Token::LessEqual
+                | Token::GreaterThan
+                | Token::GreatEqual => self.parse_infix_expression(initial_expression)?,
+                Token::LParen => self.parse_call_expression(initial_expression)?,
 
                 _ => initial_expression,
             }

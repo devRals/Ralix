@@ -16,6 +16,10 @@ impl Parser<'_> {
             Token::And => InfixOperator::And,
             Token::Equal => InfixOperator::Equals,
             Token::NotEqual => InfixOperator::NotEquals,
+            Token::GreaterThan => InfixOperator::Greater,
+            Token::GreatEqual => InfixOperator::GreatEq,
+            Token::LessThan => InfixOperator::Less,
+            Token::LessEqual => InfixOperator::LessEq,
             t => return Err(ParserError::UnknownInfixOp(t.literal())),
         };
 

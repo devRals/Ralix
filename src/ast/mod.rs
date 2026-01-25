@@ -4,13 +4,12 @@ use serde::Serialize;
 
 use crate::{
     Literal,
-    expressions::{ElseConsequence, Identifier, IfConsequence},
+    expressions::{ElseConsequence, FunctionParameter, Identifier, IfConsequence},
     types::Type,
 };
 
 pub mod expressions;
 mod impls;
-pub mod statements;
 pub mod types;
 
 pub trait Node: Display {
@@ -25,10 +24,18 @@ pub enum NodeV {
 
 #[derive(Debug, Clone, Serialize)]
 pub enum Statement {
-    Binding(statements::Binding),
     Expression(Expression),
 
-    Assign { left: Expression, value: Expression },
+    Binding {
+        ident: Identifier,
+        type_annotation: Option<Type>,
+        value: Expression,
+    },
+
+    Assign {
+        left: Expression,
+        value: Expression,
+    },
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -62,6 +69,12 @@ pub enum Expression {
     IfElse {
         consequences: Vec<IfConsequence>,
         else_consequence: Option<ElseConsequence>,
+    },
+
+    Function {
+        parameters: Vec<FunctionParameter>,
+        return_type: Type,
+        body: Box<Expression>,
     },
 }
 

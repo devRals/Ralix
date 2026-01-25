@@ -31,7 +31,9 @@ impl TypeChecker<'_> {
 
             (Type::String, O::Add, Type::String) => Ok(Type::String),
 
-            (_, InfixOperator::Equals | InfixOperator::NotEquals, _) => Ok(Type::Bool),
+            (_, O::Equals | O::NotEquals | O::Less | O::LessEq | O::Greater | O::GreatEq, _) => {
+                Ok(Type::Bool)
+            }
 
             (left_ty, operator, right_ty) => Err(CheckerError::InfixTypeMismatched(
                 left_ty, *operator, right_ty,
