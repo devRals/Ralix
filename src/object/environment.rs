@@ -2,17 +2,18 @@ use std::collections::HashMap;
 
 use crate::{Object, expressions::Identifier};
 
-type Scope = HashMap<Identifier, Object>;
+/// [`Environment`] Scope
+pub type EnvScope = HashMap<Identifier, Object>;
 
 #[derive(Debug, Clone)]
 pub struct Environment {
-    scopes: Vec<Scope>,
+    scopes: Vec<EnvScope>,
 }
 
 impl Default for Environment {
     fn default() -> Self {
         Environment {
-            scopes: vec![Scope::new()],
+            scopes: vec![EnvScope::new()],
         }
     }
 }
@@ -70,12 +71,23 @@ impl Environment {
     }
 
     pub fn enter_scope(&mut self) {
-        self.scopes.push(Scope::new());
+        self.scopes.push(EnvScope::new());
     }
 
     pub fn leave_scope(&mut self) {
         if self.scopes.len() > 1 {
             self.scopes.pop();
         }
+    }
+
+    pub fn extend_from(&mut self, other: &EnvScope) {
+        for (ident, value) in other {
+            self.define(ident.clone(), value.clone());
+        }
+    }
+
+    /// Clones the last scope
+    pub fn current_scope(&self) -> EnvScope {
+        self.scopes.last().unwrap().clone()
     }
 }

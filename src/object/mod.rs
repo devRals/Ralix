@@ -46,11 +46,13 @@ impl Object {
         parameters: Vec<FunctionParameter>,
         return_type: Type,
         body: Expression,
+        env: FunctionEnvironment,
     ) -> Rc<Function> {
         Rc::new(Function {
             parameters,
             return_type,
             body,
+            env,
         })
     }
 
@@ -59,11 +61,18 @@ impl Object {
     }
 }
 
+/// Snapshot of last scope in the [`Environment`]
+#[derive(Debug)]
+pub struct FunctionEnvironment {
+    pub items: EnvScope,
+}
+
 #[derive(Debug)]
 pub struct Function {
     pub parameters: Vec<FunctionParameter>,
     return_type: Type,
     pub body: Expression,
+    pub env: FunctionEnvironment,
 }
 
 impl Display for Object {

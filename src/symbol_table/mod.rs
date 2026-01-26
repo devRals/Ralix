@@ -2,16 +2,17 @@ use std::collections::HashMap;
 
 use crate::{Literal, types::Type};
 
-pub type Scope = HashMap<Literal, Type>;
+/// [`SymbolTable`] Scope
+pub type STScope = HashMap<Literal, Type>;
 #[derive(Debug)]
 pub struct SymbolTable {
-    scopes: Vec<Scope>,
+    scopes: Vec<STScope>,
 }
 
 impl Default for SymbolTable {
     fn default() -> Self {
         Self {
-            scopes: vec![Scope::new()],
+            scopes: vec![STScope::new()],
         }
     }
 }
@@ -19,7 +20,7 @@ impl Default for SymbolTable {
 impl SymbolTable {
     /// returns scope id
     pub fn enter_scope(&mut self) -> usize {
-        self.scopes.push(Scope::new());
+        self.scopes.push(STScope::new());
         self.scopes.len()
     }
     pub fn leave_scope(&mut self) {

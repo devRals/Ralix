@@ -9,6 +9,22 @@ impl TypeChecker<'_> {
         type_annotation: Option<&Type>,
         value: &Expression,
     ) -> CheckerResult<()> {
+        if let Expression::Function {
+            parameters: f_params,
+            return_type,
+            ..
+        } = value
+        {
+            self.symbol_table.define(
+                ident.clone(),
+                Type::Function {
+                    parameters: f_params.iter().map(|(t, _)| t.clone()).collect(),
+                    return_type: return_type.clone().into(),
+                },
+            );
+            return Ok(());
+        }
+
         let value_ty = self.check_expression(value)?;
         if let Some(ty_a) = type_annotation {
             if value_ty.satisfies(ty_a) {

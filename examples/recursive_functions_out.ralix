@@ -1,0 +1,71 @@
+{
+  "statements": [
+    {
+      "Binding": {
+        "ident": "factorial",
+        "type_annotation": null,
+        "value": {
+          "Function": {
+            "parameters": [
+              [
+                "Int",
+                "x"
+              ]
+            ],
+            "return_type": "Int",
+            "body": {
+              "IfElse": {
+                "consequences": [
+                  [
+                    {
+                      "Infix": {
+                        "left": {
+                          "Identifier": "x"
+                        },
+                        "operator": "Equals",
+                        "right": {
+                          "Integer": 0
+                        }
+                      }
+                    },
+                    {
+                      "Integer": 1
+                    }
+                  ]
+                ],
+                "else_consequence": {
+                  "Infix": {
+                    "left": {
+                      "Identifier": "x"
+                    },
+                    "operator": "Multiply",
+                    "right": {
+                      "Call": {
+                        "function": {
+                          "Identifier": "factorial"
+                        },
+                        "arguments": [
+                          {
+                            "Infix": {
+                              "left": {
+                                "Identifier": "x"
+                              },
+                              "operator": "Subtract",
+                              "right": {
+                                "Integer": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
