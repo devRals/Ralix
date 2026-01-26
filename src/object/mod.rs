@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, rc::Rc};
 
 use crate::{Expression, Literal, expressions::FunctionParameter, types::Type};
 mod environment;
@@ -16,12 +16,7 @@ pub enum Object {
     Address(*const Object),
     Null,
 
-    Function {
-        parameters: Vec<FunctionParameter>,
-        return_type: Type,
-        body: Expression,
-        env: Environment,
-    },
+    Function(Rc<Function>),
 }
 
 impl Object {
@@ -40,20 +35,35 @@ impl Object {
             O::String(_) => Type::String,
             O::Type(_) => Type::AsValue,
             O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
-            O::Function {
-                parameters,
-                return_type,
-                ..
-            } => Type::Function {
-                parameters: parameters.iter().map(|(t, _)| t.clone()).collect(),
-                return_type: Box::new(return_type.clone()),
+            O::Function(func) => Type::Function {
+                parameters: func.parameters.iter().map(|(t, _)| t.clone()).collect(),
+                return_type: Box::new(func.return_type.clone()),
             },
         }
+    }
+
+    pub fn new_function(
+        parameters: Vec<FunctionParameter>,
+        return_type: Type,
+        body: Expression,
+    ) -> Rc<Function> {
+        Rc::new(Function {
+            parameters,
+            return_type,
+            body,
+        })
     }
 
     pub fn is_true(&self) -> bool {
         Object::TRUE == *self
     }
+}
+
+#[derive(Debug)]
+pub struct Function {
+    pub parameters: Vec<FunctionParameter>,
+    return_type: Type,
+    pub body: Expression,
 }
 
 impl Display for Object {
@@ -71,12 +81,10 @@ impl Display for Object {
             O::Null => format!("\x1b[90mnull{clear}"),
             O::Type(ty) => format!("\x1b[92m{ty}{clear}"),
             O::Address(addr) => format!("\x1b[90m<{addr:?}>{clear}"),
-            O::Function {
-                parameters,
-                return_type,
-                body,
-                ..
-            } => {
+            O::Function(func) => {
+                let return_type = &func.return_type;
+                let body = &func.body;
+                let parameters = &func.parameters;
                 format!(
                     "\x1b[93mfn{clear}({}{clear}) \x1b[92m{return_type}{clear}: {body}",
                     parameters

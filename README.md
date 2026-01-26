@@ -75,7 +75,7 @@ myType == typeof 1 + 1 // true
 ## 🗺 Roadmap
 
 - [x] **Scope Expressions**: Blocks that return values.
-- [ ] **Function Definitions**: Standard function declarations.
+- [x] **Function Definitions**: Standard function declarations.
 - [ ] **Memory Safety**: Optional safe-wrappers for pointer operations.
 - [ ] **Standard Library**: Basic I/O and string manipulation.
 

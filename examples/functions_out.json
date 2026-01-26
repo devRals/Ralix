@@ -1,0 +1,82 @@
+{
+  "statements": [
+    {
+      "Binding": {
+        "ident": "adder_factory",
+        "type_annotation": null,
+        "value": {
+          "Function": {
+            "parameters": [
+              [
+                "Int",
+                "x"
+              ]
+            ],
+            "return_type": {
+              "Function": {
+                "parameters": [
+                  "Int"
+                ],
+                "return_type": "Int"
+              }
+            },
+            "body": {
+              "Function": {
+                "parameters": [
+                  [
+                    "Int",
+                    "y"
+                  ]
+                ],
+                "return_type": "Int",
+                "body": {
+                  "Infix": {
+                    "left": {
+                      "Identifier": "x"
+                    },
+                    "operator": "Add",
+                    "right": {
+                      "Identifier": "y"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "Binding": {
+        "ident": "add_two",
+        "type_annotation": null,
+        "value": {
+          "Call": {
+            "function": {
+              "Identifier": "adder_factory"
+            },
+            "arguments": [
+              {
+                "Integer": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "Expression": {
+        "Call": {
+          "function": {
+            "Identifier": "add_two"
+          },
+          "arguments": [
+            {
+              "Integer": 10
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

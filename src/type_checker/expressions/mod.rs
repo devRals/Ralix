@@ -35,6 +35,10 @@ impl TypeChecker<'_> {
                 parameters,
                 ..
             } => self.check_function_expression(parameters, body, return_type.clone()),
+            E::Call {
+                function,
+                arguments,
+            } => self.check_call_expression(function, arguments),
         }
     }
 }

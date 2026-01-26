@@ -1,5 +1,5 @@
 use crate::{
-    Expression, ParserResult, Token, expressions::FunctionParameter,
+    Expression, ParserError, ParserResult, Token, expressions::FunctionParameter,
     parser::expressions::Precedence, types::Type,
 };
 
@@ -16,10 +16,17 @@ impl Parser<'_> {
                 self.consume_current_token(Token::Colon);
                 Type::Void
             }
-            _ => {
+            Token::ThinArrow => {
+                self.consume_current_token(Token::ThinArrow);
                 let ty = self.parse_type_definition()?;
                 self.expect_token(Token::Colon)?;
                 ty
+            }
+            _ => {
+                return Err(ParserError::SyntaxError {
+                    expected: Token::ThinArrow,
+                    got: self.current_token.clone(),
+                });
             }
         };
 
@@ -51,10 +58,24 @@ impl Parser<'_> {
         }
     }
 
-    pub fn parse_call_expression(
-        &mut self,
-        _initial_expression: Expression,
-    ) -> ParserResult<Expression> {
-        todo!()
+    pub fn parse_call_expression(&mut self, function: Expression) -> ParserResult<Expression> {
+        self.consume_current_token(Token::LParen);
+
+        let mut arguments = Vec::new();
+
+        loop {
+            if self.is_current_token(Token::RParen) {
+                break Ok(Expression::Call {
+                    function: Box::new(function),
+                    arguments,
+                });
+            }
+
+            self.consume_current_token(Token::Comma);
+
+            let arg_expr = self.parse_expression(Precedence::Lowest)?;
+            arguments.push(arg_expr);
+            self.next_token();
+        }
     }
 }

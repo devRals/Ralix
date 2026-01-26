@@ -76,6 +76,11 @@ pub enum Expression {
         return_type: Type,
         body: Box<Expression>,
     },
+
+    Call {
+        function: Box<Expression>,
+        arguments: Vec<Expression>,
+    },
 }
 
 #[derive(Serialize)]

@@ -50,7 +50,7 @@ impl Object {
             ),
             Object::Address(addr) => Object::Address(*addr),
             Object::Null => Object::NULL,
-            Object::Function { .. } => return None,
+            Object::Function(func) => Object::Function(func.clone()),
         }
         .into()
     }

@@ -79,6 +79,18 @@ impl Display for Expression {
                     .collect::<Vec<_>>()
                     .join(", "),
             ),
+
+            E::Call {
+                function,
+                arguments,
+            } => format!(
+                "{function}({})",
+                arguments
+                    .iter()
+                    .map(|e| e.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
         })
     }
 }

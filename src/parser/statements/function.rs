@@ -1,6 +1,6 @@
 use crate::{
-    Expression, Parser, ParserResult, Statement, Token, parser::expressions::Precedence,
-    types::Type,
+    Expression, Parser, ParserError, ParserResult, Statement, Token,
+    parser::expressions::Precedence, types::Type,
 };
 
 impl Parser<'_> {
@@ -15,17 +15,20 @@ impl Parser<'_> {
         let parameters = self.parse_function_parameters()?;
         self.consume_current_token(Token::RParen);
 
-        let return_type = match self.current_token {
-            Token::Colon => {
-                self.consume_current_token(Token::Colon);
-                Type::Void
+        let mut return_type = Type::Void;
+        if !self.is_current_token(Token::Colon) {
+            if !self.is_current_token(Token::ThinArrow) {
+                return Err(ParserError::SyntaxError {
+                    expected: Token::ThinArrow,
+                    got: self.current_token.clone(),
+                });
             }
-            _ => {
-                let ty = self.parse_type_definition()?;
-                self.expect_token(Token::Colon)?;
-                ty
-            }
-        };
+            self.consume_current_token(Token::ThinArrow);
+            return_type = self.parse_type_definition()?;
+            self.expect_token(Token::Colon)?;
+        } else {
+            self.next_token();
+        }
 
         let body = Box::new(self.parse_expression(Precedence::Lowest)?);
 

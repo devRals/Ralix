@@ -2,6 +2,10 @@ use crate::{Expression, Parser, ParserResult, Statement, Token, parser::expressi
 
 impl Parser<'_> {
     pub fn parse_binding_statement(&mut self) -> ParserResult<Statement> {
+        if self.is_current_token(Token::Let) {
+            return self.parse_let_binding();
+        }
+
         let type_annotation = self.parse_type_definition()?;
 
         // It's not a binding
@@ -21,6 +25,27 @@ impl Parser<'_> {
         Ok(Statement::Binding {
             ident,
             type_annotation: Some(type_annotation),
+            value,
+        })
+    }
+
+    pub fn parse_let_binding(&mut self) -> ParserResult<Statement> {
+        self.expect_ident()?;
+        let ident = self.parse_identifier()?;
+
+        let mut type_annotation = None;
+        if self.is_peek_token(Token::Colon) {
+            self.skip_peek_token(Token::Colon);
+            type_annotation = self.parse_type_definition()?.into();
+        }
+
+        self.expect_token(Token::Assign)?;
+
+        let value = self.parse_expression(Precedence::Lowest)?;
+
+        Ok(Statement::Binding {
+            ident,
+            type_annotation,
             value,
         })
     }

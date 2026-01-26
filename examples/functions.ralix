@@ -1,0 +1,8 @@
+fn adder_factory(int x) -> fn(int) -> int:
+    fn(int y) -> int:
+        x + y
+
+// Let bindings auto binds the types for values
+let add_two = adder_factory(2)
+
+add_two(10) // 12

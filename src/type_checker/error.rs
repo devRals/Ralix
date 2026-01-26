@@ -14,6 +14,8 @@ pub enum CheckerError {
     PrefixTypeMismatched(PrefixOperator, Type),
     CannotDereference(Type),
     IfBranchesUnsatisfied(Type, Type),
+    CannotBeCalled(Type),
+    MismatchedArgumentCount(usize, usize),
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -45,7 +47,9 @@ impl Display for CheckerError {
             E::InfixTypeMismatched(left_ty,operator, right_ty) => format!("Left type `{left_ty}` of `{operator}` infix operator doesn't match with type `{right_ty}`"),
             E::PrefixTypeMismatched(operator,  right_ty) => format!("Operator `{operator}` does not expects a value type of `{right_ty}`"),
             E::CannotDereference(t) => format!("Type `{t}` cannot be dereferenced"),
-            E::IfBranchesUnsatisfied(expected, got) => format!("Type `{expected}` because of the previous if branches but the type `{got}` doesn't satisfy it")
+            E::IfBranchesUnsatisfied(expected, got) => format!("Type `{expected}` because of the previous if branches but the type `{got}` doesn't satisfy it"),
+            E::CannotBeCalled(t) => format!("Type `{t}` is not callable"),
+            E::MismatchedArgumentCount(expected, got) => format!("A function expected `{expected}` arguments but got `{got}`")
         })
     }
 }

@@ -16,6 +16,7 @@ pub enum EvaluationError {
 
     CannotBeDereferenced(Type),
     CannotAssign(Expression, Object),
+    IsNotAFunction(Type),
 }
 
 #[derive(Debug)]
@@ -42,6 +43,9 @@ impl Display for EvaluationError {
             E::CannotBeDereferenced(t) => format!("Type `{t}` cannot be dereferenced"),
             E::CannotAssign(left, value) => {
                 format!("Cannot assign value {value} using {left} expression")
+            }
+            E::IsNotAFunction(t) => {
+                format!("Object type `{t}` is not a function and cannot be called")
             }
         })
     }

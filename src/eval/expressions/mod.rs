@@ -44,6 +44,11 @@ impl Evaluator<'_> {
                 body,
                 return_type,
             } => self.evaluate_function_expression(parameters, *body, return_type),
+
+            Expression::Call {
+                function,
+                arguments,
+            } => self.evaluate_call_expression(*function, arguments),
         }
     }
 }

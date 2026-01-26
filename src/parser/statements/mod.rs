@@ -20,7 +20,8 @@ impl Parser<'_> {
             | Token::TyString
             | Token::TyChar
             | Token::Bool
-            | Token::Type => self.parse_binding_statement(),
+            | Token::Type
+            | Token::Let => self.parse_binding_statement(),
             Token::Function => self.parse_function_statement(),
             _ => self.parse_expression_statement(),
         }

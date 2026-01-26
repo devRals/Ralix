@@ -1,5 +1,6 @@
 use crate::{
-    EvalResult, Evaluator, Expression, Object, expressions::FunctionParameter, types::Type,
+    EvalResult, EvaluationError, Evaluator, Expression, Object, expressions::FunctionParameter,
+    try_eval_result, types::Type,
 };
 
 impl Evaluator<'_> {
@@ -9,13 +10,31 @@ impl Evaluator<'_> {
         body: Expression,
         return_type: Type,
     ) -> EvalResult<Object> {
-        EvalResult::Value(Object::Function {
-            parameters,
-            return_type,
-            body,
-            // I don't think this is a good idea but im super
-            // dumb and lazy to find a solution for this
-            env: self.ctx.environment.clone(),
-        })
+        let function = Object::new_function(parameters, return_type, body);
+
+        EvalResult::Value(Object::Function(function))
+    }
+
+    pub fn evaluate_call_expression(
+        &mut self,
+        function: Expression,
+        arguments: Vec<Expression>,
+    ) -> EvalResult<Object> {
+        let func = match try_eval_result!(self.evaluate_expression(function)) {
+            Object::Function(func) => func,
+            o => return EvalResult::Err(EvaluationError::IsNotAFunction(o.r#type())),
+        };
+
+        self.ctx.enter_scope();
+
+        for (arg, (_, param)) in arguments.into_iter().zip(func.parameters.clone()) {
+            let arg_val = try_eval_result!(self.evaluate_expression(arg));
+            self.ctx.define(param, arg_val);
+        }
+
+        let result = try_eval_result!(self.evaluate_expression(func.body.clone()));
+        self.ctx.leave_scope();
+
+        EvalResult::Value(result)
     }
 }
