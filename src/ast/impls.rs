@@ -118,6 +118,13 @@ impl Display for Statement {
                 value
             ),
             Self::Expression(expr) => expr.to_string(),
+            Self::Return(expr) => format!(
+                "return{}",
+                match expr {
+                    Some(e) => format!(" {e}"),
+                    None => ";".to_string(),
+                }
+            ),
             Self::Assign { left, value } => format!("{left} = {value}"),
         })
     }

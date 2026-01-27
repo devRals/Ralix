@@ -9,10 +9,11 @@ impl TypeChecker<'_> {
         type_annotation: Option<&Type>,
         value: &Expression,
     ) -> CheckerResult<()> {
+        // this allows recursive functions
         if let Expression::Function {
             parameters: f_params,
             return_type,
-            ..
+            body,
         } = value
         {
             self.symbol_table.define(
@@ -22,6 +23,7 @@ impl TypeChecker<'_> {
                     return_type: return_type.clone().into(),
                 },
             );
+            self.check_function_expression(f_params, body, return_type)?;
             return Ok(());
         }
 

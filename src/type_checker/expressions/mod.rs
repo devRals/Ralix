@@ -16,7 +16,7 @@ impl TypeChecker<'_> {
             E::Null => Ok(Type::Null),
             E::Identifier(ident) => self.infer_identifier(ident),
             E::Copy(ident) => self.infer_copy_expression(ident),
-            E::TypeOf(expr) => self.check_expression(expr),
+            E::TypeOf(expr) => self.check_typeof_expression(expr),
             E::AddrOf(ident) => self.infer_addrof_expression(ident),
             E::Scope { statements } => self.infer_scope_expression(statements),
             E::Infix {
@@ -34,7 +34,7 @@ impl TypeChecker<'_> {
                 body,
                 parameters,
                 ..
-            } => self.check_function_expression(parameters, body, return_type.clone()),
+            } => self.check_function_expression(parameters, body, return_type),
             E::Call {
                 function,
                 arguments,

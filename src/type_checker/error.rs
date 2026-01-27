@@ -16,6 +16,7 @@ pub enum CheckerError {
     IfBranchesUnsatisfied(Type, Type),
     CannotBeCalled(Type),
     MismatchedArgumentCount(usize, usize),
+    TypeofHadNullableExpr,
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -49,7 +50,8 @@ impl Display for CheckerError {
             E::CannotDereference(t) => format!("Type `{t}` cannot be dereferenced"),
             E::IfBranchesUnsatisfied(expected, got) => format!("Type `{expected}` because of the previous if branches but the type `{got}` doesn't satisfy it"),
             E::CannotBeCalled(t) => format!("Type `{t}` is not callable"),
-            E::MismatchedArgumentCount(expected, got) => format!("A function expected `{expected}` arguments but got `{got}`")
+            E::MismatchedArgumentCount(expected, got) => format!("A function expected `{expected}` arguments but got `{got}`"),
+            E::TypeofHadNullableExpr => "`typeof` expression cannot accept \"nullable\" expressions".to_string(),
         })
     }
 }

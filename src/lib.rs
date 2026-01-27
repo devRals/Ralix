@@ -61,6 +61,7 @@ pub fn execute_with_env(
     match evaluator.evaluate_program(program) {
         EvalResult::Err(e) => Err(ExecuteError::PanicError(e)),
         EvalResult::Value(o) => Ok(Some(o)),
+        EvalResult::Return(o) => Ok(o),
         EvalResult::NoValue => Ok(None),
     }
 }

@@ -25,6 +25,7 @@ pub enum NodeV {
 #[derive(Debug, Clone, Serialize)]
 pub enum Statement {
     Expression(Expression),
+    Return(Option<Expression>),
 
     Binding {
         ident: Identifier,

@@ -17,6 +17,7 @@ macro_rules! try_eval_result {
         let value = $eval_result;
         match value {
             EvalResult::NoValue | EvalResult::Err(_) => return value,
+            EvalResult::Return(_) => return value,
             EvalResult::Value(v) => v,
         }
     }};
@@ -86,6 +87,10 @@ impl Evaluator<'_> {
             match &result {
                 EvalResult::Value(_) => {}
                 EvalResult::NoValue => {}
+                EvalResult::Return(obj) => match obj.clone() {
+                    Some(o) => return EvalResult::Value(o),
+                    None => return EvalResult::NoValue,
+                },
                 EvalResult::Err(err) => self.panic(err),
             }
         }

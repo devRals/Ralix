@@ -14,6 +14,8 @@ impl Parser<'_> {
 
         let value = self.parse_expression(Precedence::Lowest)?;
 
+        self.consume_peek_token(Token::SemiColon);
+
         Ok(Statement::Assign { left: expr, value })
     }
 }

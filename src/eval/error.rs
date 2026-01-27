@@ -22,6 +22,7 @@ pub enum EvaluationError {
 #[derive(Debug)]
 pub enum EvalResult<T> {
     Value(T),
+    Return(Option<T>),
     Err(EvaluationError),
     NoValue,
 }

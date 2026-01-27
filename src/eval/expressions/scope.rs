@@ -11,6 +11,10 @@ impl Evaluator<'_> {
             match &result {
                 EvalResult::Value(_) => {}
                 EvalResult::NoValue => {}
+                EvalResult::Return(_) => {
+                    self.ctx.leave_scope();
+                    return result;
+                }
                 EvalResult::Err(err) => self.panic(err),
             }
         }

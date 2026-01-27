@@ -42,9 +42,19 @@ impl Evaluator<'_> {
             self.ctx.define(param, arg_val);
         }
 
-        let result = try_eval_result!(self.evaluate_expression(func.body.clone()));
+        let result = self.evaluate_expression(func.body.clone());
         self.ctx.leave_scope();
 
-        EvalResult::Value(result)
+        unwrap_return_value(result)
+    }
+}
+
+fn unwrap_return_value(result: EvalResult<Object>) -> EvalResult<Object> {
+    match result {
+        // `into` converts the type `Option<Object>` into
+        // EvalResult::Value(inner) if Some(inner)
+        // EvalResult::NoValue if None
+        EvalResult::Return(v) => v.into(),
+        _ => result,
     }
 }

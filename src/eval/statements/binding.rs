@@ -7,7 +7,7 @@ impl Evaluator<'_> {
         match result {
             EvalResult::Value(value) => self.ctx.define(ident, value).into(),
             EvalResult::NoValue => self.ctx.define(ident, Object::NULL).into(),
-            EvalResult::Err(_) => result,
+            EvalResult::Err(_) | EvalResult::Return(_) => result,
         }
     }
 }

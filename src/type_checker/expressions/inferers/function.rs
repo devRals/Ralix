@@ -8,9 +8,10 @@ impl TypeChecker<'_> {
         &mut self,
         f_parameters: &[FunctionParameter],
         body: &Expression,
-        return_type: Type,
+        return_type: &Type,
     ) -> CheckerResult<Type> {
         self.symbol_table.enter_scope();
+        self.enter_function(return_type.clone());
         let mut parameters = Vec::new();
 
         for (param_ty, param_name) in f_parameters {
@@ -21,15 +22,16 @@ impl TypeChecker<'_> {
 
         let body_ty = self.check_expression(body)?;
 
-        if !body_ty.satisfies(&return_type) {
-            return Err(CheckerError::Unsatisfied(body_ty, return_type));
+        if !body_ty.satisfies(return_type) {
+            return Err(CheckerError::Unsatisfied(body_ty, return_type.clone()));
         }
 
         self.symbol_table.leave_scope();
+        self.leave_function();
 
         Ok(Type::Function {
             parameters,
-            return_type: Box::new(return_type),
+            return_type: Box::new(return_type.clone()),
         })
     }
 

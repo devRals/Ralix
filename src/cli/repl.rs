@@ -128,6 +128,10 @@ impl<W: Write, EW: Write, R: BufRead> Repl<W, EW, R> {
             match evaluator.evaluate_program(program) {
                 EvalResult::NoValue => Ok(()),
                 EvalResult::Value(val) => writeln!(self.out, "{val}"),
+                EvalResult::Return(val) => match val {
+                    Some(o) => writeln!(self.out, "{o}"),
+                    None => Ok(()),
+                },
                 EvalResult::Err(err) => {
                     self.last_prompt_result = PromptResult::Error;
                     error_logger.error(err)?;

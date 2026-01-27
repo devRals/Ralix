@@ -35,6 +35,8 @@ impl Parser<'_> {
 
         let body = Box::new(self.parse_expression(Precedence::Lowest)?);
 
+        self.consume_peek_token(Token::SemiColon);
+
         Ok(Statement::Binding {
             ident,
             type_annotation: None,

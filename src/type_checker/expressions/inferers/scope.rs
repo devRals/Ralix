@@ -7,6 +7,10 @@ impl TypeChecker<'_> {
         let mut last_stmt_ty = Type::Void;
 
         for stmt in statements {
+            if let Statement::Return(_) = stmt {
+                return Ok(Type::Never);
+            }
+
             if let Some(stmt_ty) = self.check_statement(stmt)? {
                 last_stmt_ty = stmt_ty
             }

@@ -5,3 +5,4 @@ mod function;
 mod identifier;
 mod infix_prefix;
 mod scope;
+mod r#typeof;

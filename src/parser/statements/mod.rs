@@ -4,6 +4,7 @@ mod assignment;
 mod binding;
 mod expression;
 mod function;
+mod r#return;
 
 impl Parser<'_> {
     pub fn parse_statement(&mut self) -> ParserResult<Statement> {
@@ -23,6 +24,7 @@ impl Parser<'_> {
             | Token::Type
             | Token::Let => self.parse_binding_statement(),
             Token::Function => self.parse_function_statement(),
+            Token::Return => self.parse_return_statement(),
             _ => self.parse_expression_statement(),
         }
     }
