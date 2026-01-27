@@ -17,7 +17,7 @@ impl Evaluator<'_> {
             // WARN: Im not sure it has to be like this.
             // Im only cloning the current scope
             FunctionEnvironment {
-                items: self.ctx.environment.current_scope(),
+                items: self.ctx.environment.current_items(),
             },
         );
 

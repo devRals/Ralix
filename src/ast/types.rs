@@ -71,6 +71,7 @@ impl Type {
                     || matches!(t1, Type::Nullable(_))
                     || t1.satisfies(t2)
             }
+            (Type::Nullable(_), Type::Null) => true,
             (t1, t2) => t1.is(t2),
         }
     }

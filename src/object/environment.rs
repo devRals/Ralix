@@ -87,7 +87,14 @@ impl Environment {
     }
 
     /// Clones the last scope
-    pub fn current_scope(&self) -> EnvScope {
-        self.scopes.last().unwrap().clone()
+    pub fn current_items(&self) -> EnvScope {
+        let mut result = EnvScope::new();
+        for s in self.scopes.clone() {
+            for (ident, v) in s {
+                result.insert(ident, v);
+            }
+        }
+
+        result
     }
 }

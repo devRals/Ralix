@@ -6,7 +6,7 @@ impl Evaluator<'_> {
 
         self.ctx.enter_scope();
         for s in statements {
-            result = self.evaluate(s);
+            result = self.evaluate_statement(s);
 
             match &result {
                 EvalResult::Value(_) => {}

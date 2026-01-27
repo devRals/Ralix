@@ -12,9 +12,8 @@ impl Parser<'_> {
                 break Ok(Expression::Scope { statements });
             }
 
-            if let Ok(stmt) = self.parse_statement() {
-                statements.push(stmt)
-            }
+            let stmt = self.parse_statement()?;
+            statements.push(stmt);
             self.next_token();
         }
     }

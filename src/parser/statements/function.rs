@@ -7,6 +7,9 @@ impl Parser<'_> {
     /// Not really a function statement it's just a binding statement that
     /// the binding value and type is a function
     pub fn parse_function_statement(&mut self) -> ParserResult<Statement> {
+        if self.is_peek_token(Token::LParen) {
+            return Ok(Statement::Expression(self.parse_function_expression()?));
+        }
         self.expect_ident()?;
 
         let ident = self.parse_identifier()?;
