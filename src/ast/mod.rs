@@ -84,7 +84,7 @@ pub enum Expression {
     },
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Program {
     pub statements: Vec<Statement>,
 }

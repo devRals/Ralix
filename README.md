@@ -45,8 +45,8 @@ ralix repl
 Ralix is flexible with how it parses math:
 
 ```c
-// Let binding with type annotation
-let x: int = 10 + 5
+// Let binding definition
+let x = 10 + 5
 
 // C like definition
 int *y = &x  // 50

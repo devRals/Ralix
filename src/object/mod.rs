@@ -79,26 +79,24 @@ impl Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use Object as O;
 
-        let clear = "\x1b[0m";
-
         f.write_str(&match self {
-            O::Boolean(val) => format!("\x1b[36m{val}{clear}"),
-            O::Int(val) => format!("\x1b[93m{val}{clear}"),
-            O::Char(val) => format!("\x1b[94m{val}{clear}"),
-            O::Float(val) => format!("\x1b[93m{val}{clear}"),
-            O::String(val) => format!("\x1b[32m{val}{clear}"),
-            O::Null => format!("\x1b[90mnull{clear}"),
-            O::Type(ty) => format!("\x1b[92m{ty}{clear}"),
-            O::Address(addr) => format!("\x1b[90m<{addr:?}>{clear}"),
+            O::Boolean(val) => val.to_string(),
+            O::Int(val) => val.to_string(),
+            O::Char(val) => val.to_string(),
+            O::Float(val) => val.to_string(),
+            O::String(val) => val.to_string(),
+            O::Null => "null".to_string(),
+            O::Type(ty) => ty.to_string(),
+            O::Address(addr) => format!("<{addr:?}>"),
             O::Function(func) => {
                 let return_type = &func.return_type;
                 let body = &func.body;
                 let parameters = &func.parameters;
                 format!(
-                    "\x1b[93mfn{clear}({}{clear}) \x1b[92m{return_type}{clear}: {body}",
+                    "fn({}) -> {return_type}: {body}",
                     parameters
                         .iter()
-                        .map(|(p_ty, p_name)| format!("\x1b[92m{p_ty} \x1b[0m{p_name}"))
+                        .map(|(p_ty, p_name)| format!("{p_ty} {p_name}"))
                         .collect::<Vec<_>>()
                         .join("\x1b[0m, ")
                 )

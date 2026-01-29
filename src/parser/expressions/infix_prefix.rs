@@ -60,10 +60,10 @@ impl Parser<'_> {
         let expr = self.parse_expression(Precedence::Lowest)?;
 
         self.next_token();
-        if self.is_current_token(Token::RParen) {
-            Ok(expr)
-        } else {
-            todo!("Tuple expressions not implemented... YET!")
-        }
+        // if self.is_current_token(Token::RParen) {
+        Ok(expr)
+        // } else {
+        //     todo!("Tuple expressions not implemented... YET!")
+        // }
     }
 }

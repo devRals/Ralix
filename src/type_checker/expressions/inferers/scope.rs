@@ -8,6 +8,7 @@ impl TypeChecker<'_> {
 
         for stmt in statements {
             if let Statement::Return(_) = stmt {
+                self.symbol_table.leave_scope();
                 return Ok(Type::Never);
             }
 
