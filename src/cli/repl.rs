@@ -10,7 +10,7 @@ use ratatui::{
 };
 
 use crate::{
-    Environment, EvalResult, Evaluator, ExecuteError, Object, Program, SymbolTable, parse,
+    Environment, EvalResult, Evaluator, ExecuteError, Object, Program, SymbolTable,
     parse_with_symbol_table,
 };
 
@@ -53,7 +53,7 @@ enum ReplState {
 struct Input {
     buf: String,
     height: u16,
-    cursor_index: u16,
+    cursor_index: usize,
 }
 
 pub struct Repl {
@@ -144,7 +144,7 @@ impl Repl {
     fn render_help(&self, f: &mut Frame) {
         let area = f.area();
         let block = Block::default().title("Help").borders(Borders::ALL);
-        let help_text = "Key bindings:\n\n       - ?: Toggle this help popup\n       - Ctrl + c: Stop execution\n       - Ctrl + l: Go to next tab\n       - Ctrl + h: Go to previous tab\n         - Ctrl + e: Toggle environment panel\n       - Esc: Quit";
+        let help_text = "Key bindings:\n\n       - <C-?>: Toggle this help popup\n       - Ctrl + c: Stop execution\n       - Ctrl + l: Go to next tab\n       - Ctrl + h: Go to previous tab\n         - Ctrl + e: Toggle environment panel\n       - Esc: Quit";
         let paragraph = Paragraph::new(help_text).block(block);
 
         // Create a new area in the center of the screen
@@ -170,13 +170,14 @@ impl Repl {
                         self.input.cursor_index = self.input.cursor_index.saturating_sub(1);
                     }
                     KeyCode::Right => {
+                        let char_count = self.input.buf.chars().count();
                         self.input.cursor_index = self.input.cursor_index.saturating_add(1);
-                        if self.input.cursor_index > self.input.buf.len() as u16 {
-                            self.input.cursor_index = self.input.buf.len() as u16;
+                        if self.input.cursor_index > char_count {
+                            self.input.cursor_index = char_count;
                         }
                     }
                     KeyCode::Char(c) => {
-                        if c == '?' {
+                        if c == '?' && self.input.buf.is_empty() {
                             self.show_help = !self.show_help;
                             return Ok(());
                         }
@@ -202,24 +203,38 @@ impl Repl {
                             return Ok(());
                         }
 
-                        self.input.buf.insert(self.input.cursor_index as usize, c);
+                        let byte_idx = self
+                            .input
+                            .buf
+                            .char_indices()
+                            .nth(self.input.cursor_index)
+                            .map(|(i, _)| i)
+                            .unwrap_or(self.input.buf.len());
+                        self.input.buf.insert(byte_idx, c);
                         self.input.cursor_index = self.input.cursor_index.saturating_add(1);
                     }
                     KeyCode::Backspace => {
                         if self.input.cursor_index > 0 {
-                            let removed_char =
-                                self.input.buf.remove(self.input.cursor_index as usize - 1);
+                            let new_cursor_pos = self.input.cursor_index - 1;
+                            let byte_idx = self
+                                .input
+                                .buf
+                                .char_indices()
+                                .nth(new_cursor_pos)
+                                .map(|(i, _)| i)
+                                .unwrap(); // Safe due to cursor_index > 0
+
+                            let removed_char = self.input.buf.remove(byte_idx);
+
                             if removed_char == '\n' {
                                 self.input.height = self.input.height.saturating_sub(1);
                             }
-                            self.input.cursor_index = self.input.cursor_index.saturating_sub(1);
+                            self.input.cursor_index = new_cursor_pos;
                         }
                     }
                     KeyCode::Enter => {
                         if !self.is_input_complete() {
-                            self.input
-                                .buf
-                                .insert(self.input.cursor_index as usize, '\n');
+                            self.input.buf.insert(self.input.cursor_index, '\n');
                             self.input.height += 1;
                             self.input.cursor_index = self.input.cursor_index.saturating_add(1);
                         } else {
@@ -240,6 +255,10 @@ impl Repl {
         }
 
         Ok(())
+    }
+
+    fn is_cursor_at_the_end(&self) -> bool {
+        self.input.cursor_index == self.input.buf.chars().count()
     }
 
     fn is_input_complete(&self) -> bool {
@@ -333,6 +352,20 @@ impl Repl {
     }
 
     fn draw_evaluation(&self, f: &mut Frame, area: Rect) {
+        if let Some(result) = &self.program_result {
+            match result {
+                Ok(_) => {}
+                Err(_) => {
+                    f.render_widget(
+                        "Your input has some errors go check them out in the `Errors` section"
+                            .red(),
+                        area,
+                    );
+                    return;
+                }
+            }
+        }
+
         f.render_widget(
             match &self.eval_result {
                 EvalResult::Value(v) => v.to_string(),
@@ -419,7 +452,10 @@ impl Repl {
         if self.input.buf.is_empty() {
             self.program_result = None
         } else {
-            self.program_result = Some(parse(&self.input.buf));
+            self.program_result = Some(parse_with_symbol_table(
+                &self.input.buf,
+                &mut self.context.symbol_table,
+            ));
         }
     }
 
