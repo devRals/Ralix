@@ -97,4 +97,9 @@ impl Environment {
 
         result
     }
+
+    pub fn clear(&mut self) {
+        self.scopes.clear();
+        self.scopes.push(EnvScope::new());
+    }
 }

@@ -55,4 +55,9 @@ impl SymbolTable {
         }
         None
     }
+
+    pub fn clear(&mut self) {
+        self.scopes.clear();
+        self.scopes.push(STScope::new());
+    }
 }
