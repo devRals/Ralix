@@ -2,7 +2,7 @@ use std::{error::Error, fmt::Display};
 
 use crate::{
     Literal,
-    expressions::{InfixOperator, PrefixOperator},
+    expressions::{Identifier, InfixOperator, PrefixOperator},
     types::Type,
 };
 
@@ -17,6 +17,8 @@ pub enum CheckerError {
     CannotBeCalled(Type),
     MismatchedArgumentCount(usize, usize),
     TypeofHadNullableExpr,
+    AlreadyDefinedConstant(Identifier),
+    IsAConstant(Identifier),
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -52,6 +54,8 @@ impl Display for CheckerError {
             E::CannotBeCalled(t) => format!("Type `{t}` is not callable"),
             E::MismatchedArgumentCount(expected, got) => format!("A function expected `{expected}` arguments but got `{got}`"),
             E::TypeofHadNullableExpr => "`typeof` expression cannot accept \"nullable\" expressions".to_string(),
+            E::AlreadyDefinedConstant(ident) => format!("`{ident}` is already defined in the current scope as a \"constant\" and cannot be overwritten. Try using an another identifier name"),
+            E::IsAConstant(ident) => format!("Cannot assign a value to `{ident}` because it's a \"constant\"")
         })
     }
 }

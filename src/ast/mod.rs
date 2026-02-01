@@ -31,6 +31,7 @@ pub enum Statement {
         ident: Identifier,
         type_annotation: Option<Type>,
         value: Expression,
+        is_constant: bool,
     },
 
     Assign {

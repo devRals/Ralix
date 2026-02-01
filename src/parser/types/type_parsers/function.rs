@@ -1,4 +1,7 @@
-use crate::{Parser, ParserResult, Token, types::Type};
+use crate::{
+    Parser, ParserResult, Token,
+    types::{FunctionParameterType, Type},
+};
 
 impl Parser<'_> {
     pub fn parse_function_type_definition(&mut self) -> ParserResult<Type> {
@@ -20,8 +23,14 @@ impl Parser<'_> {
 
             self.consume_current_token(Token::Comma);
 
+            let mut is_constant = false;
+            if self.is_current_token(Token::Const) {
+                self.consume_current_token(Token::Const);
+                is_constant = true;
+            }
+
             let ty = self.parse_type_definition()?;
-            parameters.push(ty);
+            parameters.push(FunctionParameterType { ty, is_constant });
             self.next_token();
         }
     }

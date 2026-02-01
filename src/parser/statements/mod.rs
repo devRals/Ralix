@@ -2,6 +2,7 @@ use crate::{Parser, ParserResult, Statement, Token};
 
 mod assignment;
 mod binding;
+mod r#const;
 mod expression;
 mod function;
 mod r#return;
@@ -23,6 +24,7 @@ impl Parser<'_> {
             | Token::Bool
             | Token::Type
             | Token::Let => self.parse_binding_statement(),
+            Token::Const => self.parse_constant_statements(),
             Token::Function => self.parse_function_statement(),
             Token::Return => self.parse_return_statement(),
             _ => self.parse_expression_statement(),

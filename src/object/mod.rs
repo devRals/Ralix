@@ -1,6 +1,10 @@
 use std::{fmt::Display, rc::Rc};
 
-use crate::{Expression, Literal, expressions::FunctionParameter, types::Type};
+use crate::{
+    Expression, Literal,
+    expressions::FunctionParameter,
+    types::{FunctionParameterType, Type},
+};
 mod environment;
 
 pub use environment::*;
@@ -36,7 +40,14 @@ impl Object {
             O::Type(_) => Type::AsValue,
             O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
             O::Function(func) => Type::Function {
-                parameters: func.parameters.iter().map(|(t, _)| t.clone()).collect(),
+                parameters: func
+                    .parameters
+                    .iter()
+                    .map(|param| FunctionParameterType {
+                        is_constant: param.is_constant,
+                        ty: param.type_def.clone(),
+                    })
+                    .collect(),
                 return_type: Box::new(func.return_type.clone()),
             },
         }
@@ -96,7 +107,12 @@ impl Display for Object {
                     "fn({}) -> {return_type}: {body}",
                     parameters
                         .iter()
-                        .map(|(p_ty, p_name)| format!("{p_ty} {p_name}"))
+                        .map(|param| format!(
+                            "{}{} {}",
+                            if param.is_constant { "const " } else { "" },
+                            param.type_def,
+                            param.name
+                        ))
                         .collect::<Vec<_>>()
                         .join("\x1b[0m, ")
                 )

@@ -40,6 +40,7 @@ impl Parser<'_> {
         Ok(Statement::Binding {
             ident,
             type_annotation: None,
+            is_constant: false,
             value: Expression::Function {
                 parameters,
                 return_type,

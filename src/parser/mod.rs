@@ -96,9 +96,12 @@ impl Parser<'_> {
         }
     }
 
-    fn consume_current_token(&mut self, token: Token) {
+    fn consume_current_token(&mut self, token: Token) -> bool {
         if self.is_current_token(token) {
             self.next_token();
+            true
+        } else {
+            false
         }
     }
 

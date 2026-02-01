@@ -1,0 +1,15 @@
+const float PI = 3.14159;
+
+const fn radius( // Constant functions!? Wow!
+    float r,
+    const float pi // Unchangeable parameters! Wowie!
+) -> float: {
+    pi = 3; // NO!
+    pi * r * r
+}
+
+float my_circle_radius = 10.0;
+radius(10.0, PI);
+
+PI = 3; // Doesn't work!?
+int PI = 3; // Can't even change types :<

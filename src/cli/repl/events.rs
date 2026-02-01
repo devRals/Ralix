@@ -1,4 +1,4 @@
-use std::{io, time::Duration};
+use std::io;
 
 use crossterm::event::{Event, KeyCode, KeyModifiers};
 
@@ -8,9 +8,7 @@ use super::Repl;
 
 impl Repl {
     pub(super) fn handle_events(&mut self) -> io::Result<()> {
-        if crossterm::event::poll(Duration::from_millis(self.refresh_rate))?
-            && let Event::Key(key_e) = crossterm::event::read()?
-        {
+        if let Event::Key(key_e) = crossterm::event::read()? {
             match self.state {
                 ReplState::Editing => match key_e.code {
                     KeyCode::Esc => {

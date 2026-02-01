@@ -2,7 +2,7 @@ use ratatui::{
     Frame,
     layout::{Constraint, HorizontalAlignment, Layout, Position, Rect},
     style::{Color, Modifier, Style, Stylize},
-    text::{Line, Span},
+    text::Line,
     widgets::{Block, Borders, Cell, Clear, Paragraph, Row, Table, Tabs},
 };
 
@@ -172,9 +172,9 @@ impl Repl {
         }
     }
 
-    fn build_input_string(&self) -> Span<'_> {
+    fn build_input_string(&self) -> String {
         if let ReplState::Running = self.state {
-            return "The program is running please wait".dark_gray();
+            return "The program is running please wait".dark_gray().to_string();
         }
 
         let prompt_color = if let Some(r) = &self.program_result {
@@ -187,7 +187,7 @@ impl Repl {
         };
 
         if self.input.buf.is_empty() {
-            return format!("{} ", prompt_color(PROMPT)).into();
+            return format!("{} ", prompt_color(PROMPT));
         }
 
         let mut styled_lines = String::new();
@@ -198,14 +198,12 @@ impl Repl {
             styled_lines.push_str(&format!("\n{} {}", CONTINUATION_PROMPT.dark_gray(), line));
         }
 
-        styled_lines.into()
+        styled_lines
     }
 
     fn render_input(&self, f: &mut Frame, area: Rect) {
         let msg = self.build_input_string();
-        let input_text = Paragraph::new(msg)
-            .block(Block::new().borders(Borders::TOP).light_green())
-            .style(Style::reset());
+        let input_text = Paragraph::new(msg).block(Block::new().borders(Borders::TOP));
 
         if let ReplState::Editing = self.state {
             let (row, col) = self.get_cursor_position();

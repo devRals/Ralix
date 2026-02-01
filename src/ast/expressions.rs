@@ -34,4 +34,9 @@ pub enum PrefixOperator {
 pub type IfConsequence = (Expression, Expression);
 pub type ElseConsequence = Box<Expression>;
 
-pub type FunctionParameter = (Type, Identifier);
+#[derive(Debug, Clone, Serialize)]
+pub struct FunctionParameter {
+    pub type_def: Type,
+    pub name: Identifier,
+    pub is_constant: bool,
+}

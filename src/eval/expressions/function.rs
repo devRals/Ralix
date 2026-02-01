@@ -37,9 +37,10 @@ impl Evaluator<'_> {
         self.ctx.enter_scope();
         self.ctx.environment.extend_from(&func.env.items);
 
-        for (arg, (_, param)) in arguments.into_iter().zip(func.parameters.clone()) {
+        for (arg, param) in arguments.into_iter().zip(func.parameters.clone()) {
+            let param_name = param.name.clone();
             let arg_val = try_eval_result!(self.evaluate_expression(arg));
-            self.ctx.define(param, arg_val);
+            self.ctx.define(param_name, arg_val);
         }
 
         let result = self.evaluate_expression(func.body.clone());

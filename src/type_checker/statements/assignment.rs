@@ -6,6 +6,13 @@ impl TypeChecker<'_> {
         left: &Expression,
         value: &Expression,
     ) -> CheckerResult<()> {
+        if let Expression::Identifier(ident) = left
+            && let Some(found) = self.symbol_table.resolve_ref(ident)
+            && found.is_constant
+        {
+            return Err(CheckerError::IsAConstant(ident.clone()));
+        }
+
         let left_ty = self.check_expression(left)?;
         let value_ty = self.check_expression(value)?;
 

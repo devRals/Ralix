@@ -1,6 +1,7 @@
 use crate::{
-    CheckerError, CheckerResult, Expression, TypeChecker, expressions::FunctionParameter,
-    types::Type,
+    CheckerError, CheckerResult, Expression, TypeChecker,
+    expressions::FunctionParameter,
+    types::{FunctionParameterType, Type},
 };
 
 impl TypeChecker<'_> {
@@ -14,10 +15,16 @@ impl TypeChecker<'_> {
         self.enter_function(return_type.clone());
         let mut parameters = Vec::new();
 
-        for (param_ty, param_name) in f_parameters {
-            self.symbol_table
-                .define(param_name.clone(), param_ty.clone());
-            parameters.push(param_ty.clone())
+        for param in f_parameters {
+            self.symbol_table.define(
+                param.name.clone(),
+                param.type_def.clone(),
+                param.is_constant,
+            );
+            parameters.push(FunctionParameterType {
+                is_constant: param.is_constant,
+                ty: param.type_def.clone(),
+            })
         }
 
         let body_ty = self.check_expression(body)?;
@@ -60,7 +67,7 @@ impl TypeChecker<'_> {
                     ));
                 }
 
-                for (arg, param) in argument_types.iter().zip(&parameters) {
+                for (arg, param) in argument_types.iter().zip(parameters.iter().map(|p| &p.ty)) {
                     if !arg.satisfies(param) {
                         return Err(CheckerError::Unsatisfied(arg.clone(), param.clone()));
                     }

@@ -49,12 +49,17 @@ impl Parser<'_> {
 
             self.consume_current_token(Token::Comma);
 
+            let is_constant = self.consume_current_token(Token::Const);
             let type_def = self.parse_type_definition()?;
             self.expect_ident()?;
-            let param_name = self.parse_identifier()?;
+            let name = self.parse_identifier()?;
 
             self.next_token();
-            parameters.push((type_def, param_name));
+            parameters.push(FunctionParameter {
+                name,
+                type_def,
+                is_constant,
+            });
         }
     }
 

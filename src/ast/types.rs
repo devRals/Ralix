@@ -5,6 +5,19 @@ use serde::Serialize;
 use crate::Token;
 
 #[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Debug, Serialize)]
+pub struct FunctionParameterType {
+    pub ty: Type,
+    pub is_constant: bool,
+}
+
+impl Display for FunctionParameterType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let constant = if self.is_constant { "const " } else { "" };
+        write!(f, "{}{}", constant, self.ty)
+    }
+}
+
+#[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Debug, Serialize)]
 pub enum Type {
     Bool,
     Char,
@@ -18,7 +31,7 @@ pub enum Type {
     Nullable(Box<Type>),
     Addr(Box<Type>),
     Function {
-        parameters: Vec<Type>,
+        parameters: Vec<FunctionParameterType>,
         return_type: Box<Type>,
     },
 }

@@ -75,7 +75,12 @@ impl Display for Expression {
                 "fn({}) {return_type}: {body}",
                 parameters
                     .iter()
-                    .map(|(p_ty, p_name)| format!("{p_ty} {p_name}"))
+                    .map(|param| format!(
+                        "{}{} {}",
+                        if param.is_constant { "const " } else { "" },
+                        param.type_def,
+                        param.name
+                    ))
                     .collect::<Vec<_>>()
                     .join(", "),
             ),
@@ -107,8 +112,10 @@ impl Display for Statement {
                 ident,
                 type_annotation,
                 value,
+                is_constant,
             } => format!(
-                "{} {} = {};",
+                "{}{} {} = {};",
+                if *is_constant { "const " } else { "" },
                 if let Some(ty_a) = type_annotation {
                     ty_a.to_string()
                 } else {

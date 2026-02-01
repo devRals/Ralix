@@ -26,6 +26,7 @@ impl Parser<'_> {
             ident,
             type_annotation: Some(type_annotation),
             value,
+            is_constant: false,
         })
     }
 
@@ -49,6 +50,7 @@ impl Parser<'_> {
             ident,
             type_annotation,
             value,
+            is_constant: false,
         })
     }
 }
@@ -62,6 +64,7 @@ mod test {
         let tests = [(
             "int a = 3;",
             Statement::Binding {
+                is_constant: false,
                 type_annotation: Some(Type::Int),
                 ident: Literal::from("a"),
                 value: Expression::Integer(3),

@@ -11,8 +11,9 @@ impl TypeChecker<'_> {
                 ident,
                 type_annotation,
                 value,
+                is_constant,
             } => self
-                .check_binding(ident, (*type_annotation).as_ref(), value)
+                .check_binding(ident, (*type_annotation).as_ref(), value, *is_constant)
                 .map(|_| None),
             Statement::Expression(expr) => self.check_expression(expr).map(Some),
             Statement::Assign { left, value } => {

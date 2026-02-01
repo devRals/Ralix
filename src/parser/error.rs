@@ -16,6 +16,7 @@ pub enum ParserError {
     UnknownInfixOp(Literal),
     UnknownPrefixOp(Literal),
     CannotAssignTo(Expression),
+    UnacceptableConst,
 }
 
 #[derive(Debug)]
@@ -50,6 +51,9 @@ impl Display for ParserError {
                 format!("`{op}` cannot be used as an opeartor in prefix expressions")
             }
             E::CannotAssignTo(expr) => format!("Cannot assign a value to a `{expr}` expression"),
+            E::UnacceptableConst => {
+                "`const` keyword can only be used in binding statements".to_string()
+            }
         })
     }
 }
