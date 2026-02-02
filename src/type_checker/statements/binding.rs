@@ -43,8 +43,9 @@ impl TypeChecker<'_> {
             return Ok(());
         }
 
-        let value_ty = self.check_expression(value)?;
+        let mut value_ty = self.check_expression(value)?;
         if let Some(ty_a) = type_annotation {
+            infer_generics(ty_a, &mut value_ty);
             if value_ty.satisfies(ty_a) {
                 self.symbol_table
                     .define(ident.clone(), ty_a.clone(), is_constant);
@@ -57,5 +58,16 @@ impl TypeChecker<'_> {
                 .define(ident.clone(), value_ty, is_constant);
             Ok(())
         }
+    }
+}
+
+fn infer_generics(type_annotation: &Type, value_ty: &mut Type) {
+    match (value_ty, type_annotation) {
+        (Type::Array(got), Type::Array(expected)) => {
+            if let Type::Unknown = &**got {
+                **got = *expected.clone()
+            }
+        }
+        _ => {}
     }
 }

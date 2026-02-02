@@ -47,6 +47,7 @@ pub enum Expression {
         operator: expressions::InfixOperator,
         right: Box<Expression>,
     },
+
     Prefix {
         operator: expressions::PrefixOperator,
         right: Box<Expression>,
@@ -70,6 +71,10 @@ pub enum Expression {
     Call {
         function: Box<Expression>,
         arguments: Vec<Expression>,
+    },
+
+    Array {
+        items: Vec<Expression>,
     },
 }
 

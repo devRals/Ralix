@@ -30,7 +30,9 @@ impl SymbolTable {
         self.scopes.len()
     }
     pub fn leave_scope(&mut self) {
-        self.scopes.pop();
+        if self.scopes.len() > 1 {
+            self.scopes.pop();
+        }
     }
 
     pub fn current_scope(&self) -> usize {

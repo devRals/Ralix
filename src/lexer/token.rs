@@ -137,8 +137,9 @@ pub enum Token {
     TyString,
     /// "char"
     TyChar,
-    Bool,
-    Dyn,
+    TyBool,
+    TyArr,
+    TyMap,
 }
 impl Token {
     pub fn keyword(keyword: &str) -> Token {
@@ -170,12 +171,13 @@ impl Token {
             "float" => Token::TyFloat,
             "str" => Token::TyString,
             "char" => Token::TyChar,
-            "bool" => Token::Bool,
-            "dyn" => Token::Dyn,
+            "bool" => Token::TyBool,
             "mut" => Token::Mutable,
             "copy" => Token::Copy,
             "type" => Token::Type,
             "typeof" => Token::TypeOf,
+            "map" => Token::TyMap,
+            "arr" => Token::TyArr,
             lit => Token::Ident(Literal::from(lit)),
         }
     }
@@ -206,7 +208,7 @@ impl Display for Token {
             T::EOF => "EOF",
             T::TyInt | T::Int(_) => "int",
             T::TyFloat | T::Float(_) => "float",
-            T::Bool | T::True | T::False => "bool",
+            T::TyBool | T::True | T::False => "bool",
             T::TyChar | T::Char(_) => "char",
             T::TyString | T::String(_) => "str",
 
@@ -270,11 +272,12 @@ impl Display for Token {
             T::Not => "not",
             T::And => "and",
             T::Or => "or",
-            T::Dyn => "dyn",
             T::Mutable => "mut",
             T::Copy => "copy",
             T::Type => "type",
             T::TypeOf => "typeof",
+            T::TyArr => "arr",
+            T::TyMap => "map",
         })
     }
 }

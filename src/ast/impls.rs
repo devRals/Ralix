@@ -91,6 +91,15 @@ impl Display for Expression {
                     .collect::<Vec<_>>()
                     .join(", ")
             ),
+
+            E::Array { items } => format!(
+                "[{}]",
+                items
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
         })
     }
 }

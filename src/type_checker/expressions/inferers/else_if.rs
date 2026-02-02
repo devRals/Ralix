@@ -33,7 +33,7 @@ impl TypeChecker<'_> {
                 continue;
             }
 
-            if let Type::Null = &cons_ty {
+            if cons_ty.is_nullish() {
                 is_nullable = true;
             }
 
@@ -54,7 +54,7 @@ impl TypeChecker<'_> {
                 ));
             }
 
-            if let Type::Null = &else_con_ty {
+            if else_con_ty.is_nullish() {
                 is_nullable = true
             }
 

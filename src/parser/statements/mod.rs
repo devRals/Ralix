@@ -21,7 +21,8 @@ impl Parser<'_> {
             | Token::TyFloat
             | Token::TyString
             | Token::TyChar
-            | Token::Bool
+            | Token::TyBool
+            | Token::TyArr
             | Token::Type
             | Token::Let => self.parse_binding_statement(),
             Token::Const => self.parse_constant_statements(),

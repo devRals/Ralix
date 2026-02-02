@@ -6,10 +6,11 @@ impl Parser<'_> {
     pub fn parse_type_definition(&mut self) -> ParserResult<Type> {
         let initial_type = match &self.current_token {
             Token::TyInt => Type::Int,
-            Token::Bool => Type::Bool,
+            Token::TyBool => Type::Bool,
             Token::TyChar => Type::Char,
             Token::TyFloat => Type::Float,
             Token::TyString => Type::String,
+            Token::TyArr => self.parse_array_type_definition()?,
             Token::Type => self.parse_type_as_value_type_definition()?,
             Token::Function => self.parse_function_type_definition()?,
             Token::Ident(literal) => self.parse_identifier_type_definition(literal.clone())?,

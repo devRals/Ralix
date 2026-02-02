@@ -26,9 +26,11 @@ pub enum Type {
     String,
     Null,
     Void,
+    Unknown,
     Never,
     AsValue(Box<Type>),
     Nullable(Box<Type>),
+    Array(Box<Type>),
     Addr(Box<Type>),
     Function {
         parameters: Vec<FunctionParameterType>,
@@ -48,9 +50,11 @@ impl Display for Type {
             T::Null => "null".to_string(),
             T::Void => "void".to_string(),
             T::Never => "never".to_string(),
+            T::Unknown => "unknown".to_string(),
             T::AsValue(ty) => format!("type[{ty}]"),
             T::Nullable(ty) => format!("{ty}?"),
             T::Addr(ty) => format!("{ty}*"),
+            T::Array(ty) => format!("arr[{ty}]"),
             T::Function {
                 parameters: paramters,
                 return_type,
@@ -67,13 +71,13 @@ impl Display for Type {
 }
 
 impl Type {
-    pub fn from_token(token: &Token) -> Option<Type> {
+    pub const fn from_token(token: &Token) -> Option<Type> {
         Some(match token {
             Token::TyInt => Type::Int,
             Token::TyChar => Type::Char,
             Token::TyString => Type::String,
             Token::TyFloat => Type::Float,
-            Token::Bool => Type::Bool,
+            Token::TyBool => Type::Bool,
             _ => return None,
         })
     }
@@ -87,6 +91,7 @@ impl Type {
                     || t1.satisfies(t2)
             }
             (Type::Nullable(_), Type::Null) => true,
+            (Type::Array(arr_ty1), Type::Array(arr_ty2)) => arr_ty1.satisfies(arr_ty2),
             (t1, t2) => t1.is(t2),
         }
     }
@@ -95,10 +100,14 @@ impl Type {
         self == other
     }
 
+    pub const fn is_nullish(&self) -> bool {
+        matches!(self, Type::Null | Type::Void | Type::Unknown | Type::Never)
+    }
+
     pub fn unwrap_nullable(self) -> Type {
         match self {
             Type::Nullable(t) => *t,
-            t => t.unwrap_nullable(),
+            t => t,
         }
     }
 }

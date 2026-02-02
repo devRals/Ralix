@@ -1,4 +1,5 @@
 mod address;
+mod array;
 mod copy;
 mod else_if;
 mod function;

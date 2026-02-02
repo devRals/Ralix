@@ -3,7 +3,10 @@ use clap::Args;
 use ratatui::DefaultTerminal;
 
 #[derive(Args, Debug)]
-pub struct REPLArguments {}
+pub struct REPLArguments {
+    #[arg(long)]
+    legacy: bool,
+}
 
 pub fn run(_args: REPLArguments) -> color_eyre::Result<()> {
     ratatui::run(run_repl)

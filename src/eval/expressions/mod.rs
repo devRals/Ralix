@@ -1,6 +1,7 @@
 use crate::{EvalResult, Evaluator, Expression, Object};
 
 mod address;
+mod array;
 mod copy;
 mod function;
 mod identifier;
@@ -17,6 +18,7 @@ impl Evaluator<'_> {
             Expression::Float(val) => Object::Float(val).into(),
             Expression::String(val) => Object::String(val).into(),
             Expression::Char(val) => Object::Char(val).into(),
+            Expression::Array { items } => self.evaluate_array_literal(items),
             Expression::Boolean(val) => match val {
                 true => Object::TRUE.into(),
                 false => Object::FALSE.into(),

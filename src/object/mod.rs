@@ -18,6 +18,7 @@ pub enum Object {
     Boolean(bool),
     Type(Type),
     Address(*const Object),
+    Array(Rc<[Object]>),
     Null,
 
     Function(Rc<Function>),
@@ -37,6 +38,13 @@ impl Object {
             O::Float(_) => Type::Float,
             O::Null => Type::Null,
             O::String(_) => Type::String,
+            O::Array(items) => Type::Array(
+                items
+                    .first()
+                    .map(|i| i.r#type())
+                    .unwrap_or(Type::Unknown)
+                    .into(),
+            ),
             O::Type(t) => Type::AsValue(t.clone().into()),
             O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
             O::Function(func) => Type::Function {
@@ -121,6 +129,14 @@ impl Display for Object {
             O::Type(ty) => ty.to_string(),
             O::Address(addr) => format!("<{addr:?}>"),
             O::Function(func) => func.to_string(),
+            O::Array(items) => format!(
+                "[{}]",
+                items
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
         })
     }
 }

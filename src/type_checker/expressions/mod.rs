@@ -39,6 +39,7 @@ impl TypeChecker<'_> {
                 function,
                 arguments,
             } => self.check_call_expression(function, arguments),
+            E::Array { items } => self.check_array_literal(items),
         }
     }
 }
