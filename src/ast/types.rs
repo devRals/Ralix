@@ -27,7 +27,7 @@ pub enum Type {
     Null,
     Void,
     Never,
-    AsValue,
+    AsValue(Box<Type>),
     Nullable(Box<Type>),
     Addr(Box<Type>),
     Function {
@@ -48,7 +48,7 @@ impl Display for Type {
             T::Null => "null".to_string(),
             T::Void => "void".to_string(),
             T::Never => "never".to_string(),
-            T::AsValue => "type".to_string(),
+            T::AsValue(ty) => format!("type[{ty}]"),
             T::Nullable(ty) => format!("{ty}?"),
             T::Addr(ty) => format!("{ty}*"),
             T::Function {

@@ -10,7 +10,7 @@ impl Parser<'_> {
             Token::TyChar => Type::Char,
             Token::TyFloat => Type::Float,
             Token::TyString => Type::String,
-            Token::Type => Type::AsValue,
+            Token::Type => self.parse_type_as_value_type_definition()?,
             Token::Function => self.parse_function_type_definition()?,
             Token::Ident(literal) => self.parse_identifier_type_definition(literal.clone())?,
             t => {

@@ -1,6 +1,6 @@
-use std::{fmt::Display, process, rc::Rc};
+use std::{fmt::Display, rc::Rc};
 
-use crate::{Environment, Node, NodeV, Object, Program};
+use crate::{Environment, Object, Program};
 
 mod context;
 mod error;
@@ -70,14 +70,6 @@ impl<'env> Evaluator<'env> {
 }
 
 impl Evaluator<'_> {
-    pub fn evaluate(&mut self, node: impl Node) -> EvalResult<Object> {
-        match node.downcast() {
-            NodeV::Program(program) => self.evaluate_program(program),
-            NodeV::Statement(stmt) => self.evaluate_statement(stmt),
-            NodeV::Expression(expr) => self.evaluate_expression(expr),
-        }
-    }
-
     pub fn evaluate_program(&mut self, program: Program) -> EvalResult<Object> {
         let mut result = EvalResult::NoValue;
 
@@ -99,9 +91,6 @@ impl Evaluator<'_> {
     }
 
     pub fn panic<M: Display>(&self, msg: M) -> ! {
-        eprintln!("\x1b[91mPanic!\x1b[0m: {msg}");
-        // Only exit codes I know is 0 and 1 :/
-        // Sorry
-        process::exit(1)
+        panic!("\x1b[91mPanic!\x1b[0m: {msg}")
     }
 }

@@ -12,7 +12,7 @@ impl TypeChecker<'_> {
             E::Float(_) => Ok(Type::Float),
             E::Integer(_) => Ok(Type::Int),
             E::Boolean(_) => Ok(Type::Bool),
-            E::Type(_) => Ok(Type::AsValue),
+            E::Type(ty) => Ok(Type::AsValue(Box::new(ty.clone()))),
             E::Null => Ok(Type::Null),
             E::Identifier(ident) => self.infer_identifier(ident),
             E::Copy(ident) => self.infer_copy_expression(ident),

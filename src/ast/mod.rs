@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use serde::Serialize;
 
 use crate::{
@@ -11,16 +9,6 @@ use crate::{
 pub mod expressions;
 mod impls;
 pub mod types;
-
-pub trait Node: Display {
-    fn downcast(self) -> NodeV;
-}
-
-pub enum NodeV {
-    Program(Program),
-    Statement(Statement),
-    Expression(Expression),
-}
 
 #[derive(Debug, Clone, Serialize)]
 pub enum Statement {

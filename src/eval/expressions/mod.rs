@@ -7,6 +7,7 @@ mod identifier;
 mod if_else;
 mod infix_prefix;
 mod scope;
+mod type_casting;
 mod r#typeof;
 
 impl Evaluator<'_> {

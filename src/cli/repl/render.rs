@@ -2,12 +2,12 @@ use ratatui::{
     Frame,
     layout::{Constraint, HorizontalAlignment, Layout, Position, Rect},
     style::{Color, Modifier, Style, Stylize},
-    text::Line,
+    text::{Line, Span},
     widgets::{Block, Borders, Cell, Clear, Paragraph, Row, Table, Tabs},
 };
 
 use super::{Repl, Tab};
-use crate::{EvalResult, repl::ReplState};
+use crate::{EvalResult, Object, repl::ReplState};
 
 const PROMPT: &str = ">>>";
 const CONTINUATION_PROMPT: &str = "...";
@@ -132,13 +132,13 @@ impl Repl {
 
         f.render_widget(
             match &self.eval_result {
-                EvalResult::Value(v) => v.to_string(),
+                EvalResult::Value(v) => colorize_obj(v),
                 EvalResult::Return(v) => match v {
-                    Some(v) => v.to_string(),
-                    None => "No Value".dark_gray().to_string(),
+                    Some(v) => colorize_obj(v),
+                    None => "No Value".dark_gray(),
                 },
-                EvalResult::NoValue => "No Value".dark_gray().to_string(),
-                EvalResult::Err(err) => err.to_string(),
+                EvalResult::NoValue => "No Value".dark_gray(),
+                EvalResult::Err(err) => err.to_string().red(),
             },
             area,
         );
@@ -267,4 +267,18 @@ fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
         Constraint::Percentage((100 - percent_x) / 2),
     ])
     .split(popup_layout[1])[1]
+}
+
+fn colorize_obj(obj: &Object) -> Span<'_> {
+    match obj {
+        Object::Int(v) => v.light_yellow(),
+        Object::Float(v) => v.light_yellow(),
+        Object::Char(v) => format!("'{v}'").light_cyan(),
+        Object::String(v) => format!("\"{v}\"").light_green(),
+        Object::Boolean(v) => v.cyan(),
+        Object::Type(v) => v.to_string().light_yellow(),
+        Object::Address(v) => format!("<{v:?}>").dark_gray(),
+        Object::Null => "null".dark_gray(),
+        Object::Function(func) => func.to_string().white(),
+    }
 }

@@ -1,15 +1,10 @@
 use std::fmt::Display;
 
 use crate::{
-    Expression, Node, NodeV, Program, Statement,
+    Expression, Program, Statement,
     expressions::{InfixOperator, PrefixOperator},
 };
 
-impl Node for Expression {
-    fn downcast(self) -> NodeV {
-        NodeV::Expression(self)
-    }
-}
 impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use Expression as E;
@@ -100,11 +95,6 @@ impl Display for Expression {
     }
 }
 
-impl Node for Statement {
-    fn downcast(self) -> super::NodeV {
-        NodeV::Statement(self)
-    }
-}
 impl Display for Statement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&match self {
@@ -137,11 +127,6 @@ impl Display for Statement {
     }
 }
 
-impl Node for Program {
-    fn downcast(self) -> NodeV {
-        NodeV::Program(self)
-    }
-}
 impl Display for Program {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for s in &self.statements {

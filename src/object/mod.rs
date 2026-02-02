@@ -37,7 +37,7 @@ impl Object {
             O::Float(_) => Type::Float,
             O::Null => Type::Null,
             O::String(_) => Type::String,
-            O::Type(_) => Type::AsValue,
+            O::Type(t) => Type::AsValue(t.clone().into()),
             O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
             O::Function(func) => Type::Function {
                 parameters: func
@@ -86,6 +86,27 @@ pub struct Function {
     pub env: FunctionEnvironment,
 }
 
+impl Display for Function {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let return_type = &self.return_type;
+        let body = &self.body;
+        let parameters = &self
+            .parameters
+            .iter()
+            .map(|param| {
+                format!(
+                    "{}{} {}",
+                    if param.is_constant { "const " } else { "" },
+                    param.type_def,
+                    param.name
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\x1b[0m, ");
+        write!(f, "fn({}) -> {return_type}: {body}", parameters)
+    }
+}
+
 impl Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use Object as O;
@@ -99,24 +120,7 @@ impl Display for Object {
             O::Null => "null".to_string(),
             O::Type(ty) => ty.to_string(),
             O::Address(addr) => format!("<{addr:?}>"),
-            O::Function(func) => {
-                let return_type = &func.return_type;
-                let body = &func.body;
-                let parameters = &func.parameters;
-                format!(
-                    "fn({}) -> {return_type}: {body}",
-                    parameters
-                        .iter()
-                        .map(|param| format!(
-                            "{}{} {}",
-                            if param.is_constant { "const " } else { "" },
-                            param.type_def,
-                            param.name
-                        ))
-                        .collect::<Vec<_>>()
-                        .join("\x1b[0m, ")
-                )
-            }
+            O::Function(func) => func.to_string(),
         })
     }
 }

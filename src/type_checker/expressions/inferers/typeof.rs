@@ -8,6 +8,6 @@ impl TypeChecker<'_> {
             return Err(CheckerError::TypeofHadNullableExpr);
         }
 
-        Ok(Type::AsValue)
+        Ok(Type::AsValue(expr_ty.into()))
     }
 }

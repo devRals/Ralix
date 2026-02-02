@@ -19,6 +19,7 @@ pub enum CheckerError {
     TypeofHadNullableExpr,
     AlreadyDefinedConstant(Identifier),
     IsAConstant(Identifier),
+    UnavailableForCast(Type, Type),
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -55,7 +56,8 @@ impl Display for CheckerError {
             E::MismatchedArgumentCount(expected, got) => format!("A function expected `{expected}` arguments but got `{got}`"),
             E::TypeofHadNullableExpr => "`typeof` expression cannot accept \"nullable\" expressions".to_string(),
             E::AlreadyDefinedConstant(ident) => format!("`{ident}` is already defined in the current scope as a \"constant\" and cannot be overwritten. Try using an another identifier name"),
-            E::IsAConstant(ident) => format!("Cannot assign a value to `{ident}` because it's a \"constant\"")
+            E::IsAConstant(ident) => format!("Cannot assign a value to `{ident}` because it's a \"constant\""),
+            E::UnavailableForCast(t1, t2) => format!("Cannot cast a value typeof `{t2}` to a type `{t1}`"),
         })
     }
 }

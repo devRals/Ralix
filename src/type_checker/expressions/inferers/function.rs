@@ -75,6 +75,30 @@ impl TypeChecker<'_> {
 
                 Ok(*return_type)
             }
+            Type::AsValue(ty) => {
+                if argument_types.len() != 1 {
+                    return Err(CheckerError::MismatchedArgumentCount(1, arguments.len()));
+                }
+                let first_arg_ty = argument_types.first().unwrap();
+
+                if first_arg_ty == &*ty {
+                    return Ok(*ty);
+                }
+
+                // I might be stupid
+                let is_available_for_cast = matches!(
+                    (&*ty, first_arg_ty),
+                    (Type::Int, Type::Float)
+                        | (Type::Float, Type::Int)
+                        | (Type::String, Type::Char | Type::Int | Type::Float)
+                );
+
+                if !is_available_for_cast {
+                    return Err(CheckerError::UnavailableForCast(*ty, first_arg_ty.clone()));
+                }
+
+                Ok(*ty)
+            }
             t => Err(CheckerError::CannotBeCalled(t)),
         }
     }

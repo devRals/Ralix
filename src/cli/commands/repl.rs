@@ -6,7 +6,6 @@ use ratatui::DefaultTerminal;
 pub struct REPLArguments {}
 
 pub fn run(_args: REPLArguments) -> color_eyre::Result<()> {
-    color_eyre::install()?;
     ratatui::run(run_repl)
 }
 

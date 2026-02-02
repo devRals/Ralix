@@ -1,7 +1,9 @@
 use clap::Parser;
 use ralix::{Commands, cli::Cli, commands};
 
-fn main() -> anyhow::Result<()> {
+fn main() -> color_eyre::Result<()> {
+    let error_builder = color_eyre::config::HookBuilder::default().display_location_section(false);
+    error_builder.install()?;
     let app = Cli::parse();
 
     Ok(match app.command {
