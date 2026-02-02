@@ -190,7 +190,7 @@ impl Token {
             T::Int(lit) => lit.clone(),
             T::Float(lit) => lit.clone(),
             T::True => Literal::from("true"),
-            T::False => Literal::from("true"),
+            T::False => Literal::from("false"),
             t => Literal::from(t.to_string()),
         }
         .clone()
