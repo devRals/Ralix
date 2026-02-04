@@ -9,8 +9,8 @@ use ratatui::{
 use super::{Repl, Tab};
 use crate::{EvalResult, Object, repl::ReplState};
 
-const PROMPT: &str = ">>>";
-const CONTINUATION_PROMPT: &str = "...";
+pub(super) const PROMPT: &str = ">>>";
+pub(super) const CONTINUATION_PROMPT: &str = "...";
 const _HELP_PROMPT: &str = "help>";
 
 impl Repl {

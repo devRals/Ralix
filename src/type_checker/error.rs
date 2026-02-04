@@ -15,6 +15,7 @@ pub enum CheckerError {
     CannotDereference(Type),
     IfBranchesUnsatisfied(Type, Type),
     CannotBeCalled(Type),
+    CannotbeIndexedBy(Type, Type),
     MismatchedArgumentCount(usize, usize),
     TypeofHadNullableExpr,
     AlreadyDefinedConstant(Identifier),
@@ -59,7 +60,9 @@ impl Display for CheckerError {
             E::AlreadyDefinedConstant(ident) => format!("`{ident}` is already defined in the current scope as a \"constant\" and cannot be overwritten. Try using an another identifier name"),
             E::IsAConstant(ident) => format!("Cannot assign a value to `{ident}` because it's a \"constant\""),
             E::UnavailableForCast(t1, t2) => format!("Cannot cast a value typeof `{t2}` to a type `{t1}`"),
-    E::ArrayHasMultipleDifferentType(t1, t2) => format!("Array has multiple types of value, `{t1}` and `{t2}`")
+    E::ArrayHasMultipleDifferentType(t1, t2) => format!("Array has multiple types of value, `{t1}` and `{t2}`"),
+            E::CannotbeIndexedBy(t1, t2) => format!("Type `{t1}` cannot be indexed by `{t2}`")
+
         })
     }
 }

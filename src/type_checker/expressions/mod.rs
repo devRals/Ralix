@@ -40,6 +40,7 @@ impl TypeChecker<'_> {
                 arguments,
             } => self.check_call_expression(function, arguments),
             E::Array { items } => self.check_array_literal(items),
+            E::Index { left, index } => self.check_index_expression(left, index),
         }
     }
 }

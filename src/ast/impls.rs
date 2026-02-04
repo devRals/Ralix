@@ -100,6 +100,8 @@ impl Display for Expression {
                     .collect::<Vec<_>>()
                     .join(", ")
             ),
+
+            E::Index { left, index } => format!("{left}[{index}]"),
         })
     }
 }

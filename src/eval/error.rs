@@ -13,6 +13,7 @@ pub enum EvaluationError {
 
     UnsupportedInfixOperation(Type, InfixOperator, Type),
     UnsupportedPrefixOperation(PrefixOperator, Type),
+    UnsupportedIndexOperation(Type, Type),
 
     CannotBeDereferenced(Type),
     CannotAssign(Expression, Object),
@@ -37,6 +38,9 @@ impl Display for EvaluationError {
             E::UnsupportedCopyType(ty) => format!("Cannot create a copy of type `{ty}`"),
             E::UnsupportedInfixOperation(left_ty, op, right_ty) => {
                 format!("Operator `{op}` is not supported for types `{left_ty}` and `{right_ty}`")
+            }
+            E::UnsupportedIndexOperation(left, idx) => {
+                format!("Index operation not supported for types `{left}` and `{idx}`")
             }
             E::UnsupportedPrefixOperation(op, right_ty) => {
                 format!("Operator `{op}` is not supported for type `{right_ty}`")

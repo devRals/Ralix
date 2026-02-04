@@ -18,7 +18,7 @@ pub enum Object {
     Boolean(bool),
     Type(Type),
     Address(*const Object),
-    Array(Rc<[Object]>),
+    Array(Vec<Object>),
     Null,
 
     Function(Rc<Function>),

@@ -6,6 +6,7 @@ mod copy;
 mod function;
 mod identifier;
 mod if_else;
+mod index;
 mod infix_prefix;
 mod number;
 mod scope;
@@ -106,6 +107,7 @@ impl Parser<'_> {
                 | Token::GreaterThan
                 | Token::GreatEqual => self.parse_infix_expression(initial_expression)?,
                 Token::LParen => self.parse_call_expression(initial_expression)?,
+                Token::LBracket => self.parse_index_expression(initial_expression)?,
 
                 _ => initial_expression,
             }

@@ -76,6 +76,11 @@ pub enum Expression {
     Array {
         items: Vec<Expression>,
     },
+
+    Index {
+        left: Box<Expression>,
+        index: Box<Expression>,
+    },
 }
 
 #[derive(Serialize, Clone)]

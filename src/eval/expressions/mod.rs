@@ -6,6 +6,7 @@ mod copy;
 mod function;
 mod identifier;
 mod if_else;
+mod index;
 mod infix_prefix;
 mod scope;
 mod type_casting;
@@ -23,6 +24,7 @@ impl Evaluator<'_> {
                 true => Object::TRUE.into(),
                 false => Object::FALSE.into(),
             },
+            Expression::Index { left, index } => self.evaluate_index_expression(*left, *index),
             Expression::Null => Object::NULL.into(),
             Expression::Type(ty) => Object::Type(ty).into(),
             Expression::Identifier(ident) => self.evaluate_identifier(ident),

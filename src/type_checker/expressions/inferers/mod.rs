@@ -4,6 +4,7 @@ mod copy;
 mod else_if;
 mod function;
 mod identifier;
+mod index;
 mod infix_prefix;
 mod scope;
 mod r#typeof;

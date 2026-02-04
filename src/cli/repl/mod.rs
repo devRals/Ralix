@@ -11,6 +11,8 @@ mod commands;
 mod events;
 mod render;
 
+pub mod legacy;
+
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
 enum Tab {
     Evaluation,

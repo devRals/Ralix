@@ -9,6 +9,6 @@ impl Evaluator<'_> {
             values.push(item_obj);
         }
 
-        EvalResult::Value(Object::Array(values.into()))
+        EvalResult::Value(Object::Array(values))
     }
 }
