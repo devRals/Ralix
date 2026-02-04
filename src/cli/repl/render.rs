@@ -281,5 +281,6 @@ fn colorize_obj(obj: &Object) -> Span<'_> {
         Object::Null => "null".dark_gray(),
         Object::Function(func) => func.to_string().white(),
         Object::Array(_) => obj.to_string().white(),
+        Object::HashMap(_) => obj.to_string().white(),
     }
 }

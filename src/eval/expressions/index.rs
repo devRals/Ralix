@@ -15,6 +15,16 @@ impl Evaluator<'_> {
                 .cloned()
                 .unwrap_or(Object::NULL)
                 .into(),
+            (Object::HashMap(hash_map), index) => {
+                let hash_key = index.hash_key().unwrap();
+
+                hash_map
+                    .get(&hash_key)
+                    .cloned()
+                    .map(|(_, v)| v)
+                    .unwrap_or(Object::NULL)
+                    .into()
+            }
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedIndexOperation(
                 o1.r#type(),
                 o2.r#type(),

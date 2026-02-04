@@ -11,6 +11,13 @@ impl TypeChecker<'_> {
 
         match (left_ty, index_ty) {
             (Type::Array(arr_ty), Type::Int) => Ok(Type::Nullable(arr_ty)),
+            (Type::HashMap { key, value }, index_ty) => match index_ty.is(&key) {
+                true => Ok(Type::Nullable(value)),
+                false => Err(CheckerError::CannotbeIndexedBy(
+                    Type::HashMap { key, value },
+                    index_ty,
+                )),
+            },
             (t1, t2) => Err(CheckerError::CannotbeIndexedBy(t1, t2)),
         }
     }

@@ -23,6 +23,7 @@ impl Parser<'_> {
             | Token::TyChar
             | Token::TyBool
             | Token::TyArr
+            | Token::TyMap
             | Token::Type
             | Token::Let => self.parse_binding_statement(),
             Token::Const => self.parse_constant_statements(),

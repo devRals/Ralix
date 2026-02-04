@@ -40,3 +40,9 @@ pub struct FunctionParameter {
     pub name: Identifier,
     pub is_constant: bool,
 }
+
+#[derive(Debug, Clone, Serialize)]
+pub struct HashMapItem {
+    pub key: Expression,
+    pub value: Expression,
+}

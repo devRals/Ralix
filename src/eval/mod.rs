@@ -52,7 +52,7 @@ impl Object {
             Object::Address(addr) => Object::Address(*addr),
             Object::Null => Object::NULL,
             Object::Function(func) => Object::Function(func.clone()),
-            Object::Array(arr) => Object::Array(arr.clone()),
+            _ => return None,
         }
         .into()
     }

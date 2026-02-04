@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::{
     Literal,
-    expressions::{ElseConsequence, FunctionParameter, Identifier, IfConsequence},
+    expressions::{ElseConsequence, FunctionParameter, HashMapItem, Identifier, IfConsequence},
     types::Type,
 };
 
@@ -75,6 +75,10 @@ pub enum Expression {
 
     Array {
         items: Vec<Expression>,
+    },
+
+    HashMap {
+        items: Vec<HashMapItem>,
     },
 
     Index {

@@ -11,6 +11,7 @@ impl Parser<'_> {
             Token::TyFloat => Type::Float,
             Token::TyString => Type::String,
             Token::TyArr => self.parse_array_type_definition()?,
+            Token::TyMap => self.parse_hashmap_type_definition()?,
             Token::Type => self.parse_type_as_value_type_definition()?,
             Token::Function => self.parse_function_type_definition()?,
             Token::Ident(literal) => self.parse_identifier_type_definition(literal.clone())?,

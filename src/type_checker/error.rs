@@ -16,12 +16,15 @@ pub enum CheckerError {
     IfBranchesUnsatisfied(Type, Type),
     CannotBeCalled(Type),
     CannotbeIndexedBy(Type, Type),
+    CannotBeHashed(Type),
     MismatchedArgumentCount(usize, usize),
     TypeofHadNullableExpr,
     AlreadyDefinedConstant(Identifier),
     IsAConstant(Identifier),
     UnavailableForCast(Type, Type),
     ArrayHasMultipleDifferentType(Type, Type),
+    HashMaphHasMultipleDifferentKeyTypes(Type, Type),
+    HashMaphHasMultipleDifferentValueTypes(Type, Type),
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -60,8 +63,11 @@ impl Display for CheckerError {
             E::AlreadyDefinedConstant(ident) => format!("`{ident}` is already defined in the current scope as a \"constant\" and cannot be overwritten. Try using an another identifier name"),
             E::IsAConstant(ident) => format!("Cannot assign a value to `{ident}` because it's a \"constant\""),
             E::UnavailableForCast(t1, t2) => format!("Cannot cast a value typeof `{t2}` to a type `{t1}`"),
-    E::ArrayHasMultipleDifferentType(t1, t2) => format!("Array has multiple types of value, `{t1}` and `{t2}`"),
-            E::CannotbeIndexedBy(t1, t2) => format!("Type `{t1}` cannot be indexed by `{t2}`")
+            E::ArrayHasMultipleDifferentType(t1, t2) => format!("Array has multiple types of values, `{t1}` and `{t2}`"),
+            E::CannotbeIndexedBy(t1, t2) => format!("Type `{t1}` cannot be indexed by `{t2}`"),
+            E::CannotBeHashed(t) => format!("Type `{t}` cannot be used as key in a hashmap"),
+            E::HashMaphHasMultipleDifferentKeyTypes(t1, t2) => format!("Hashmap has multipe types of keys, `{t1}` and `{t2}`"),
+            E::HashMaphHasMultipleDifferentValueTypes(t1, t2) => format!("Hashmap has multipe types of values, `{t1}` and `{t2}`"),
 
         })
     }

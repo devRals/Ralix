@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::{
     Expression, Program, Statement,
-    expressions::{InfixOperator, PrefixOperator},
+    expressions::{HashMapItem, InfixOperator, PrefixOperator},
 };
 
 impl Display for Expression {
@@ -101,6 +101,15 @@ impl Display for Expression {
                     .join(", ")
             ),
 
+            E::HashMap { items } => format!(
+                "#{{ {} }}",
+                items
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+
             E::Index { left, index } => format!("{left}[{index}]"),
         })
     }
@@ -175,5 +184,11 @@ impl Display for PrefixOperator {
             PrefixOperator::Neg => "-",
             PrefixOperator::Deref => "*",
         })
+    }
+}
+
+impl Display for HashMapItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}: {}", self.key, self.value)
     }
 }

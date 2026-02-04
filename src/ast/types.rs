@@ -31,6 +31,10 @@ pub enum Type {
     AsValue(Box<Type>),
     Nullable(Box<Type>),
     Array(Box<Type>),
+    HashMap {
+        key: Box<Type>,
+        value: Box<Type>,
+    },
     Addr(Box<Type>),
     Function {
         parameters: Vec<FunctionParameterType>,
@@ -55,6 +59,7 @@ impl Display for Type {
             T::Nullable(ty) => format!("{ty}?"),
             T::Addr(ty) => format!("{ty}*"),
             T::Array(ty) => format!("arr[{ty}]"),
+            T::HashMap { key, value } => format!("map[{key}, {value}]"),
             T::Function {
                 parameters: paramters,
                 return_type,
@@ -82,6 +87,11 @@ impl Type {
         })
     }
 
+    pub fn is_hashable(&self) -> bool {
+        use Type::*;
+        matches!(self, Int | Bool | Char | String)
+    }
+
     pub fn satisfies(&self, other: &Type) -> bool {
         match (self, other) {
             (t1, Type::Nullable(t2)) => {
@@ -92,6 +102,16 @@ impl Type {
             }
             (Type::Nullable(_), Type::Null) => true,
             (Type::Array(arr_ty1), Type::Array(arr_ty2)) => arr_ty1.satisfies(arr_ty2),
+            (
+                Type::HashMap {
+                    key: key1,
+                    value: value1,
+                },
+                Type::HashMap {
+                    key: key2,
+                    value: value2,
+                },
+            ) => key1.satisfies(key2) && value1.satisfies(value2),
             (t1, t2) => t1.is(t2),
         }
     }

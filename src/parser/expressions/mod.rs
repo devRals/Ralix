@@ -4,6 +4,7 @@ mod address;
 mod array;
 mod copy;
 mod function;
+mod hashmap;
 mod identifier;
 mod if_else;
 mod index;
@@ -79,6 +80,7 @@ impl Parser<'_> {
             Token::If => self.parse_if_expression()?,
             Token::Function => self.parse_function_expression()?,
             Token::LBracket => self.parse_array_literal()?,
+            Token::Hash => self.parse_hashmap_literal()?,
             t => return Err(ParserError::ExpressionMistake(t.clone())),
         };
 

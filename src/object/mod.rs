@@ -1,4 +1,9 @@
-use std::{fmt::Display, rc::Rc};
+use std::{
+    collections::HashMap,
+    fmt::Display,
+    hash::{DefaultHasher, Hash, Hasher},
+    rc::Rc,
+};
 
 use crate::{
     Expression, Literal,
@@ -8,6 +13,10 @@ use crate::{
 mod environment;
 
 pub use environment::*;
+
+pub type HashKey = u64;
+
+pub type HashPair = (Object, Object);
 
 #[derive(Debug, Clone)]
 pub enum Object {
@@ -19,6 +28,7 @@ pub enum Object {
     Type(Type),
     Address(*const Object),
     Array(Vec<Object>),
+    HashMap(HashMap<HashKey, HashPair>),
     Null,
 
     Function(Rc<Function>),
@@ -45,6 +55,18 @@ impl Object {
                     .unwrap_or(Type::Unknown)
                     .into(),
             ),
+            Object::HashMap(hm) => {
+                let (k, v) = hm
+                    .values()
+                    .next()
+                    .map(|(k, v)| (k.r#type(), v.r#type()))
+                    .unwrap_or((Type::Unknown, Type::Unknown));
+
+                Type::HashMap {
+                    key: k.into(),
+                    value: v.into(),
+                }
+            }
             O::Type(t) => Type::AsValue(t.clone().into()),
             O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
             O::Function(func) => Type::Function {
@@ -59,6 +81,29 @@ impl Object {
                 return_type: Box::new(func.return_type.clone()),
             },
         }
+    }
+
+    pub fn hash_key(&self) -> Option<HashKey> {
+        let mut hasher = DefaultHasher::new();
+
+        Some(match self {
+            Object::Boolean(v) => match *v {
+                true => 1,
+                false => 0,
+            },
+
+            Object::Int(v) => *v as HashKey,
+            Object::String(v) => {
+                v.hash(&mut hasher);
+                hasher.finish()
+            }
+
+            Object::Char(v) => {
+                v.hash(&mut hasher);
+                hasher.finish()
+            }
+            _ => return None,
+        })
     }
 
     pub fn new_function(
@@ -137,6 +182,12 @@ impl Display for Object {
                     .collect::<Vec<_>>()
                     .join(", ")
             ),
+            O::HashMap(hm) => format!("#{{ {} }}", {
+                hm.values()
+                    .map(|(k, v)| format!("{k}: {v}"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            }),
         })
     }
 }

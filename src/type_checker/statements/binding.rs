@@ -68,6 +68,20 @@ fn infer_generics(type_annotation: &Type, value_ty: &mut Type) {
                 **got = *expected.clone()
             }
         }
+        (
+            Type::HashMap { key, value },
+            Type::HashMap {
+                key: expected_k,
+                value: expected_v,
+            },
+        ) => {
+            if let Type::Unknown = &**key {
+                **key = *expected_k.clone()
+            }
+            if let Type::Unknown = &**value {
+                **value = *expected_v.clone()
+            }
+        }
         _ => {}
     }
 }

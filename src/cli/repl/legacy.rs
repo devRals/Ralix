@@ -121,6 +121,7 @@ fn colorize_obj(obj: &Object) -> String {
         Object::Null => "null".bright_black().to_string(),
         Object::Function(func) => func.white().to_string(),
         Object::Array(_) => obj.white().to_string(),
+        Object::HashMap(_) => obj.white().to_string(),
     }
 }
 

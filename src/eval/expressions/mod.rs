@@ -4,6 +4,7 @@ mod address;
 mod array;
 mod copy;
 mod function;
+mod hashmap;
 mod identifier;
 mod if_else;
 mod index;
@@ -20,6 +21,7 @@ impl Evaluator<'_> {
             Expression::String(val) => Object::String(val).into(),
             Expression::Char(val) => Object::Char(val).into(),
             Expression::Array { items } => self.evaluate_array_literal(items),
+            Expression::HashMap { items } => self.evaluate_hashmap_literal(items),
             Expression::Boolean(val) => match val {
                 true => Object::TRUE.into(),
                 false => Object::FALSE.into(),

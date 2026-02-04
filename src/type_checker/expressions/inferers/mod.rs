@@ -3,6 +3,7 @@ mod array;
 mod copy;
 mod else_if;
 mod function;
+mod hashmap;
 mod identifier;
 mod index;
 mod infix_prefix;
