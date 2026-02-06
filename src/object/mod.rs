@@ -34,6 +34,14 @@ pub enum Object {
     Function(Rc<Function>),
 }
 
+macro_rules! hash {
+    (  $v: expr ) => {{
+        let mut hasher = DefaultHasher::new();
+        $v.hash(&mut hasher);
+        hasher.finish()
+    }};
+}
+
 impl Object {
     pub const TRUE: Self = Object::Boolean(true);
     pub const FALSE: Self = Object::Boolean(false);
@@ -84,24 +92,11 @@ impl Object {
     }
 
     pub fn hash_key(&self) -> Option<HashKey> {
-        let mut hasher = DefaultHasher::new();
-
         Some(match self {
-            Object::Boolean(v) => match *v {
-                true => 1,
-                false => 0,
-            },
-
-            Object::Int(v) => *v as HashKey,
-            Object::String(v) => {
-                v.hash(&mut hasher);
-                hasher.finish()
-            }
-
-            Object::Char(v) => {
-                v.hash(&mut hasher);
-                hasher.finish()
-            }
+            Object::Boolean(v) => hash!(v),
+            Object::Int(v) => hash!(v),
+            Object::String(v) => hash!(v),
+            Object::Char(v) => hash!(v),
             _ => return None,
         })
     }
@@ -123,6 +118,10 @@ impl Object {
     pub fn is_true(&self) -> bool {
         Object::TRUE == *self
     }
+
+    pub fn is_null(&self) -> bool {
+        matches!(self, Object::Null)
+    }
 }
 
 /// Snapshot of last scope in the [`Environment`]
@@ -134,7 +133,7 @@ pub struct FunctionEnvironment {
 #[derive(Debug)]
 pub struct Function {
     pub parameters: Vec<FunctionParameter>,
-    return_type: Type,
+    pub return_type: Type,
     pub body: Expression,
     pub env: FunctionEnvironment,
 }

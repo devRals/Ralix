@@ -12,6 +12,7 @@ mod infix_prefix;
 mod number;
 mod scope;
 mod string;
+mod r#try;
 mod types;
 
 #[derive(PartialEq, PartialOrd)]
@@ -49,7 +50,7 @@ impl Precedence {
             T::Asterisk | T::Slash => Precedence::Product,
             T::InAHundred => Precedence::Product,
             T::LParen => Precedence::Call,
-            T::LBracket | T::Namespace | T::Notation => Precedence::Access,
+            T::LBracket | T::Namespace | T::Notation | T::QuestionMark => Precedence::Access,
             _ => Precedence::Lowest,
         }
     }
@@ -110,6 +111,7 @@ impl Parser<'_> {
                 | Token::GreatEqual => self.parse_infix_expression(initial_expression)?,
                 Token::LParen => self.parse_call_expression(initial_expression)?,
                 Token::LBracket => self.parse_index_expression(initial_expression)?,
+                Token::QuestionMark => self.parse_try_expression(initial_expression)?,
 
                 _ => initial_expression,
             }

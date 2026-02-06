@@ -42,6 +42,7 @@ impl TypeChecker<'_> {
             E::Array { items } => self.check_array_literal(items),
             E::HashMap { items } => self.check_hashmap_literal(items),
             E::Index { left, index } => self.check_index_expression(left, index),
+            E::Try(expr) => self.check_try_expression(expr),
         }
     }
 }

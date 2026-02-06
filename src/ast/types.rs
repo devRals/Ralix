@@ -17,6 +17,8 @@ impl Display for FunctionParameterType {
     }
 }
 
+pub type TypeId = usize;
+
 #[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Debug, Serialize)]
 pub enum Type {
     Bool,
@@ -31,6 +33,7 @@ pub enum Type {
     AsValue(Box<Type>),
     Nullable(Box<Type>),
     Array(Box<Type>),
+    TypeArg(TypeId),
     HashMap {
         key: Box<Type>,
         value: Box<Type>,
@@ -71,6 +74,7 @@ impl Display for Type {
                     .collect::<Vec<_>>()
                     .join(", ")
             ),
+            T::TypeArg(t) => format!("T: id = {t}"),
         })
     }
 }
@@ -83,6 +87,7 @@ impl Type {
             Token::TyString => Type::String,
             Token::TyFloat => Type::Float,
             Token::TyBool => Type::Bool,
+            Token::Null => Type::Null,
             _ => return None,
         })
     }
@@ -112,6 +117,7 @@ impl Type {
                     value: value2,
                 },
             ) => key1.satisfies(key2) && value1.satisfies(value2),
+            (_, Type::Void) => true,
             (t1, t2) => t1.is(t2),
         }
     }
@@ -121,7 +127,8 @@ impl Type {
     }
 
     pub const fn is_nullish(&self) -> bool {
-        matches!(self, Type::Null | Type::Void | Type::Unknown | Type::Never)
+        use Type::*;
+        matches!(self, Null | Void | Unknown | Never)
     }
 
     pub fn unwrap_nullable(self) -> Type {

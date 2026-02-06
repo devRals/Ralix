@@ -41,6 +41,7 @@ pub enum Expression {
     Null,
     TypeOf(Box<Expression>),
     Type(Type),
+    Try(Box<Expression>),
 
     Infix {
         left: Box<Expression>,

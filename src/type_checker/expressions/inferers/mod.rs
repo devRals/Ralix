@@ -8,4 +8,5 @@ mod identifier;
 mod index;
 mod infix_prefix;
 mod scope;
+mod r#try;
 mod r#typeof;

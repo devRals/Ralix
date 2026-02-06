@@ -20,6 +20,7 @@ impl Display for Expression {
             E::TypeOf(expr) => format!("typeof {expr}"),
             E::Type(ty) => format!("{ty}"),
             E::AddrOf(ident) => format!("&{ident}"),
+            E::Try(expr) => format!("{expr}?"),
             E::Infix {
                 left,
                 operator,

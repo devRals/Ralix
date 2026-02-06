@@ -47,7 +47,11 @@ impl Evaluator<'_> {
         let result = self.evaluate_expression(func.body.clone());
         self.ctx.leave_scope();
 
-        unwrap_return_value(result)
+        if matches!(func.return_type, Type::Void) {
+            EvalResult::NoValue
+        } else {
+            unwrap_return_value(result)
+        }
     }
 }
 

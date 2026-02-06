@@ -25,6 +25,8 @@ pub enum CheckerError {
     ArrayHasMultipleDifferentType(Type, Type),
     HashMaphHasMultipleDifferentKeyTypes(Type, Type),
     HashMaphHasMultipleDifferentValueTypes(Type, Type),
+    IsNotNullable(Type),
+    CannotUseTry(Type),
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -68,6 +70,8 @@ impl Display for CheckerError {
             E::CannotBeHashed(t) => format!("Type `{t}` cannot be used as key in a hashmap"),
             E::HashMaphHasMultipleDifferentKeyTypes(t1, t2) => format!("Hashmap has multipe types of keys, `{t1}` and `{t2}`"),
             E::HashMaphHasMultipleDifferentValueTypes(t1, t2) => format!("Hashmap has multipe types of values, `{t1}` and `{t2}`"),
+            E::IsNotNullable(ty) => format!("Try expression expects a nullable type but got `{ty}`"),
+            E::CannotUseTry(ty) => format!("Try expression cannot be used in a function that returns a value type of `{ty}`")
 
         })
     }

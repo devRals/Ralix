@@ -7,6 +7,7 @@ impl Parser<'_> {
     pub fn parse_assignment_statement(&mut self, expr: Expression) -> ParserResult<Statement> {
         match &expr {
             Expression::Identifier(_) => {}
+            Expression::Index { .. } => {}
             _ => return Err(ParserError::CannotAssignTo(expr)),
         };
 

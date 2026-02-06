@@ -10,6 +10,7 @@ mod if_else;
 mod index;
 mod infix_prefix;
 mod scope;
+mod r#try;
 mod type_casting;
 mod r#typeof;
 
@@ -29,6 +30,7 @@ impl Evaluator<'_> {
             Expression::Index { left, index } => self.evaluate_index_expression(*left, *index),
             Expression::Null => Object::NULL.into(),
             Expression::Type(ty) => Object::Type(ty).into(),
+            Expression::Try(expr) => self.evaluate_try_expression(*expr),
             Expression::Identifier(ident) => self.evaluate_identifier(ident),
             Expression::Infix {
                 left,
