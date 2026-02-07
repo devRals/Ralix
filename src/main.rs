@@ -1,5 +1,5 @@
 use clap::Parser;
-use ralix::{Commands, cli::Cli, commands};
+use ralix::cli::{Cli, Commands, commands};
 
 fn main() -> color_eyre::Result<()> {
     let error_builder = color_eyre::config::HookBuilder::default().display_location_section(false);

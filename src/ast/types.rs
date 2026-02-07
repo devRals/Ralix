@@ -137,6 +137,16 @@ impl Type {
             t => t,
         }
     }
+
+    pub const fn includes_unknown(&self) -> bool {
+        match self {
+            Type::Unknown => true,
+            Type::Array(arr_ty) => arr_ty.includes_unknown(),
+            Type::HashMap { value, .. } => value.includes_unknown(),
+            Type::AsValue(as_value_ty) => as_value_ty.includes_unknown(),
+            _ => false,
+        }
+    }
 }
 
 #[cfg(test)]

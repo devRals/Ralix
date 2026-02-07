@@ -13,8 +13,12 @@ impl TypeChecker<'_> {
             return Err(CheckerError::IsAConstant(ident.clone()));
         }
 
-        let left_ty = self.check_expression(left)?;
+        let mut left_ty = self.check_expression(left)?;
         let value_ty = self.check_expression(value)?;
+
+        if let Expression::Index { .. } = left {
+            left_ty = left_ty.unwrap_nullable()
+        }
 
         if value_ty.satisfies(&left_ty) {
             Ok(())

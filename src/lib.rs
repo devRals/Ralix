@@ -8,15 +8,14 @@ pub mod parser;
 pub mod symbol_table;
 pub mod type_checker;
 
-pub use ast::*;
-pub use cli::*;
-pub use eval::*;
-pub use lexer::*;
-pub use logger::*;
-pub use object::*;
-pub use parser::*;
-pub use symbol_table::*;
-pub use type_checker::*;
+pub(crate) use ast::*;
+pub(crate) use cli::*;
+pub(crate) use eval::*;
+pub(crate) use lexer::*;
+pub(crate) use object::*;
+pub(crate) use parser::*;
+pub(crate) use symbol_table::*;
+pub(crate) use type_checker::*;
 
 #[derive(Debug)]
 pub enum ExecuteError {

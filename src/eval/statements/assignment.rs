@@ -10,10 +10,7 @@ impl Evaluator<'_> {
         let left_obj = self.eval_lhs(left);
 
         if let Some(o) = left_obj {
-            let old_v = o.clone();
             *o = value_obj;
-
-            return old_v.into();
         }
 
         EvalResult::NoValue
@@ -38,7 +35,10 @@ impl Evaluator<'_> {
         let left = self.eval_lhs(left)?;
 
         match (left, index_obj) {
-            (Object::HashMap(hm), i) => hm.get_mut(&i.hash_key()?).map(|(_, v)| v),
+            (Object::HashMap(hm), i) => {
+                hm.insert(i.hash_key()?, (i.clone(), Object::NULL));
+                hm.get_mut(&i.hash_key()?).map(|(_, v)| v)
+            }
             (Object::Array(arr), Object::Int(i)) => arr.get_mut(i as usize),
             _ => None,
         }

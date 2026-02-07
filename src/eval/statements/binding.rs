@@ -5,9 +5,11 @@ impl Evaluator<'_> {
         let result = self.evaluate_expression(value);
 
         match result {
-            EvalResult::Value(value) => self.ctx.define(ident, value).into(),
-            EvalResult::NoValue => self.ctx.define(ident, Object::NULL).into(),
-            EvalResult::Err(_) | EvalResult::Return(_) => result,
-        }
+            EvalResult::Value(value) => self.ctx.define(ident, value),
+            EvalResult::NoValue => self.ctx.define(ident, Object::NULL),
+            EvalResult::Err(_) | EvalResult::Return(_) => return result,
+        };
+
+        EvalResult::NoValue
     }
 }

@@ -38,7 +38,7 @@ impl TypeChecker<'_> {
                 continue;
             }
 
-            if value.is(&Type::Unknown) && !value_ty.is_nullish() {
+            if value.includes_unknown() && !value_ty.is_nullish() {
                 value = value_ty;
                 continue;
             }

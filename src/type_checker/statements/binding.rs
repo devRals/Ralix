@@ -12,10 +12,12 @@ impl TypeChecker<'_> {
         value: &Expression,
         is_constant: bool,
     ) -> CheckerResult<()> {
-        if let Some(v) = self.symbol_table.resolve_ref(ident)
-            && v.is_constant
-        {
-            return Err(CheckerError::AlreadyDefinedConstant(ident.clone()));
+        if self.symbol_table.resolve_ref(ident).is_some() {
+            if is_constant {
+                return Err(CheckerError::AlreadyDefinedConstant(ident.clone()));
+            } else {
+                return Err(CheckerError::AlreadyDefined(ident.clone()));
+            }
         }
 
         // this allows recursive functions

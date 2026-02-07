@@ -23,7 +23,7 @@ impl TypeChecker<'_> {
                 continue;
             }
 
-            if ty.is(&Type::Unknown) && !item_ty.is_nullish() {
+            if ty.includes_unknown() && !item_ty.is_nullish() {
                 ty = item_ty;
                 continue;
             }
