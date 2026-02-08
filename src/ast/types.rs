@@ -1,8 +1,6 @@
-use std::fmt::Display;
-
 use serde::Serialize;
 
-use crate::Token;
+use crate::{Token, expressions::Identifier};
 
 #[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Debug, Serialize)]
 pub struct FunctionParameterType {
@@ -10,14 +8,11 @@ pub struct FunctionParameterType {
     pub is_constant: bool,
 }
 
-impl Display for FunctionParameterType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let constant = if self.is_constant { "const " } else { "" };
-        write!(f, "{}{}", constant, self.ty)
-    }
+#[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Debug, Serialize)]
+pub struct TypeVarId {
+    pub name: Identifier,
+    pub id: u64,
 }
-
-pub type TypeId = usize;
 
 #[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Debug, Serialize)]
 pub enum Type {
@@ -33,7 +28,7 @@ pub enum Type {
     AsValue(Box<Type>),
     Nullable(Box<Type>),
     Array(Box<Type>),
-    TypeArg(TypeId),
+    TypeVar(TypeVarId),
     HashMap {
         key: Box<Type>,
         value: Box<Type>,
@@ -42,41 +37,8 @@ pub enum Type {
     Function {
         parameters: Vec<FunctionParameterType>,
         return_type: Box<Type>,
+        generics: Vec<TypeVarId>,
     },
-}
-
-impl Display for Type {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use Type as T;
-        f.write_str(&match self {
-            T::Bool => "bool".to_string(),
-            T::Char => "char".to_string(),
-            T::Int => "int".to_string(),
-            T::Float => "float".to_string(),
-            T::String => "str".to_string(),
-            T::Null => "null".to_string(),
-            T::Void => "void".to_string(),
-            T::Never => "never".to_string(),
-            T::Unknown => "unknown".to_string(),
-            T::AsValue(ty) => format!("type[{ty}]"),
-            T::Nullable(ty) => format!("{ty}?"),
-            T::Addr(ty) => format!("{ty}*"),
-            T::Array(ty) => format!("arr[{ty}]"),
-            T::HashMap { key, value } => format!("map[{key}, {value}]"),
-            T::Function {
-                parameters: paramters,
-                return_type,
-            } => format!(
-                "fn({}) -> {return_type}",
-                paramters
-                    .iter()
-                    .map(|p| p.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ),
-            T::TypeArg(t) => format!("T: id = {t}"),
-        })
-    }
 }
 
 impl Type {
@@ -144,7 +106,22 @@ impl Type {
             Type::Array(arr_ty) => arr_ty.includes_unknown(),
             Type::HashMap { value, .. } => value.includes_unknown(),
             Type::AsValue(as_value_ty) => as_value_ty.includes_unknown(),
+            Type::Addr(addr_ty) => addr_ty.includes_unknown(),
             _ => false,
+        }
+    }
+
+    pub fn map<U, F: Fn(Type) -> Type>(self, f: F) -> Type {
+        match self {
+            Type::AsValue(ty) => Type::AsValue(f(*ty).into()),
+            Type::Array(ty) => Type::Array(f(*ty).into()),
+            Type::Nullable(ty) => Type::Nullable(f(*ty).into()),
+            Type::Addr(ty) => Type::Addr(f(*ty).into()),
+            Type::HashMap { key, value } => Type::HashMap {
+                key: f(*key).into(),
+                value: f(*value).into(),
+            },
+            x => f(x),
         }
     }
 }

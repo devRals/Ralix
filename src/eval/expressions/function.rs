@@ -1,6 +1,8 @@
 use crate::{
     EvalResult, EvaluationError, Evaluator, Expression, FunctionEnvironment, Object,
-    expressions::FunctionParameter, try_eval_result, types::Type,
+    expressions::FunctionParameter,
+    try_eval_result,
+    types::{Type, TypeVarId},
 };
 
 impl Evaluator<'_> {
@@ -9,6 +11,7 @@ impl Evaluator<'_> {
         parameters: Vec<FunctionParameter>,
         body: Expression,
         return_type: Type,
+        generics: Vec<TypeVarId>,
     ) -> EvalResult<Object> {
         let function = Object::new_function(
             parameters,
@@ -19,6 +22,7 @@ impl Evaluator<'_> {
             FunctionEnvironment {
                 items: self.ctx.environment.current_items(),
             },
+            generics,
         );
 
         EvalResult::Value(Object::Function(function))

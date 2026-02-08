@@ -64,6 +64,12 @@ Ralix is a statically typed language, and it comes with a set of built-in types.
   type[int] my_integer_ty = int;
   ```
 
+- **`map[K, V]`**: A Hash Map that holds `K` as keys and `V` as values.
+
+  ```
+  map[str, str] capitals = #{ "a": "A", "b": "B", c: "C" /* ... */}
+  ```
+
 > [!IMPORTANT]
 > Let bindings auto binds the types
 

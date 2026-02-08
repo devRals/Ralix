@@ -28,6 +28,7 @@ pub enum CheckerError {
     HashMaphHasMultipleDifferentValueTypes(Type, Type),
     IsNotNullable(Type),
     CannotUseTry(Type),
+    InfiniteType,
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -73,7 +74,8 @@ impl Display for CheckerError {
             E::HashMaphHasMultipleDifferentKeyTypes(t1, t2) => format!("Hashmap has multipe types of keys, `{t1}` and `{t2}`"),
             E::HashMaphHasMultipleDifferentValueTypes(t1, t2) => format!("Hashmap has multipe types of values, `{t1}` and `{t2}`"),
             E::IsNotNullable(ty) => format!("Try expression expects a nullable type but got `{ty}`"),
-            E::CannotUseTry(ty) => format!("Try expression cannot be used in a function that returns a value type of `{ty}`")
+            E::CannotUseTry(ty) => format!("Try expression cannot be used in a function that returns a value type of `{ty}`"),
+            E::InfiniteType => "Recursive type variables are not allowed".to_string(),
 
         })
     }

@@ -33,8 +33,8 @@ impl TypeChecker<'_> {
                 return_type,
                 body,
                 parameters,
-                ..
-            } => self.check_function_expression(parameters, body, return_type),
+                generics,
+            } => self.check_function_expression(parameters, body, return_type, generics),
             E::Call {
                 function,
                 arguments,

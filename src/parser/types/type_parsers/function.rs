@@ -5,6 +5,13 @@ use crate::{
 
 impl Parser<'_> {
     pub fn parse_function_type_definition(&mut self) -> ParserResult<Type> {
+        let generics = if self.is_peek_token(Token::LBracket) {
+            self.next_token();
+            self.parse_generics()?
+        } else {
+            Vec::new()
+        };
+
         self.expect_token(Token::LParen)?;
         let mut parameters = Vec::new();
         let mut return_type = Type::Void;
@@ -16,6 +23,7 @@ impl Parser<'_> {
                     return_type = self.parse_type_definition()?;
                 }
                 break Ok(Type::Function {
+                    generics,
                     parameters,
                     return_type: return_type.into(),
                 });

@@ -18,14 +18,16 @@ pub(crate) use symbol_table::*;
 pub(crate) use type_checker::*;
 
 #[derive(Debug)]
-pub enum ExecuteError {
+pub enum ExecuteErrorBase {
     ParserError(ProgramParseError),
     TypeCheckerError(ProgramCheckError),
     PanicError(EvaluationError),
 }
 
-impl std::error::Error for ExecuteError {}
-impl std::fmt::Display for ExecuteError {
+pub type ExecuteError = Box<ExecuteErrorBase>;
+
+impl std::error::Error for ExecuteErrorBase {}
+impl std::fmt::Display for ExecuteErrorBase {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::ParserError(e) => e.fmt(f),
@@ -56,7 +58,7 @@ pub fn execute_with_env(
 
     let mut evaluator = Evaluator::new(env);
     match evaluator.evaluate_program(program) {
-        EvalResult::Err(e) => Err(ExecuteError::PanicError(e)),
+        EvalResult::Err(e) => Err(ExecuteErrorBase::PanicError(e).into()),
         EvalResult::Value(o) => Ok(Some(o)),
         EvalResult::Return(o) => Ok(o),
         EvalResult::NoValue => Ok(None),
@@ -76,12 +78,12 @@ pub fn parse_with_symbol_table(
     let mut parser = Parser::new(lexer, symbol_table);
     let program = match parser.parse_program() {
         Ok(p) => p,
-        Err(e) => return Err(ExecuteError::ParserError(e)),
+        Err(e) => return Err(ExecuteErrorBase::ParserError(e).into()),
     };
 
     let mut checker = TypeChecker::with_symbol_table(symbol_table);
     if let Err(e) = checker.check_program(&program) {
-        return Err(ExecuteError::TypeCheckerError(e));
+        return Err(ExecuteErrorBase::TypeCheckerError(e).into());
     }
 
     Ok(program)

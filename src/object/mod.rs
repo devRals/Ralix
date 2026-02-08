@@ -8,7 +8,7 @@ use std::{
 use crate::{
     Expression, Literal,
     expressions::FunctionParameter,
-    types::{FunctionParameterType, Type},
+    types::{FunctionParameterType, Type, TypeVarId},
 };
 mod environment;
 
@@ -18,7 +18,7 @@ pub type HashKey = u64;
 
 pub type HashPair = (Object, Object);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Object {
     Int(i64),
     Char(char),
@@ -87,6 +87,7 @@ impl Object {
                     })
                     .collect(),
                 return_type: Box::new(func.return_type.clone()),
+                generics: func.generics.clone(),
             },
         }
     }
@@ -106,12 +107,14 @@ impl Object {
         return_type: Type,
         body: Expression,
         env: FunctionEnvironment,
+        generics: Vec<TypeVarId>,
     ) -> Rc<Function> {
         Rc::new(Function {
             parameters,
             return_type,
             body,
             env,
+            generics,
         })
     }
 
@@ -125,17 +128,18 @@ impl Object {
 }
 
 /// Snapshot of last scope in the [`Environment`]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct FunctionEnvironment {
     pub items: EnvScope,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Function {
     pub parameters: Vec<FunctionParameter>,
     pub return_type: Type,
     pub body: Expression,
     pub env: FunctionEnvironment,
+    pub generics: Vec<TypeVarId>,
 }
 
 impl Display for Function {
@@ -155,7 +159,20 @@ impl Display for Function {
             })
             .collect::<Vec<_>>()
             .join("\x1b[0m, ");
-        write!(f, "fn({}) -> {return_type}: {body}", parameters)
+        let generics = if self.generics.is_empty() {
+            "".to_string()
+        } else {
+            format!(
+                "[{}]",
+                self.generics
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        };
+
+        write!(f, "fn{generics}({parameters}) -> {return_type}: {body}")
     }
 }
 

@@ -52,7 +52,8 @@ impl Evaluator<'_> {
                 parameters,
                 body,
                 return_type,
-            } => self.evaluate_function_expression(parameters, *body, return_type),
+                generics,
+            } => self.evaluate_function_expression(parameters, *body, return_type, generics),
 
             Expression::Call {
                 function,

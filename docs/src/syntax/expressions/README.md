@@ -13,6 +13,7 @@ Literals are the most basic type of expression. They represent a fixed value in 
 - **String literals**: `"hello"`
 - **Null literal**: `null`
 - **Array literals**: `[1, 2, 3]`
+- **Hash Map Literals**: `#{ "a": 1 , "b": 2 }`
 
 ## Identifiers
 
@@ -102,6 +103,15 @@ A `typeof` expression returns the type of a value.
 ```rust
 let x = 10;
 let type_of_x = typeof x; // `type_of_x` is `type[int]`
+```
+
+> [!IMPORTANT]
+> `typeof` expression only returns the type of the value during runtime.
+> Example:
+
+```rust
+arr[int] my_arr = []; // Empty arrays automatically bind `unknown` type generic
+typeof my_arr // `arr[unknown]`
 ```
 
 ## `&` (Address Of) Expressions

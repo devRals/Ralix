@@ -13,12 +13,14 @@ pub type STScope = HashMap<Literal, ValueMetadata>;
 #[derive(Debug)]
 pub struct SymbolTable {
     scopes: Vec<STScope>,
+    counter: u64,
 }
 
 impl Default for SymbolTable {
     fn default() -> Self {
         Self {
             scopes: vec![STScope::new()],
+            counter: 0,
         }
     }
 }
@@ -55,8 +57,8 @@ impl SymbolTable {
         None
     }
 
-    pub fn resolve_ref(&mut self, name: &Literal) -> Option<&ValueMetadata> {
-        for scope in self.scopes.iter_mut().rev() {
+    pub fn resolve_ref(&self, name: &Literal) -> Option<&ValueMetadata> {
+        for scope in self.scopes.iter().rev() {
             if let Some(typ) = scope.get(name) {
                 return Some(typ);
             }
@@ -67,5 +69,10 @@ impl SymbolTable {
     pub fn clear(&mut self) {
         self.scopes.clear();
         self.scopes.push(STScope::new());
+    }
+
+    pub fn crate_id(&mut self) -> u64 {
+        self.counter += 1;
+        self.counter
     }
 }

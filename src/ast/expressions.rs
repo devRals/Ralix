@@ -34,14 +34,14 @@ pub enum PrefixOperator {
 pub type IfConsequence = (Expression, Expression);
 pub type ElseConsequence = Box<Expression>;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct FunctionParameter {
     pub type_def: Type,
     pub name: Identifier,
     pub is_constant: bool,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct HashMapItem {
     pub key: Expression,
     pub value: Expression,

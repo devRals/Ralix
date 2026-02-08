@@ -103,21 +103,3 @@ impl cmp::PartialOrd for Object {
         }
     }
 }
-
-impl cmp::PartialEq for Object {
-    fn eq(&self, other: &Self) -> bool {
-        use Object as O;
-
-        match (self, other) {
-            (O::Int(v1), O::Int(v2)) => *v1 == *v2,
-            (O::Float(v1), O::Float(v2)) => *v1 == *v2,
-            (O::String(v1), O::String(v2)) => *v1 == *v2,
-            (O::Char(v1), O::Char(v2)) => *v1 == *v2,
-            (O::Boolean(v1), O::Boolean(v2)) => *v1 == *v2,
-            (O::Type(v1), O::Type(v2)) => *v1 == *v2,
-            (O::Address(v1), O::Address(v2)) => *v1 == *v2,
-            (O::Null, O::Null) => true,
-            _ => false,
-        }
-    }
-}

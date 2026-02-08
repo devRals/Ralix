@@ -3,14 +3,14 @@ use serde::Serialize;
 use crate::{
     Literal,
     expressions::{ElseConsequence, FunctionParameter, HashMapItem, Identifier, IfConsequence},
-    types::Type,
+    types::{Type, TypeVarId},
 };
 
 pub mod expressions;
 mod impls;
 pub mod types;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub enum Statement {
     Expression(Expression),
     Return(Option<Expression>),
@@ -28,7 +28,7 @@ pub enum Statement {
     },
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub enum Expression {
     Identifier(expressions::Identifier),
     Integer(i64),
@@ -64,6 +64,7 @@ pub enum Expression {
     },
 
     Function {
+        generics: Vec<TypeVarId>,
         parameters: Vec<FunctionParameter>,
         return_type: Type,
         body: Box<Expression>,

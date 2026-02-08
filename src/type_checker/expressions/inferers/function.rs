@@ -1,7 +1,7 @@
 use crate::{
     CheckerError, CheckerResult, Expression, TypeChecker,
     expressions::FunctionParameter,
-    types::{FunctionParameterType, Type},
+    types::{FunctionParameterType, Type, TypeVarId},
 };
 
 impl TypeChecker<'_> {
@@ -10,6 +10,7 @@ impl TypeChecker<'_> {
         f_parameters: &[FunctionParameter],
         body: &Expression,
         return_type: &Type,
+        generics: &[TypeVarId],
     ) -> CheckerResult<Type> {
         self.symbol_table.enter_scope();
         self.enter_function(return_type.clone());
@@ -30,6 +31,8 @@ impl TypeChecker<'_> {
         let body_ty = self.check_expression(body)?;
 
         if !body_ty.satisfies(return_type) {
+            self.symbol_table.leave_scope();
+            self.leave_function();
             return Err(CheckerError::Unsatisfied(body_ty, return_type.clone()));
         }
 
@@ -39,6 +42,7 @@ impl TypeChecker<'_> {
         Ok(Type::Function {
             parameters,
             return_type: Box::new(return_type.clone()),
+            generics: generics.into(),
         })
     }
 
@@ -59,6 +63,7 @@ impl TypeChecker<'_> {
             Type::Function {
                 parameters,
                 return_type,
+                generics: _,
             } => {
                 if parameters.len() != argument_types.len() {
                     return Err(CheckerError::MismatchedArgumentCount(
@@ -67,9 +72,11 @@ impl TypeChecker<'_> {
                     ));
                 }
 
-                for (arg, param) in argument_types.iter().zip(parameters.iter().map(|p| &p.ty)) {
-                    if !arg.satisfies(param) {
-                        return Err(CheckerError::Unsatisfied(arg.clone(), param.clone()));
+                for (arg, param) in argument_types.iter().zip(parameters) {
+                    let param = self.unify_typevar(param.ty.clone(), arg.clone())?;
+
+                    if !arg.satisfies(&param) {
+                        return Err(CheckerError::Unsatisfied(arg.clone(), param));
                     }
                 }
 
@@ -100,6 +107,159 @@ impl TypeChecker<'_> {
                 Ok(*ty)
             }
             t => Err(CheckerError::CannotBeCalled(t)),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{Lexer, Parser, Statement, SymbolTable};
+
+    impl TypeChecker<'_> {
+        /// idx: 0 - Default - HashMap Key - Function
+        /// idx: 1 - HashMap Value - Function Parameter index or return type if its greater
+        pub(crate) fn resolve_typevar_from_complex_data_type(&self, ty: Type, idx: usize) -> Type {
+            match ty {
+                Type::TypeVar(id) => {
+                    if let Some(bound) = self.typevar_bindings.get(&id) {
+                        self.resolve_typevar(bound.clone())
+                    } else {
+                        Type::TypeVar(id)
+                    }
+                }
+                Type::Array(ty) => self.resolve_typevar(*ty),
+                Type::Nullable(ty) => self.resolve_typevar(*ty),
+                Type::AsValue(ty) => self.resolve_typevar(*ty),
+                Type::Addr(ty) => self.resolve_typevar(*ty),
+                Type::HashMap { key, value } => {
+                    if idx > 0 {
+                        self.resolve_typevar(*value)
+                    } else {
+                        self.resolve_typevar(*key)
+                    }
+                }
+                Type::Function {
+                    parameters,
+                    return_type,
+                    ..
+                } => {
+                    if idx > parameters.len() {
+                        self.resolve_typevar(*return_type)
+                    } else {
+                        self.resolve_typevar(parameters[idx].ty.clone())
+                    }
+                }
+                other => other,
+            }
+        }
+    }
+
+    use super::*;
+    use Type::*;
+    #[test]
+    fn test_function_generics() {
+        let tests: [(&str, &[Type]); _] = [
+            ("fn x[T](T y) -> T: y; x(2)", &[Int]),
+            (
+                "fn x[T](arr[T] y) -> T?: y[0]; x([\"a\", \"b\"])",
+                &[String],
+            ),
+            (
+                "fn x[T](map[int, T] y) -> T?: y[0]; x(#{ 0: [2.0, 3.14] })",
+                &[Array(Float.into())],
+            ),
+            (
+                "fn insert[V](map[str, V] values, str key, V val): { values[key] = val }; insert(#{ \"\": false }, \"a\", true)",
+                &[Bool],
+            ),
+            (
+                "fn x[T, U](T y, U z): {}; x(['a'], #{ 40: 40.0 })",
+                &[
+                    Array(Char.into()),
+                    HashMap {
+                        key: Int.into(),
+                        value: Float.into(),
+                    },
+                ],
+            ),
+            (
+                "fn x[T](T? y) -> T?: y; x({ str? a = \"a\"; a })",
+                &[String],
+            ),
+            ("fn x[T](T* y) -> T*: y; x({ char a = 'a'; &a })", &[Char]),
+        ];
+
+        for (i, (input, expected_generic)) in tests.into_iter().enumerate() {
+            let lexer = Lexer::new(input);
+            let mut st = SymbolTable::default();
+            let mut parser = Parser::new(lexer, &mut st);
+            let p = parser
+                .parse_program()
+                .unwrap_or_else(|err| panic!("{i}. {err}"));
+            let mut tc = TypeChecker::with_symbol_table(&mut st);
+
+            let (ident, type_annotation, value, is_constant) = match &p[0] {
+                Statement::Binding {
+                    ident,
+                    type_annotation,
+                    value,
+                    is_constant,
+                } => (ident, type_annotation, value, is_constant),
+                s => panic!("{s} is not expected"),
+            };
+
+            tc.check_binding(ident, type_annotation.as_ref(), value, *is_constant)
+                .unwrap_or_else(|err| panic!("{i}. {err}"));
+
+            let (fn_params, arguments, generics_count) = match &p[p.statements.len() - 1] {
+                Statement::Expression(expr) => match expr {
+                    Expression::Call {
+                        function,
+                        arguments,
+                    } => match tc
+                        .check_expression(function)
+                        .unwrap_or_else(|err| panic!("{i}. {err}"))
+                    {
+                        Function {
+                            parameters,
+                            generics,
+                            ..
+                        } => (
+                            parameters,
+                            arguments
+                                .iter()
+                                .map(|a| {
+                                    tc.check_expression(a)
+                                        .unwrap_or_else(|err| panic!("{i}. {err}"))
+                                })
+                                .collect::<Vec<_>>(),
+                            generics.len(),
+                        ),
+                        t => panic!("{i}. {t} is not expected"),
+                    },
+                    e => panic!("{i}. {e} is not expected"),
+                },
+                s => panic!("{i}. {s} is not expected"),
+            };
+            assert_eq!(fn_params.len(), arguments.len());
+
+            // BUG: This is a stupid check.
+            for (j, (p, arg)) in fn_params.iter().zip(arguments).enumerate() {
+                tc.unify_typevar(p.ty.clone(), arg.clone())
+                    .unwrap_or_else(|err| panic!("{i} - {j}: {err}"));
+
+                let resolved = tc.resolve_typevar_from_complex_data_type(p.ty.clone(), 1);
+
+                if j == generics_count {
+                    break;
+                }
+
+                assert_eq!(
+                    resolved, expected_generic[j],
+                    "{i}. {resolved} != {}",
+                    expected_generic[j]
+                );
+            }
         }
     }
 }

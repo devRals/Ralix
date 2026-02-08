@@ -3,6 +3,7 @@ use std::fmt::Display;
 use crate::{
     Expression, Program, Statement,
     expressions::{HashMapItem, InfixOperator, PrefixOperator},
+    types::{FunctionParameterType, Type, TypeVarId},
 };
 
 impl Display for Expression {
@@ -67,8 +68,21 @@ impl Display for Expression {
                 parameters,
                 return_type,
                 body,
+                generics,
             } => format!(
-                "fn({}) {return_type}: {body}",
+                "fn{}({}) {return_type}: {body}",
+                if generics.is_empty() {
+                    "".to_string()
+                } else {
+                    format!(
+                        "[{}]",
+                        generics
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )
+                },
                 parameters
                     .iter()
                     .map(|param| format!(
@@ -191,5 +205,72 @@ impl Display for PrefixOperator {
 impl Display for HashMapItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}: {}", self.key, self.value)
+    }
+}
+
+impl Display for TypeVarId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.name)
+    }
+}
+
+impl Display for FunctionParameterType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let constant = if self.is_constant { "const " } else { "" };
+        write!(f, "{}{}", constant, self.ty)
+    }
+}
+
+impl Display for Type {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Type as T;
+        f.write_str(&match self {
+            T::Bool => "bool".to_string(),
+            T::Char => "char".to_string(),
+            T::Int => "int".to_string(),
+            T::Float => "float".to_string(),
+            T::String => "str".to_string(),
+            T::Null => "null".to_string(),
+            T::Void => "void".to_string(),
+            T::Never => "never".to_string(),
+            T::Unknown => "unknown".to_string(),
+            T::AsValue(ty) => format!("type[{ty}]"),
+            T::Nullable(ty) => format!("{ty}?"),
+            T::Addr(ty) => format!("{ty}*"),
+            T::Array(ty) => format!("arr[{ty}]"),
+            T::HashMap { key, value } => format!("map[{key}, {value}]"),
+            T::Function {
+                parameters: paramters,
+                return_type,
+                generics,
+            } => format!(
+                "fn{}({}) -> {return_type}",
+                if generics.is_empty() {
+                    "".to_string()
+                } else {
+                    format!(
+                        "[{}]",
+                        generics
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )
+                },
+                paramters
+                    .iter()
+                    .map(|p| p.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            T::TypeVar(t) => t.to_string(),
+        })
+    }
+}
+
+impl std::ops::Index<usize> for Program {
+    type Output = Statement;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.statements[index]
     }
 }

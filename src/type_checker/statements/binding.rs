@@ -25,6 +25,7 @@ impl TypeChecker<'_> {
             parameters: f_params,
             return_type,
             body,
+            generics,
         } = value
         {
             self.symbol_table.define(
@@ -38,10 +39,11 @@ impl TypeChecker<'_> {
                         })
                         .collect(),
                     return_type: return_type.clone().into(),
+                    generics: generics.clone(),
                 },
                 is_constant,
             );
-            self.check_function_expression(f_params, body, return_type)?;
+            self.check_function_expression(f_params, body, return_type, generics)?;
             return Ok(());
         }
 

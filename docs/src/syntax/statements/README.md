@@ -40,6 +40,12 @@ a regular function.
 fn add(int a, int b) -> int: a + b;
 ```
 
+For flexibility you can use "type generics" in function parameters and return types.
+
+```rust
+fn first[T](arr[T] x) -> T? : x[0]
+```
+
 ## `return` statement
 
 The `return` statement is used to exit a function and optionally return a value.
@@ -63,7 +69,10 @@ println("Hello, World!");
 
 An assignment statement is used to change the value of an existing variable.
 
-```c
+```go
 int x = 5;
 x = 10;
+
+map[str, arr[int]] items = #{ "a": [0,1,2], "b": [3,4,5] };
+items["c"] = [6,7,8];
 ```
