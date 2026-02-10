@@ -1,11 +1,38 @@
+use std::fmt::Display;
+
 use crate::{Object, types::Type};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct Addr(usize, Type);
+
+impl std::ops::Deref for Addr {
+    type Target = usize;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Display for Addr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<addr to a `{}`>", self.1)
+    }
+}
 
 impl Addr {
     pub const fn new(addr: usize, ty: Type) -> Addr {
         Addr(addr, ty)
+    }
+
+    pub fn read_from<'a>(&self, heap: &'a Heap) -> Option<&'a Object> {
+        heap.read(self)
+    }
+
+    pub fn read_mut_from<'a>(&self, heap: &'a mut Heap) -> Option<&'a mut Object> {
+        heap.read_mut(self)
+    }
+
+    pub fn r#type(&self) -> Type {
+        self.1.clone()
     }
 }
 
@@ -32,6 +59,18 @@ impl Heap {
 
     pub fn read_mut(&mut self, addr: &Addr) -> Option<&mut Object> {
         self.store.get_mut(addr.0)
+    }
+
+    pub fn drop(&mut self, addr: Addr) -> Option<Object> {
+        if addr.0 < self.store.len() {
+            None
+        } else {
+            Some(self.store.remove(addr.0))
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.store.clear();
     }
 }
 

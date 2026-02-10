@@ -1,6 +1,6 @@
 use std::{fmt::Display, rc::Rc};
 
-use crate::{Environment, Object, Program};
+use crate::{Environment, Heap, Object, Program};
 
 mod context;
 mod error;
@@ -49,7 +49,7 @@ impl Object {
             Object::String(v) => Object::String(
                 Rc::clone(v), /* Only copies the pointer that points the orijinal string value */
             ),
-            Object::Address(addr) => Object::Address(*addr),
+            Object::Address(addr) => Object::Address(addr.clone()),
             Object::Null => Object::NULL,
             Object::Function(func) => Object::Function(func.clone()),
             _ => return None,
@@ -63,9 +63,9 @@ pub struct Evaluator<'env> {
 }
 
 impl<'env> Evaluator<'env> {
-    pub const fn new(environment: &'env mut Environment) -> Self {
+    pub const fn new(environment: &'env mut Environment, heap: &'env mut Heap) -> Self {
         Evaluator {
-            ctx: Context { environment },
+            ctx: Context { environment, heap },
         }
     }
 }

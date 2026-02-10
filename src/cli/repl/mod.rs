@@ -1,7 +1,7 @@
 use ratatui::DefaultTerminal;
 
 use crate::{
-    Environment, EvalResult, Evaluator, ExecuteError, Object, Program, SymbolTable,
+    Environment, EvalResult, Evaluator, ExecuteError, Heap, Object, Program, SymbolTable,
     parse_with_symbol_table,
 };
 
@@ -48,6 +48,7 @@ impl Tab {
 struct ReplContext {
     env: Environment,
     symbol_table: SymbolTable,
+    heap: Heap,
 }
 
 enum ReplState {
@@ -103,6 +104,7 @@ impl Repl {
             context: ReplContext {
                 symbol_table: SymbolTable::default(),
                 env: Environment::default(),
+                heap: Heap::new(),
             },
 
             slash_command_result: Ok(SlashCommand::empty()),
@@ -148,7 +150,7 @@ impl Repl {
 
         self.state = ReplState::Running;
         let res = if let Some(Ok(program)) = &self.program_result {
-            let mut evaluator = Evaluator::new(&mut self.context.env);
+            let mut evaluator = Evaluator::new(&mut self.context.env, &mut self.context.heap);
             evaluator.evaluate_program(program.clone())
         } else {
             EvalResult::NoValue

@@ -3,7 +3,6 @@ use crate::{
     expressions::{InfixOperator, PrefixOperator},
     try_eval_result,
 };
-use std::ptr;
 
 impl Evaluator<'_> {
     pub fn evaluate_infix_expression(
@@ -71,7 +70,7 @@ impl Evaluator<'_> {
 
     pub fn evaluate_deref_expression(&mut self, obj: Object) -> EvalResult<Object> {
         match obj {
-            Object::Address(addr) => unsafe { ptr::read(addr) }.into(),
+            Object::Address(addr) => self.ctx.heap.read(&addr).cloned().into(),
             _ => unreachable!(),
         }
     }

@@ -1,0 +1,10 @@
+str my_value = "meow :3";
+
+const fn update(str* v, str new_value): {
+    *v = new_value;
+}
+
+update(&my_value, "mrrr. I'm eepy -w-"); // `my_value` is
+                                         // "mrrr. I'm eepy -w-" after this point
+
+// Imagine an output to the stdout. I don't have built-in functions yet :<

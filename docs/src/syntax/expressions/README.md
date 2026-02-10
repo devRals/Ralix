@@ -69,7 +69,7 @@ println("Hello, World!");
 
 ## Index Expressions
 
-An index expression is used to access an element of an array.
+An index expression is used to access an element of an array or a hash-map.
 
 ```c
 arr[int] my_arr = [1, 2, 3];

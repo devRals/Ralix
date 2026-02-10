@@ -12,7 +12,10 @@ impl Evaluator<'_> {
 
             let hash_key = key_obj.hash_key().unwrap();
 
-            hash_map.insert(hash_key, HashPair::from((key_obj, value_obj)));
+            let key_addr = self.ctx.heap.alloc(key_obj);
+            let value_addr = self.ctx.heap.alloc(value_obj);
+
+            hash_map.insert(hash_key, HashPair::from((key_addr, value_addr)));
         }
 
         EvalResult::Value(Object::HashMap(hash_map))

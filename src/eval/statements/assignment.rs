@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use crate::{
-    EvalResult, Evaluator, Expression, Object, expressions::PrefixOperator, try_eval_result,
+    Addr, EvalResult, Evaluator, Expression, HashKey, HashPair, Object,
+    expressions::PrefixOperator, try_eval_result,
 };
 
 impl Evaluator<'_> {
@@ -9,18 +12,20 @@ impl Evaluator<'_> {
         value: Expression,
     ) -> EvalResult<Object> {
         let value_obj = try_eval_result!(self.evaluate_expression(value));
-        let left_obj = self.eval_lhs(left);
+        let left_addr = self.eval_lhs(left);
 
-        if let Some(o) = left_obj {
+        if let Some(addr) = left_addr
+            && let Some(o) = addr.read_mut_from(self.ctx.heap)
+        {
             *o = value_obj;
         }
 
         EvalResult::NoValue
     }
 
-    pub fn eval_lhs(&mut self, expr: Expression) -> Option<&mut Object> {
+    pub fn eval_lhs(&mut self, expr: Expression) -> Option<Addr> {
         match expr {
-            Expression::Identifier(ident) => self.ctx.get_mut(&ident),
+            Expression::Identifier(ident) => self.ctx.get_addr_cloned(&ident),
             Expression::Index { left, index } => self.eval_index_lhs(*left, *index),
             Expression::Prefix {
                 operator: PrefixOperator::Deref,
@@ -31,32 +36,46 @@ impl Evaluator<'_> {
         }
     }
 
-    fn eval_index_lhs(&mut self, left: Expression, index: Expression) -> Option<&mut Object> {
+    fn eval_index_lhs(&mut self, left: Expression, index: Expression) -> Option<Addr> {
         let index_obj = match self.evaluate_expression(index) {
             EvalResult::Value(v) => v,
             EvalResult::Err(_) | EvalResult::NoValue | EvalResult::Return(_) => {
                 return None;
             }
         };
-        let left = self.eval_lhs(left)?;
+
+        let left_addr = self.eval_lhs(left)?;
+        let left = left_addr.read_from(self.ctx.heap)?;
 
         match (left, index_obj) {
-            (Object::HashMap(hm), i) => {
-                hm.insert(i.hash_key()?, (i.clone(), Object::NULL));
-                hm.get_mut(&i.hash_key()?).map(|(_, v)| v)
-            }
-            (Object::Array(arr), Object::Int(i)) => arr.get_mut(i as usize),
+            (Object::HashMap(hm), index) => self.eval_hashmap_index_lhs(hm, index),
+            (Object::Array(arr), Object::Int(i)) => self.eval_array_index_lhs(arr, i as usize),
             _ => None,
         }
     }
 
-    fn eval_deref_lhs(&mut self, right: Expression) -> Option<&mut Object> {
-        let right_lhs = self.eval_lhs(right)?;
-        let addr = match right_lhs {
-            Object::Address(addr) => addr,
-            _ => return None,
-        };
+    fn eval_deref_lhs(&mut self, right: Expression) -> Option<Addr> {
+        let right_lhs_addr = self.eval_lhs(right)?;
+        let right_lhs = self.ctx.heap.read(&right_lhs_addr)?;
 
-        unsafe { addr.as_mut() }
+        match right_lhs {
+            Object::Address(addr) => Some(addr.clone()),
+            _ => None,
+        }
+    }
+
+    // BUG: This operation doesn't insert any value to the hash_map
+    fn eval_hashmap_index_lhs(
+        &self,
+        hm: &HashMap<HashKey, HashPair>,
+        index: Object,
+    ) -> Option<Addr> {
+        let hash_key = index.hash_key()?;
+
+        hm.get(&hash_key).map(|(_, v)| v).cloned()
+    }
+
+    fn eval_array_index_lhs(&self, arr: &[Addr], index: usize) -> Option<Addr> {
+        arr.get(index).cloned()
     }
 }

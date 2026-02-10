@@ -58,7 +58,9 @@ fn get_greeting() -> str: {
 
 ## Expression statement
 
-An expression statement is an expression that is followed by a semicolon. The value of the expression is discarded.
+An expression statement is an expression that is followed by a semicolon.
+The value of the expression is discarded unless it's the last expression
+statement that has been evaluated. This can be useful when using scope expressions.
 
 ```c
 // The function call is an expression statement
@@ -74,5 +76,13 @@ int x = 5;
 x = 10;
 
 map[str, arr[int]] items = #{ "a": [0,1,2], "b": [3,4,5] };
-items["c"] = [6,7,8];
+items["b"] = [6,7,8];
+
+arr[float] nums = [1.0, 2.7, 3.3, float(4)];
+nums[2] = 5.8;
 ```
+
+> [!IMPORTANT]
+> Not that index assignment operations can only update _existing values_.
+> If you wanna add a new value to a new hash-map using a key that hash-map
+> isn't using this operation will simply do nothing

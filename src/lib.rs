@@ -47,16 +47,18 @@ pub fn execute_file_module<P: AsRef<std::path::Path>>(
 
 pub fn execute(source: &str) -> Result<Option<Object>, ExecuteError> {
     let mut env = Environment::default();
-    execute_with_env(source, &mut env)
+    let mut heap = Heap::new();
+    execute_with_env(source, &mut env, &mut heap)
 }
 
 pub fn execute_with_env(
     source: &str,
     env: &mut Environment,
+    heap: &mut Heap,
 ) -> Result<Option<Object>, ExecuteError> {
     let program = parse(source)?;
 
-    let mut evaluator = Evaluator::new(env);
+    let mut evaluator = Evaluator::new(env, heap);
     match evaluator.evaluate_program(program) {
         EvalResult::Err(e) => Err(ExecuteErrorBase::PanicError(e).into()),
         EvalResult::Value(o) => Ok(Some(o)),

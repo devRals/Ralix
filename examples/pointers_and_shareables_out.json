@@ -1,0 +1,80 @@
+{
+  "statements": [
+    {
+      "Binding": {
+        "ident": "my_value",
+        "type_annotation": "String",
+        "value": {
+          "String": "meow :3"
+        },
+        "is_constant": false
+      }
+    },
+    {
+      "Binding": {
+        "ident": "update",
+        "type_annotation": null,
+        "value": {
+          "Function": {
+            "generics": [],
+            "parameters": [
+              {
+                "type_def": {
+                  "Addr": "String"
+                },
+                "name": "v",
+                "is_constant": false
+              },
+              {
+                "type_def": "String",
+                "name": "new_value",
+                "is_constant": false
+              }
+            ],
+            "return_type": "Void",
+            "body": {
+              "Scope": {
+                "statements": [
+                  {
+                    "Assign": {
+                      "left": {
+                        "Prefix": {
+                          "operator": "Deref",
+                          "right": {
+                            "Identifier": "v"
+                          }
+                        }
+                      },
+                      "value": {
+                        "Identifier": "new_value"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "is_constant": true
+      }
+    },
+    {
+      "Expression": {
+        "Call": {
+          "function": {
+            "Identifier": "update"
+          },
+          "arguments": [
+            {
+              "AddrOf": "my_value"
+            },
+            {
+              "String": "mrrr. I'm eepy -w-"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+

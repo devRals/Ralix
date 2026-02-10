@@ -49,6 +49,10 @@ impl Evaluator<'_> {
         }
 
         let result = self.evaluate_expression(func.body.clone());
+        // BUG: Leaving scope removes the parameters from  env but not from heap
+        for param_name in func.parameters.iter().map(|p| &p.name) {
+            self.ctx.drop(param_name);
+        }
         self.ctx.leave_scope();
 
         if matches!(func.return_type, Type::Void) {

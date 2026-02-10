@@ -1,0 +1,3 @@
+const fn first[T](arr[T] x) -> T?: x[0];
+
+first(["owo", "meow"]); // `T` is acting as `str`

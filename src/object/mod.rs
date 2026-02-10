@@ -18,7 +18,7 @@ pub use heap::*;
 
 pub type HashKey = u64;
 
-pub type HashPair = (Object, Object);
+pub type HashPair = (Addr, Addr);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Object {
@@ -28,8 +28,8 @@ pub enum Object {
     Float(f64),
     Boolean(bool),
     Type(Type),
-    Address(*mut Object),
-    Array(Vec<Object>),
+    Address(Addr),
+    Array(Vec<Addr>),
     HashMap(HashMap<HashKey, HashPair>),
     Null,
 
@@ -78,7 +78,7 @@ impl Object {
                 }
             }
             O::Type(t) => Type::AsValue(t.clone().into()),
-            O::Address(t) => Type::Addr(Box::new(unsafe { (**t).clone().r#type() })),
+            O::Address(t) => Type::Addr(t.r#type().into()),
             O::Function(func) => Type::Function {
                 parameters: func
                     .parameters

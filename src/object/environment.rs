@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{Object, expressions::Identifier};
+use crate::{Addr, expressions::Identifier};
 
 /// [`Environment`] Scope
-pub type EnvScope = HashMap<Identifier, Object>;
+pub type EnvScope = HashMap<Identifier, Addr>;
 
 #[derive(Debug, Clone)]
 pub struct Environment {
@@ -19,7 +19,7 @@ impl Default for Environment {
 }
 
 impl Environment {
-    pub fn define(&mut self, key: Identifier, value: Object) -> Option<Object> {
+    pub fn define(&mut self, key: Identifier, value: Addr) -> Option<Addr> {
         if let Some(last_scope) = self.scopes.last_mut()
             && let Some(old_v) = last_scope.insert(key, value)
         {
@@ -29,7 +29,7 @@ impl Environment {
     }
 
     /// Drops it if exists
-    pub fn drop(&mut self, key: &Identifier) -> Option<Object> {
+    pub fn drop(&mut self, key: &Identifier) -> Option<Addr> {
         for s in self.scopes.iter_mut().rev() {
             if let Some(val) = s.remove(key) {
                 return val.into();
@@ -40,7 +40,7 @@ impl Environment {
 
     /// Deep copies the value its holding and returns it
     /// Does not drops the value
-    pub fn get_cloned(&self, key: &Identifier) -> Option<Object> {
+    pub fn get_cloned(&self, key: &Identifier) -> Option<Addr> {
         for s in self.scopes.iter().rev() {
             if let Some(val) = s.get(key).cloned() {
                 return val.into();
@@ -51,7 +51,7 @@ impl Environment {
 
     /// Can be used when changing the already bindings values
     /// `let a = 3; a = 5;` for example
-    pub fn get_mut(&mut self, key: &Identifier) -> Option<&mut Object> {
+    pub fn get_mut(&mut self, key: &Identifier) -> Option<&mut Addr> {
         for s in self.scopes.iter_mut().rev() {
             if let Some(val) = s.get_mut(key) {
                 return val.into();
@@ -61,7 +61,7 @@ impl Environment {
     }
 
     /// Returns immutable referance
-    pub fn get_ptr(&self, key: &Identifier) -> Option<&Object> {
+    pub fn get_ptr(&self, key: &Identifier) -> Option<&Addr> {
         for s in self.scopes.iter().rev() {
             if let Some(val) = s.get(key) {
                 return val.into();

@@ -6,7 +6,8 @@ impl Evaluator<'_> {
         for i in items {
             let item_obj = try_eval_result!(self.evaluate_expression(i));
 
-            values.push(item_obj);
+            let addr = self.ctx.heap.alloc(item_obj);
+            values.push(addr);
         }
 
         EvalResult::Value(Object::Array(values))

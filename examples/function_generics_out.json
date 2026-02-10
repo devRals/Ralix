@@ -1,0 +1,76 @@
+{
+  "statements": [
+    {
+      "Binding": {
+        "ident": "first",
+        "type_annotation": null,
+        "value": {
+          "Function": {
+            "generics": [
+              {
+                "name": "T",
+                "id": 1
+              }
+            ],
+            "parameters": [
+              {
+                "type_def": {
+                  "Array": {
+                    "TypeVar": {
+                      "name": "T",
+                      "id": 1
+                    }
+                  }
+                },
+                "name": "x",
+                "is_constant": false
+              }
+            ],
+            "return_type": {
+              "Nullable": {
+                "TypeVar": {
+                  "name": "T",
+                  "id": 1
+                }
+              }
+            },
+            "body": {
+              "Index": {
+                "left": {
+                  "Identifier": "x"
+                },
+                "index": {
+                  "Integer": 0
+                }
+              }
+            }
+          }
+        },
+        "is_constant": true
+      }
+    },
+    {
+      "Expression": {
+        "Call": {
+          "function": {
+            "Identifier": "first"
+          },
+          "arguments": [
+            {
+              "Array": {
+                "items": [
+                  {
+                    "String": "owo"
+                  },
+                  {
+                    "String": "meow"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

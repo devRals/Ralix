@@ -3,7 +3,7 @@ use ratatui::{
     layout::{Constraint, HorizontalAlignment, Layout, Position, Rect},
     style::{Color, Modifier, Style, Stylize},
     text::{Line, Span},
-    widgets::{Block, Borders, Cell, Clear, Paragraph, Row, Table, Tabs},
+    widgets::{Block, Borders, Clear, Paragraph, Tabs},
 };
 
 use super::{Repl, Tab};
@@ -19,21 +19,21 @@ impl Repl {
         let r#box = Block::bordered().title(Line::from(" Ralix ".light_magenta()).centered());
         let box_inner = r#box.inner(full_area);
 
-        let [left, right] = Layout::horizontal([
-            Constraint::Fill(1),
-            Constraint::Length(if self.right_side_open { 30 } else { 0 }),
-        ])
-        .areas(box_inner);
+        // let [left, right] = Layout::horizontal([
+        //     Constraint::Fill(1),
+        //     Constraint::Length(if self.right_side_open { 30 } else { 0 }),
+        // ])
+        // .areas(box_inner);
 
         let [tabs_area, screen_area, input_area] = Layout::vertical([
             Constraint::Length(3),
             Constraint::Fill(1),
             Constraint::Length(3 + self.input.height),
         ])
-        .areas(left);
+        .areas(box_inner);
 
         f.render_widget(r#box, full_area);
-        self.render_env(f, right);
+        // self.render_env(f, right);
         self.render_tabs(f, tabs_area);
         self.render_input(f, input_area);
         self.render_screen(f, screen_area);
@@ -84,27 +84,27 @@ impl Repl {
         (row, col)
     }
 
-    fn render_env(&self, f: &mut Frame, area: Rect) {
-        let mut items: Vec<_> = self.context.env.current_items().into_iter().collect();
-        items.sort_by_key(|(ident, _)| ident.to_string());
-
-        let rows: Vec<_> = items
-            .into_iter()
-            .map(|(ident, value)| {
-                Row::new(vec![
-                    Cell::from(ident.to_string()),
-                    Cell::from(value.to_string()),
-                ])
-            })
-            .collect();
-        let widths = [Constraint::Length(10), Constraint::Length(20)];
-        let table = Table::new(rows, widths).block(
-            Block::new()
-                .borders(Borders::LEFT)
-                .title("Environment".light_cyan()),
-        );
-        f.render_widget(table, area);
-    }
+    // fn render_env(&self, f: &mut Frame, area: Rect) {
+    //     let mut items: Vec<_> = self.context.env.current_items().into_iter().collect();
+    //     items.sort_by_key(|(ident, _)| ident.to_string());
+    //
+    //     let rows: Vec<_> = items
+    //         .into_iter()
+    //         .map(|(ident, value)| {
+    //             Row::new(vec![
+    //                 Cell::from(ident.to_string()),
+    //                 Cell::from(value.to_string()),
+    //             ])
+    //         })
+    //         .collect();
+    //     let widths = [Constraint::Length(10), Constraint::Length(20)];
+    //     let table = Table::new(rows, widths).block(
+    //         Block::new()
+    //             .borders(Borders::LEFT)
+    //             .title("Environment".light_cyan()),
+    //     );
+    //     f.render_widget(table, area);
+    // }
 
     fn render_screen(&self, f: &mut Frame, area: Rect) {
         match self.selected_tab {

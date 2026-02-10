@@ -7,8 +7,9 @@ pub(super) fn run(repl: &mut Repl, arguments: &[String]) {
     let cmd = &**arguments.first().unwrap();
 
     if cmd == "clear" {
-        repl.context.env.clear();
         repl.context.symbol_table.clear();
+        repl.context.env.clear();
+        repl.context.heap.clear();
     };
 }
 
