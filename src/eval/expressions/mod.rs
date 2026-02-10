@@ -19,7 +19,7 @@ impl Evaluator<'_> {
         match expr {
             Expression::Integer(val) => Object::Int(val).into(),
             Expression::Float(val) => Object::Float(val).into(),
-            Expression::String(val) => Object::String(val).into(),
+            Expression::String(val) => Object::String(val.to_string().into()).into(),
             Expression::Char(val) => Object::Char(val).into(),
             Expression::Array { items } => self.evaluate_array_literal(items),
             Expression::HashMap { items } => self.evaluate_hashmap_literal(items),

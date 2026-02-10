@@ -6,13 +6,15 @@ use std::{
 };
 
 use crate::{
-    Expression, Literal,
+    Expression,
     expressions::FunctionParameter,
     types::{FunctionParameterType, Type, TypeVarId},
 };
 mod environment;
+mod heap;
 
 pub use environment::*;
+pub use heap::*;
 
 pub type HashKey = u64;
 
@@ -22,11 +24,11 @@ pub type HashPair = (Object, Object);
 pub enum Object {
     Int(i64),
     Char(char),
-    String(Literal),
+    String(Rc<String>),
     Float(f64),
     Boolean(bool),
     Type(Type),
-    Address(*const Object),
+    Address(*mut Object),
     Array(Vec<Object>),
     HashMap(HashMap<HashKey, HashPair>),
     Null,
@@ -221,7 +223,6 @@ macro_rules! impl_from {
 impl_from!(i64, Int);
 impl_from!(f64, Float);
 impl_from!(char, Char);
-impl_from!(&str, String);
 impl_from!(String, String);
 
 impl From<bool> for Object {

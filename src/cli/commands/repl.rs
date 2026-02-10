@@ -1,3 +1,5 @@
+use std::io;
+
 use crate::repl::{Repl, legacy};
 use clap::Args;
 use ratatui::DefaultTerminal;
@@ -9,9 +11,9 @@ pub struct REPLArguments {
     tui: bool,
 }
 
-pub fn run(args: REPLArguments) -> color_eyre::Result<()> {
+pub fn run(args: REPLArguments) -> io::Result<()> {
     if args.tui {
-        ratatui::run(run_repl_tui)
+        ratatui::run(run_repl_tui).map_err(io::Error::other)
     } else {
         Ok(legacy::Repl::new().run()?)
     }

@@ -1,5 +1,5 @@
 use crate::{
-    Expression, Parser, ParserError, ParserResult, Statement, Token,
+    Expression, Parser, ParserError, ParserResult, Statement, Token, expressions::PrefixOperator,
     parser::expressions::Precedence,
 };
 
@@ -8,6 +8,10 @@ impl Parser<'_> {
         match &expr {
             Expression::Identifier(_) => {}
             Expression::Index { .. } => {}
+            Expression::Prefix {
+                operator: PrefixOperator::Deref,
+                ..
+            } => {}
             _ => return Err(ParserError::CannotAssignTo(expr)),
         };
 

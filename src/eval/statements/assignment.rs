@@ -1,4 +1,6 @@
-use crate::{EvalResult, Evaluator, Expression, Object, try_eval_result};
+use crate::{
+    EvalResult, Evaluator, Expression, Object, expressions::PrefixOperator, try_eval_result,
+};
 
 impl Evaluator<'_> {
     pub fn evaluate_assignment_statement(
@@ -20,6 +22,10 @@ impl Evaluator<'_> {
         match expr {
             Expression::Identifier(ident) => self.ctx.get_mut(&ident),
             Expression::Index { left, index } => self.eval_index_lhs(*left, *index),
+            Expression::Prefix {
+                operator: PrefixOperator::Deref,
+                right,
+            } => self.eval_deref_lhs(*right),
 
             _ => None,
         }
@@ -42,5 +48,15 @@ impl Evaluator<'_> {
             (Object::Array(arr), Object::Int(i)) => arr.get_mut(i as usize),
             _ => None,
         }
+    }
+
+    fn eval_deref_lhs(&mut self, right: Expression) -> Option<&mut Object> {
+        let right_lhs = self.eval_lhs(right)?;
+        let addr = match right_lhs {
+            Object::Address(addr) => addr,
+            _ => return None,
+        };
+
+        unsafe { addr.as_mut() }
     }
 }
