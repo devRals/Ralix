@@ -158,6 +158,7 @@ impl Display for Statement {
                 }
             ),
             Self::Assign { left, value } => format!("{left} = {value}"),
+            Self::Alias { ident, ty } => format!("type {ident} = {ty}"),
         })
     }
 }

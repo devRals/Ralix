@@ -26,6 +26,11 @@ pub enum Statement {
         left: Expression,
         value: Expression,
     },
+
+    Alias {
+        ident: Identifier,
+        ty: Type,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq)]

@@ -21,11 +21,32 @@ let pi = 3.14;
 
 ## `const` statement
 
-The `const` statement is used to create a new constant binding. Constants are immutable and must have their type specified.
+The `const` statement is used to create a new constant binding. Constants are
+immutable and must have their type specified.
 
 ```c
 // Create a constant `PI` of type `float`
 const float PI = 3.14159;
+```
+
+## Type Alias Statements
+
+Using the type keyword you can create your own type aliases. Once a type alias defined
+it cannot be changed afterwards.
+
+```c
+type MyStr = str?;
+MyStr my_value = "hehe! I'm in danger!"; // Don't judge. This line came
+                                         // to my mind for no reason
+```
+
+You also can use the types you got from the `typeof` expression. And also
+use them in binding statements.
+
+```rust
+const float PI = 3.14159;
+let MyFloat = typeof PI;
+MyFloat my_type_is_same_as_PI = 1.2;
 ```
 
 ## `fn` statement
@@ -83,6 +104,6 @@ nums[2] = 5.8;
 ```
 
 > [!IMPORTANT]
-> Not that index assignment operations can only update _existing values_.
+> Note that index assignment operations can only update _existing values_.
 > If you wanna add a new value to a new hash-map using a key that hash-map
 > isn't using this operation will simply do nothing

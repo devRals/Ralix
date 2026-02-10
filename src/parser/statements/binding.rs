@@ -1,4 +1,7 @@
-use crate::{Expression, Parser, ParserResult, Statement, Token, parser::expressions::Precedence};
+use crate::{
+    Expression, Parser, ParserError, ParserResult, Statement, Token,
+    parser::expressions::Precedence, types::Type,
+};
 
 impl Parser<'_> {
     pub fn parse_binding_statement(&mut self) -> ParserResult<Statement> {
@@ -6,7 +9,27 @@ impl Parser<'_> {
             return self.parse_let_binding();
         }
 
-        let type_annotation = self.parse_type_definition()?;
+        // Please don't hate me
+        let type_annotation = match &self.current_token {
+            Token::Ident(ident) => match self.symbol_table.resolve_ref(ident) {
+                Some(v) => match &v.ty {
+                    Type::AsValue(ty) => self.parse_primary_type(*ty.clone())?,
+                    _ => {
+                        let expr = Expression::Identifier(ident.clone());
+                        let primary_expr =
+                            self.parse_primary_expressions(expr, Precedence::Lowest)?;
+
+                        return if self.is_peek_token(Token::Assign) {
+                            self.parse_assignment_statement(primary_expr)
+                        } else {
+                            Ok(Statement::Expression(primary_expr))
+                        };
+                    }
+                },
+                None => return Err(ParserError::Undefined(ident.clone())),
+            },
+            _ => self.parse_type_definition()?,
+        };
 
         // It's not a binding
         if !matches!(&self.peek_token, Token::Ident(_)) {

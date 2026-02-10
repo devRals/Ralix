@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display};
 
-use crate::{Expression, Literal, Token};
+use crate::{Expression, Literal, Token, types::Type};
 
 pub type ParserResult<N> = Result<N, ParserError>;
 
@@ -16,6 +16,7 @@ pub enum ParserError {
     UnknownInfixOp(Literal),
     UnknownPrefixOp(Literal),
     CannotAssignTo(Expression),
+    CannotBindUsing(Type),
     UnacceptableConst,
 }
 
@@ -54,6 +55,7 @@ impl Display for ParserError {
             E::UnacceptableConst => {
                 "`const` keyword can only be used in binding statements".to_string()
             }
+            E::CannotBindUsing(ty) => format!("`{ty}` cannot be used in binding statements"),
         })
     }
 }

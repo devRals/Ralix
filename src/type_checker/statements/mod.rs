@@ -20,6 +20,7 @@ impl TypeChecker<'_> {
                 self.check_assignment_statement(left, value).map(|_| None)
             }
             Statement::Return(expr) => self.check_return_statement(expr.as_ref()).map(|_| None),
+            Statement::Alias { .. } => Ok(None),
         }
     }
 }

@@ -23,7 +23,7 @@ impl Parser<'_> {
         self.parse_primary_type(initial_type)
     }
 
-    fn parse_primary_type(&mut self, initial_type: Type) -> ParserResult<Type> {
+    pub fn parse_primary_type(&mut self, initial_type: Type) -> ParserResult<Type> {
         let ty = match &self.peek_token {
             Token::Asterisk => Type::Addr(Box::new(initial_type)),
             Token::QuestionMark => Type::Nullable(Box::new(initial_type)),

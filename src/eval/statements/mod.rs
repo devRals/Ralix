@@ -1,4 +1,4 @@
-use crate::{EvalResult, Evaluator, Object, Statement, try_eval_result};
+use crate::{EvalResult, Evaluator, Expression, Object, Statement, try_eval_result};
 
 mod assignment;
 mod binding;
@@ -17,6 +17,8 @@ impl Evaluator<'_> {
                 };
                 EvalResult::Return(val)
             }
+            // Type checker special statement
+            Statement::Alias { ident, ty } => self.evaluate_binding(ident, Expression::Type(ty)),
         }
     }
 }

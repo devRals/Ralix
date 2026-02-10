@@ -44,7 +44,7 @@ impl Repl {
         let mut heap = Heap::new();
         let mut st = SymbolTable::default();
 
-        let user = env!("USER");
+        let user = env!("USER").cyan();
         let bin_name = env!("CARGO_PKG_NAME").magenta();
         let version = format!(
             "{}.{}.{}",
@@ -56,7 +56,7 @@ impl Repl {
 
         writeln!(
             out,
-            "Welcome {user}\n{bin_name} {version}\nCheckout {home_page} if you wanna learn more about {bin_name}\n"
+            "Welcome {user}!\n{bin_name} {version}\nCheckout {home_page} if you wanna learn more about {bin_name}\n"
         )?;
 
         loop {
