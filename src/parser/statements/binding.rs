@@ -26,7 +26,16 @@ impl Parser<'_> {
                         };
                     }
                 },
-                None => return Err(ParserError::Undefined(ident.clone())),
+                None => {
+                    let expr = Expression::Identifier(ident.clone());
+                    let primary_expr = self.parse_primary_expressions(expr, Precedence::Lowest)?;
+
+                    return if self.is_peek_token(Token::Assign) {
+                        self.parse_assignment_statement(primary_expr)
+                    } else {
+                        Ok(Statement::Expression(primary_expr))
+                    };
+                }
             },
             _ => self.parse_type_definition()?,
         };
