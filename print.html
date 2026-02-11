@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-959f3fc3.js";
+            window.path_to_searchindex_js = "searchindex-cfb025c1.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-54f10d66.js"></script>
@@ -189,19 +189,28 @@
 <p>This book serves as the official documentation for the Ralix language and its interpreter.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<p>There are two ways to install and run the <code>ralix</code> CLI:</p>
 <h2 id="using-cargo-install"><a class="header" href="#using-cargo-install">Using <code>cargo install</code></a></h2>
-<p>You can install the <code>ralix</code> CLI directly from the source if you have the repository cloned.</p>
+<blockquote class="blockquote-tag blockquote-tag-important">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
+<p>For this step ensure you have the <a href="https://rustup.rs/">Rust toolchain</a> installed.</p>
+</blockquote>
+<p>You can install the <code>ralix</code> CLI directly from the source if you have the
+repository cloned.</p>
 <pre><code class="language-bash">cargo install --path .
 </code></pre>
+<p>Or if you don’t even care about the repository (like I usually do)
+you can quickly install <code>ralix</code> using:</p>
+<pre><code class="language-bash">cargo install ralix
+</code></pre>
 <p>After installation, you can run the <code>ralix</code> command from anywhere in your terminal:</p>
-<pre><code class="language-bash">ralix --help
+<pre><code class="language-bash">ralix --version
 </code></pre>
 <h2 id="running-from-source"><a class="header" href="#running-from-source">Running from source</a></h2>
 <p>If you have the source code, you can also run the CLI directly using <code>cargo run</code>:</p>
 <pre><code class="language-bash">cargo run -- --help
 </code></pre>
-<p>This will build and run the latest version of the code. All the arguments to the <code>ralix</code> CLI should be passed after <code>--</code>.</p>
+<p>This will build and run the latest version of the code. All the arguments to
+the <code>ralix</code> CLI should be passed after <code>--</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="syntax"><a class="header" href="#syntax">Syntax</a></h1>
 <p>Ralix has a simple and familiar syntax, inspired by languages like Rust and C. This section provides a reference for the language’s syntax.</p>
@@ -257,6 +266,11 @@
 <pre><code>type[int] my_integer_ty = int;
 </code></pre>
 </li>
+<li>
+<p><strong><code>map[K, V]</code></strong>: A Hash Map that holds <code>K</code> as keys and <code>V</code> as values.</p>
+<pre><code>map[str, str] capitals = #{ "a": "A", "b": "B", c: "C" /* ... */}
+</code></pre>
+</li>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-important">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
@@ -288,10 +302,26 @@ str y = "hello";
 let pi = 3.14;
 </code></pre>
 <h2 id="const-statement"><a class="header" href="#const-statement"><code>const</code> statement</a></h2>
-<p>The <code>const</code> statement is used to create a new constant binding. Constants are immutable and must have their type specified.</p>
+<p>The <code>const</code> statement is used to create a new constant binding. Constants are
+immutable and must have their type specified.</p>
 <pre><code class="language-c">// Create a constant `PI` of type `float`
 const float PI = 3.14159;
 </code></pre>
+<h2 id="type-alias-statements"><a class="header" href="#type-alias-statements">Type Alias Statements</a></h2>
+<p>Using the type keyword you can create your own type aliases. Once a type alias defined
+it cannot be changed afterwards.</p>
+<pre><code class="language-c">type MyStr = str?;
+MyStr my_value = "hehe! I'm in danger!"; // Don't judge. This line came
+                                         // to my mind for no reason
+</code></pre>
+<p>You also can use the types you got from the <code>typeof</code> expression. And also
+use them in binding statements.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>const float PI = 3.14159;
+let MyFloat = typeof PI;
+MyFloat my_type_is_same_as_PI = 1.2;
+<span class="boring">}</span></code></pre>
 <h2 id="fn-statement"><a class="header" href="#fn-statement"><code>fn</code> statement</a></h2>
 <p>The <code>fn</code> statement is used to create a new function. Functions can have parameters
 and a return type. Optionally you can also bind <code>const fn</code> statements.
@@ -300,6 +330,11 @@ a regular function.</p>
 <pre><code class="language-c">// Create a function `add` that takes two integers and returns an integer
 fn add(int a, int b) -&gt; int: a + b;
 </code></pre>
+<p>For flexibility you can use “type generics” in function parameters and return types.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn first[T](arr[T] x) -&gt; T? : x[0]
+<span class="boring">}</span></code></pre>
 <h2 id="return-statement"><a class="header" href="#return-statement"><code>return</code> statement</a></h2>
 <p>The <code>return</code> statement is used to exit a function and optionally return a value.</p>
 <pre><code class="language-c">fn get_greeting() -&gt; str: {
@@ -307,15 +342,29 @@ fn add(int a, int b) -&gt; int: a + b;
 }
 </code></pre>
 <h2 id="expression-statement"><a class="header" href="#expression-statement">Expression statement</a></h2>
-<p>An expression statement is an expression that is followed by a semicolon. The value of the expression is discarded.</p>
+<p>An expression statement is an expression that is followed by a semicolon.
+The value of the expression is discarded unless it’s the last expression
+statement that has been evaluated. This can be useful when using scope expressions.</p>
 <pre><code class="language-c">// The function call is an expression statement
 println("Hello, World!");
 </code></pre>
 <h2 id="assignment"><a class="header" href="#assignment">Assignment</a></h2>
 <p>An assignment statement is used to change the value of an existing variable.</p>
-<pre><code class="language-c">int x = 5;
+<pre><code class="language-go">int x = 5;
 x = 10;
+
+map[str, arr[int]] items = #{ "a": [0,1,2], "b": [3,4,5] };
+items["b"] = [6,7,8];
+
+arr[float] nums = [1.0, 2.7, 3.3, float(4)];
+nums[2] = 5.8;
 </code></pre>
+<blockquote class="blockquote-tag blockquote-tag-important">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
+<p>Note that index assignment operations can only update <em>existing values</em>.
+If you wanna add a new value to a new hash-map using a key that hash-map
+isn’t using this operation will simply do nothing</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="expressions"><a class="header" href="#expressions">Expressions</a></h1>
 <p>Expressions are constructs that produce a value.</p>
@@ -329,6 +378,7 @@ x = 10;
 <li><strong>String literals</strong>: <code>"hello"</code></li>
 <li><strong>Null literal</strong>: <code>null</code></li>
 <li><strong>Array literals</strong>: <code>[1, 2, 3]</code></li>
+<li><strong>Hash Map Literals</strong>: <code>#{ "a": 1 , "b": 2 }</code></li>
 </ul>
 <h2 id="identifiers"><a class="header" href="#identifiers">Identifiers</a></h2>
 <p>An identifier is a name that refers to a variable, constant, or function.</p>
@@ -371,7 +421,7 @@ bool are_equal = x == y;
 </span>println("Hello, World!");
 <span class="boring">}</span></code></pre>
 <h2 id="index-expressions"><a class="header" href="#index-expressions">Index Expressions</a></h2>
-<p>An index expression is used to access an element of an array.</p>
+<p>An index expression is used to access an element of an array or a hash-map.</p>
 <pre><code class="language-c">arr[int] my_arr = [1, 2, 3];
 int first = my_arr[0];
 </code></pre>
@@ -395,6 +445,16 @@ let b = copy a;
 </span><span class="boring">fn main() {
 </span>let x = 10;
 let type_of_x = typeof x; // `type_of_x` is `type[int]`
+<span class="boring">}</span></code></pre>
+<blockquote class="blockquote-tag blockquote-tag-important">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
+<p><code>typeof</code> expression only returns the type of the value during runtime.
+Example:</p>
+</blockquote>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>arr[int] my_arr = []; // Empty arrays automatically bind `unknown` type generic
+typeof my_arr // `arr[unknown]`
 <span class="boring">}</span></code></pre>
 <h2 id="-address-of-expressions"><a class="header" href="#-address-of-expressions"><code>&amp;</code> (Address Of) Expressions</a></h2>
 <p>The <code>&amp;</code> operator creates a pointer to a value.</p>
@@ -426,27 +486,30 @@ you’d probably want to create a <code>function statement</code> instead</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="repl-command"><a class="header" href="#repl-command"><code>repl</code> command</a></h1>
-<p>The <code>repl</code> command starts the Read-Eval-Print-Loop (REPL), an interactive programming environment for Ralix.</p>
+<p>The <code>repl</code> command starts the Read-Eval-Print-Loop (REPL), an interactive
+programming environment for Ralix.</p>
 <h2 id="usage-1"><a class="header" href="#usage-1">Usage</a></h2>
 <pre><code class="language-bash">ralix repl
 </code></pre>
 <h3 id="options"><a class="header" href="#options">Options</a></h3>
 <ul>
-<li><code>--legacy</code>: Use the simpler, line-by-line REPL without the advanced terminal UI.</li>
+<li><code>--tui</code>: Use the experimental terminal user interface instead.</li>
 </ul>
 <h2 id="description-1"><a class="header" href="#description-1">Description</a></h2>
-<p>The <code>repl</code> command allows you to enter and execute Ralix code interactively. The result of each expression is printed to the console.</p>
+<p>The <code>repl</code> command allows you to enter and execute Ralix code interactively.
+The result of each expression is printed to the console.</p>
 <p>There are two versions of the REPL:</p>
 <ul>
-<li>The default REPL uses a terminal user interface (TUI) for a richer interactive experience.</li>
-<li>The legacy REPL is a simpler, line-by-line interpreter, which can be activated with the <code>--legacy</code> flag.</li>
+<li>The terminal user interface (TUI) for a richer interactive experience,
+which can be activated with the <code>--tui</code> flag.</li>
+<li>The default legacy REPL is a simpler, line-by-line interpreter.</li>
 </ul>
 <h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
 <p>To start the default REPL:</p>
 <pre><code class="language-bash">ralix repl
 </code></pre>
-<p>To start the legacy REPL:</p>
-<pre><code class="language-bash">ralix repl --legacy
+<p>To start the TUI REPL:</p>
+<pre><code class="language-bash">ralix repl --tui
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="ast-command"><a class="header" href="#ast-command"><code>ast</code> command</a></h1>

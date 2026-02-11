@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-959f3fc3.js";
+            window.path_to_searchindex_js = "../searchindex-cfb025c1.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-54f10d66.js"></script>
@@ -175,27 +175,30 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="repl-command"><a class="header" href="#repl-command"><code>repl</code> command</a></h1>
-<p>The <code>repl</code> command starts the Read-Eval-Print-Loop (REPL), an interactive programming environment for Ralix.</p>
+<p>The <code>repl</code> command starts the Read-Eval-Print-Loop (REPL), an interactive
+programming environment for Ralix.</p>
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <pre><code class="language-bash">ralix repl
 </code></pre>
 <h3 id="options"><a class="header" href="#options">Options</a></h3>
 <ul>
-<li><code>--legacy</code>: Use the simpler, line-by-line REPL without the advanced terminal UI.</li>
+<li><code>--tui</code>: Use the experimental terminal user interface instead.</li>
 </ul>
 <h2 id="description"><a class="header" href="#description">Description</a></h2>
-<p>The <code>repl</code> command allows you to enter and execute Ralix code interactively. The result of each expression is printed to the console.</p>
+<p>The <code>repl</code> command allows you to enter and execute Ralix code interactively.
+The result of each expression is printed to the console.</p>
 <p>There are two versions of the REPL:</p>
 <ul>
-<li>The default REPL uses a terminal user interface (TUI) for a richer interactive experience.</li>
-<li>The legacy REPL is a simpler, line-by-line interpreter, which can be activated with the <code>--legacy</code> flag.</li>
+<li>The terminal user interface (TUI) for a richer interactive experience,
+which can be activated with the <code>--tui</code> flag.</li>
+<li>The default legacy REPL is a simpler, line-by-line interpreter.</li>
 </ul>
 <h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <p>To start the default REPL:</p>
 <pre><code class="language-bash">ralix repl
 </code></pre>
-<p>To start the legacy REPL:</p>
-<pre><code class="language-bash">ralix repl --legacy
+<p>To start the TUI REPL:</p>
+<pre><code class="language-bash">ralix repl --tui
 </code></pre>
 
                     </main>

@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-959f3fc3.js";
+            window.path_to_searchindex_js = "../../searchindex-cfb025c1.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-54f10d66.js"></script>
@@ -190,10 +190,26 @@ str y = "hello";
 let pi = 3.14;
 </code></pre>
 <h2 id="const-statement"><a class="header" href="#const-statement"><code>const</code> statement</a></h2>
-<p>The <code>const</code> statement is used to create a new constant binding. Constants are immutable and must have their type specified.</p>
+<p>The <code>const</code> statement is used to create a new constant binding. Constants are
+immutable and must have their type specified.</p>
 <pre><code class="language-c">// Create a constant `PI` of type `float`
 const float PI = 3.14159;
 </code></pre>
+<h2 id="type-alias-statements"><a class="header" href="#type-alias-statements">Type Alias Statements</a></h2>
+<p>Using the type keyword you can create your own type aliases. Once a type alias defined
+it cannot be changed afterwards.</p>
+<pre><code class="language-c">type MyStr = str?;
+MyStr my_value = "hehe! I'm in danger!"; // Don't judge. This line came
+                                         // to my mind for no reason
+</code></pre>
+<p>You also can use the types you got from the <code>typeof</code> expression. And also
+use them in binding statements.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>const float PI = 3.14159;
+let MyFloat = typeof PI;
+MyFloat my_type_is_same_as_PI = 1.2;
+<span class="boring">}</span></code></pre>
 <h2 id="fn-statement"><a class="header" href="#fn-statement"><code>fn</code> statement</a></h2>
 <p>The <code>fn</code> statement is used to create a new function. Functions can have parameters
 and a return type. Optionally you can also bind <code>const fn</code> statements.
@@ -202,6 +218,11 @@ a regular function.</p>
 <pre><code class="language-c">// Create a function `add` that takes two integers and returns an integer
 fn add(int a, int b) -&gt; int: a + b;
 </code></pre>
+<p>For flexibility you can use “type generics” in function parameters and return types.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn first[T](arr[T] x) -&gt; T? : x[0]
+<span class="boring">}</span></code></pre>
 <h2 id="return-statement"><a class="header" href="#return-statement"><code>return</code> statement</a></h2>
 <p>The <code>return</code> statement is used to exit a function and optionally return a value.</p>
 <pre><code class="language-c">fn get_greeting() -&gt; str: {
@@ -209,15 +230,29 @@ fn add(int a, int b) -&gt; int: a + b;
 }
 </code></pre>
 <h2 id="expression-statement"><a class="header" href="#expression-statement">Expression statement</a></h2>
-<p>An expression statement is an expression that is followed by a semicolon. The value of the expression is discarded.</p>
+<p>An expression statement is an expression that is followed by a semicolon.
+The value of the expression is discarded unless it’s the last expression
+statement that has been evaluated. This can be useful when using scope expressions.</p>
 <pre><code class="language-c">// The function call is an expression statement
 println("Hello, World!");
 </code></pre>
 <h2 id="assignment"><a class="header" href="#assignment">Assignment</a></h2>
 <p>An assignment statement is used to change the value of an existing variable.</p>
-<pre><code class="language-c">int x = 5;
+<pre><code class="language-go">int x = 5;
 x = 10;
+
+map[str, arr[int]] items = #{ "a": [0,1,2], "b": [3,4,5] };
+items["b"] = [6,7,8];
+
+arr[float] nums = [1.0, 2.7, 3.3, float(4)];
+nums[2] = 5.8;
 </code></pre>
+<blockquote class="blockquote-tag blockquote-tag-important">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
+<p>Note that index assignment operations can only update <em>existing values</em>.
+If you wanna add a new value to a new hash-map using a key that hash-map
+isn’t using this operation will simply do nothing</p>
+</blockquote>
 
                     </main>
 
