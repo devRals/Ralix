@@ -15,9 +15,7 @@ impl TypeChecker<'_> {
             E::Type(ty) => Ok(Type::AsValue(Box::new(ty.clone()))),
             E::Null => Ok(Type::Null),
             E::Identifier(ident) => self.infer_identifier(ident),
-            E::Copy(ident) => self.infer_copy_expression(ident),
             E::TypeOf(expr) => self.check_typeof_expression(expr),
-            E::AddrOf(ident) => self.infer_addrof_expression(ident),
             E::Scope { statements } => self.infer_scope_expression(statements),
             E::Infix {
                 left,

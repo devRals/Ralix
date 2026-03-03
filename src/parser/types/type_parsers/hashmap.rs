@@ -5,6 +5,9 @@ impl Parser<'_> {
         self.expect_token(Token::LBracket)?;
 
         let key = self.parse_type_definition()?;
+        if !key.is_hashable() {
+            return Err(ParserError::IsNotHashable(key));
+        }
         self.expect_token(Token::Comma)?;
         let value = self.parse_type_definition()?;
 

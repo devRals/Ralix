@@ -1,4 +1,8 @@
-use crate::{CheckerError, CheckerResult, Expression, TypeChecker, expressions::Identifier};
+use crate::{
+    CheckerError, CheckerResult, Expression, TypeChecker,
+    expressions::{Identifier, PrefixOperator},
+    type_checker::statements::binding::infer_generics,
+};
 
 impl TypeChecker<'_> {
     pub fn check_assignment_statement(
@@ -13,12 +17,13 @@ impl TypeChecker<'_> {
         }
 
         let mut left_ty = self.check_expression(left)?;
-        let value_ty = self.check_expression(value)?;
+        let mut value_ty = self.check_expression(value)?;
 
         if let Expression::Index { .. } = left {
             left_ty = left_ty.unwrap_nullable()
         }
 
+        infer_generics(&left_ty, &mut value_ty);
         if value_ty.satisfies(&left_ty) {
             Ok(())
         } else {
@@ -37,6 +42,10 @@ impl TypeChecker<'_> {
             }
 
             Expression::Index { left, .. } => self.value_exists_and_is_a_constant(left),
+            Expression::Prefix {
+                operator: PrefixOperator::Deref,
+                right,
+            } => self.value_exists_and_is_a_constant(right),
             _ => false,
         }
     }

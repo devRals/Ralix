@@ -76,7 +76,10 @@ impl Repl {
                 }
             };
 
-            let mut evaluator = Evaluator::new(&mut env, &mut heap);
+            let mut evaluator = Evaluator::new(crate::Context {
+                environment: &mut env,
+                heap: &mut heap,
+            });
             let value = evaluator.evaluate_program(program);
             writeln!(out, "{}\n", self.colorize_eval_result(&value, &heap)?)?;
             self.buf.clear();

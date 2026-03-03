@@ -1,19 +1,14 @@
 use crate::{Addr, Environment, Heap, Object, expressions::Identifier};
 
 pub struct Context<'env> {
-    pub(super) environment: &'env mut Environment,
-    pub(super) heap: &'env mut Heap,
+    pub(crate) environment: &'env mut Environment,
+    pub(crate) heap: &'env mut Heap,
 }
 
 impl Context<'_> {
     pub fn define(&mut self, key: Identifier, value: Object) {
         let addr = self.heap.alloc(value);
         self.environment.define(key, addr);
-    }
-
-    pub fn drop(&mut self, name: &Identifier) -> Option<Object> {
-        let addr = self.environment.drop(name)?;
-        self.heap.drop(addr)
     }
 
     pub fn get_addr(&mut self, name: &Identifier) -> Option<&Addr> {
@@ -44,6 +39,6 @@ impl Context<'_> {
     }
 
     pub fn leave_scope(&mut self) {
-        self.environment.leave_scope()
+        self.environment.leave_scope();
     }
 }

@@ -33,7 +33,12 @@ impl TypeChecker<'_> {
 
             (t1, O::Equals | O::NotEquals | O::Less | O::LessEq | O::Greater | O::GreatEq, t2) => {
                 if !t1.is(&t2) {
-                    Err(CheckerError::InfixTypeMismatched(t1, *operator, t2))
+                    match (t1, t2) {
+                        (Type::Nullable(_), Type::Null) | (Type::Null, Type::Nullable(_)) => {
+                            Ok(Type::Bool)
+                        }
+                        (t1, t2) => Err(CheckerError::InfixTypeMismatched(t1, *operator, t2)),
+                    }
                 } else {
                     Ok(Type::Bool)
                 }
@@ -57,7 +62,27 @@ impl TypeChecker<'_> {
             (O::Not, Type::Bool) => Ok(Type::Bool),
             (O::Neg, Type::Float) => Ok(Type::Float),
             (O::Neg, Type::Int) => Ok(Type::Int),
-            (O::Deref, Type::Addr(t)) => Ok(*t),
+            (O::AddrOf, ty) => match right {
+                // You can't get address of a non-existing binding
+                // because of that address of returns a nullable
+                // For example from a hashmap:
+                // `map[str,str] x = #{ "a": "b" }; &x["c"];`
+                // there is not a value that `x` has holding with key "c"
+                Expression::Index {..} =>
+                    Ok(Type::Nullable(Type::Addr(ty.into()).into())),
+                _ => Ok(Type::Addr(ty.into())),
+            }
+            (O::Deref, target) => match target {
+                Type::Addr(t) => Ok(*t),
+                Type::Nullable(t) => {
+                    if let Type::Addr(t) = *t {
+                        Ok(Type::Nullable(t))
+                    } else {
+                        Err(CheckerError::PrefixTypeMismatched(O::Deref, *t))
+                    }
+                }
+                t => Err(CheckerError::PrefixTypeMismatched(O::Deref, t)),
+            },
             (op, ty) => Err(CheckerError::PrefixTypeMismatched(*op, ty)),
         }
     }

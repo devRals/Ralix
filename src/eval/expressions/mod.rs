@@ -1,8 +1,6 @@
 use crate::{EvalResult, Evaluator, Expression, Object};
 
-mod address;
 mod array;
-mod copy;
 mod function;
 mod hashmap;
 mod identifier;
@@ -40,9 +38,7 @@ impl Evaluator<'_> {
             Expression::Prefix { operator, right } => {
                 self.evaluate_prefix_expression(operator, *right)
             }
-            Expression::Copy(ident) => self.evaluate_copy_expression(ident),
             Expression::TypeOf(expr) => self.evaluate_typeof_expression(*expr),
-            Expression::AddrOf(ident) => self.evaluate_addr_expression(ident),
             Expression::Scope { statements } => self.evaluate_scope_expression(statements),
             Expression::IfElse {
                 consequences,

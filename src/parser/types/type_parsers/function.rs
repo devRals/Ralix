@@ -12,6 +12,12 @@ impl Parser<'_> {
             Vec::new()
         };
 
+        for g in &generics {
+            self.symbol_table.enter_scope();
+            self.symbol_table
+                .define(g.name.clone(), Type::TypeVar(g.clone()), true);
+        }
+
         self.expect_token(Token::LParen)?;
         let mut parameters = Vec::new();
         let mut return_type = Type::Void;
@@ -22,6 +28,8 @@ impl Parser<'_> {
                     self.skip_peek_token(Token::ThinArrow);
                     return_type = self.parse_type_definition()?;
                 }
+
+                self.symbol_table.leave_scope();
                 break Ok(Type::Function {
                     generics,
                     parameters,

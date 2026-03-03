@@ -25,7 +25,6 @@ impl Parser<'_> {
             | Token::TyArr
             | Token::TyMap
             | Token::Type
-            | Token::Let
             | Token::Ident(_) => self.parse_binding_statement(),
             _ => self.parse_expression_statement(),
         }

@@ -28,6 +28,7 @@ pub enum PrefixOperator {
     Not,
     Neg,
     Deref,
+    AddrOf,
 }
 
 /// (Condition, Consequence)
@@ -45,4 +46,27 @@ pub struct FunctionParameter {
 pub struct HashMapItem {
     pub key: Expression,
     pub value: Expression,
+}
+
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub enum ExpressionType {
+    Identifier,
+    Integer,
+    Float,
+    Boolean,
+    String,
+    Char,
+    Null,
+    TypeOf,
+    Type,
+    Try,
+    Infix,
+    Prefix,
+    Scope,
+    IfElse,
+    Function,
+    Call,
+    Array,
+    HashMap,
+    Index,
 }

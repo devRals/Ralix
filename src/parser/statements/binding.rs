@@ -1,14 +1,10 @@
 use crate::{
-    Expression, Parser, ParserError, ParserResult, Statement, Token,
-    parser::expressions::Precedence, types::Type,
+    Expression, Parser, ParserResult, Statement, Token, parser::expressions::Precedence,
+    types::Type,
 };
 
 impl Parser<'_> {
     pub fn parse_binding_statement(&mut self) -> ParserResult<Statement> {
-        if self.is_current_token(Token::Let) {
-            return self.parse_let_binding();
-        }
-
         // Please don't hate me
         let type_annotation = match &self.current_token {
             Token::Ident(ident) => match self.symbol_table.resolve_ref(ident) {

@@ -1,8 +1,6 @@
 use crate::{Expression, Parser, ParserError, ParserResult, Token, types::Type};
 
-mod address;
 mod array;
-mod copy;
 mod function;
 mod hashmap;
 mod identifier;
@@ -70,14 +68,12 @@ impl Parser<'_> {
             Token::TyInt | Token::TyChar | Token::TyBool | Token::TyFloat | Token::TyString => {
                 Expression::Type(Type::from_token(&self.current_token).unwrap())
             }
-            Token::Minus | Token::Bang | Token::Not | Token::Asterisk => {
+            Token::Minus | Token::Bang | Token::Not | Token::Asterisk | Token::Ampersant => {
                 self.parse_prefix_expression()?
             }
             Token::LBrace => self.parse_scope_expression()?,
             Token::LParen => self.parse_lparen_items()?,
-            Token::Copy => self.parse_copy_expression()?,
             Token::TypeOf => self.parse_typeof_expression()?,
-            Token::Ampersant => self.parse_address_expression()?,
             Token::If => self.parse_if_expression()?,
             Token::Function => self.parse_function_expression()?,
             Token::LBracket => self.parse_array_literal()?,

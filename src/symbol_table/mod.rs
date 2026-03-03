@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
+use serde::Serialize;
+
 use crate::{Literal, types::Type};
 
-#[derive(Clone, Hash, Debug)]
+#[derive(Clone, Hash, Debug, PartialEq, PartialOrd, Eq, Ord, Serialize)]
 pub struct ValueMetadata {
     pub ty: Type,
     pub is_constant: bool,

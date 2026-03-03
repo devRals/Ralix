@@ -59,19 +59,33 @@ impl Evaluator<'_> {
         operator: PrefixOperator,
         right: Expression,
     ) -> EvalResult<Object> {
+        if let PrefixOperator::AddrOf = operator {
+            return self.evaluate_addrof_expression(right);
+        }
+
         let obj = try_eval_result!(self.evaluate_expression(right));
 
         match operator {
             PrefixOperator::Not => !obj,
             PrefixOperator::Neg => -obj,
             PrefixOperator::Deref => self.evaluate_deref_expression(obj),
+            PrefixOperator::AddrOf => unreachable!(),
         }
     }
 
     pub fn evaluate_deref_expression(&mut self, obj: Object) -> EvalResult<Object> {
         match obj {
             Object::Address(addr) => self.ctx.heap.read(&addr).cloned().into(),
-            _ => unreachable!(),
+            Object::Null => EvalResult::Value(Object::NULL),
+            o => EvalResult::Err(EvaluationError::CannotBeDereferenced(o.r#type())),
+        }
+    }
+
+    pub fn evaluate_addrof_expression(&mut self, target: Expression) -> EvalResult<Object> {
+        let addr = self.addr_of(target);
+        match addr {
+            Some(addr) => EvalResult::Value(Object::Address(addr)),
+            None => Object::NULL.into(),
         }
     }
 }

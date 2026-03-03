@@ -41,8 +41,6 @@ pub enum Expression {
     Boolean(bool),
     String(Literal),
     Char(char),
-    Copy(Identifier),
-    AddrOf(Identifier), // a basic Pointer
     Null,
     TypeOf(Box<Expression>),
     Type(Type),

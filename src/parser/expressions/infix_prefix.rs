@@ -39,6 +39,7 @@ impl Parser<'_> {
             Token::Bang | Token::Not => PrefixOperator::Not,
             Token::Minus => PrefixOperator::Neg,
             Token::Asterisk => PrefixOperator::Deref,
+            Token::Ampersant => PrefixOperator::AddrOf,
             t => return Err(ParserError::UnknownInfixOp(t.literal())),
         };
 
@@ -53,9 +54,6 @@ impl Parser<'_> {
 
     pub fn parse_lparen_items(&mut self) -> ParserResult<Expression> {
         self.consume_current_token(Token::LParen);
-        if self.is_current_token(Token::RParen) {
-            return Ok(Expression::Null);
-        }
 
         let expr = self.parse_expression(Precedence::Lowest)?;
 

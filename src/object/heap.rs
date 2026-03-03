@@ -41,10 +41,12 @@ pub struct Heap {
 }
 
 impl Heap {
+    /// Constructor for [`Heap`]
     pub const fn new() -> Heap {
         Heap { store: Vec::new() }
     }
 
+    /// Allocates a new location for the given `value`
     pub fn alloc(&mut self, value: Object) -> Addr {
         let ty = value.r#type();
         let addr = self.store.len();
@@ -53,20 +55,18 @@ impl Heap {
         Addr(addr, ty)
     }
 
+    pub fn update(&mut self, addr: Addr, value: Object) -> Option<Addr> {
+        let holder = self.store.get_mut(addr.0)?;
+        *holder = value;
+        Some(addr)
+    }
+
     pub fn read(&self, addr: &Addr) -> Option<&Object> {
         self.store.get(addr.0)
     }
 
     pub fn read_mut(&mut self, addr: &Addr) -> Option<&mut Object> {
         self.store.get_mut(addr.0)
-    }
-
-    pub fn drop(&mut self, addr: Addr) -> Option<Object> {
-        if addr.0 < self.store.len() {
-            None
-        } else {
-            Some(self.store.remove(addr.0))
-        }
     }
 
     pub fn clear(&mut self) {

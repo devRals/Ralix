@@ -1,6 +1,6 @@
 use std::{fmt::Display, rc::Rc};
 
-use crate::{Environment, Heap, Object, Program};
+use crate::{Object, Program};
 
 mod context;
 mod error;
@@ -58,15 +58,13 @@ impl Object {
     }
 }
 
-pub struct Evaluator<'env> {
-    ctx: Context<'env>,
+pub struct Evaluator<'ctx> {
+    ctx: Context<'ctx>,
 }
 
-impl<'env> Evaluator<'env> {
-    pub const fn new(environment: &'env mut Environment, heap: &'env mut Heap) -> Self {
-        Evaluator {
-            ctx: Context { environment, heap },
-        }
+impl<'ctx> Evaluator<'ctx> {
+    pub const fn new(ctx: Context<'ctx>) -> Self {
+        Evaluator { ctx }
     }
 }
 

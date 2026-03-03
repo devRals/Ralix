@@ -1,7 +1,7 @@
 use ratatui::DefaultTerminal;
 
 use crate::{
-    Environment, EvalResult, Evaluator, ExecuteError, Heap, Object, Program, SymbolTable,
+    Context, Environment, EvalResult, Evaluator, ExecuteError, Heap, Object, Program, SymbolTable,
     parse_with_symbol_table,
 };
 
@@ -150,7 +150,10 @@ impl Repl {
 
         self.state = ReplState::Running;
         let res = if let Some(Ok(program)) = &self.program_result {
-            let mut evaluator = Evaluator::new(&mut self.context.env, &mut self.context.heap);
+            let mut evaluator = Evaluator::new(Context {
+                environment: &mut self.context.env,
+                heap: &mut self.context.heap,
+            });
             evaluator.evaluate_program(program.clone())
         } else {
             EvalResult::NoValue

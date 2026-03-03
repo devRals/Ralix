@@ -14,8 +14,8 @@ fn test_lexer() {
         //  Keywords
         null if else fn const return
         true false while for continue
-        break match class static new interface
-        public import not and or
+        break match struct interface
+        export import not and or
     "#;
     let expected_tokens = [
         String(Literal::from("meow")),
@@ -64,11 +64,9 @@ fn test_lexer() {
         Continue,
         Break,
         Match,
-        Class,
-        Static,
-        New,
+        Struct,
         Interface,
-        Public,
+        Export,
         Import,
         Not,
         And,

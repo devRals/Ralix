@@ -65,27 +65,49 @@ impl TypeChecker<'_> {
     }
 }
 
-fn infer_generics(type_annotation: &Type, value_ty: &mut Type) {
-    match (value_ty, type_annotation) {
+pub fn infer_generics(type_annotation: &Type, mut value_ty: &mut Type) {
+    match (&mut value_ty, type_annotation) {
         (Type::Array(got), Type::Array(expected)) => {
-            if let Type::Unknown = &**got {
-                **got = *expected.clone()
-            }
+            infer_generics(expected, got);
         }
         (
-            Type::HashMap { key, value },
+            Type::HashMap {
+                key: got_k,
+                value: got_v,
+            },
             Type::HashMap {
                 key: expected_k,
                 value: expected_v,
             },
         ) => {
-            if let Type::Unknown = &**key {
-                **key = *expected_k.clone()
+            infer_generics(expected_k, got_k);
+            infer_generics(expected_v, got_v);
+        }
+        (Type::Nullable(got), Type::Nullable(expected)) => infer_generics(expected, got),
+        (Type::AsValue(got), Type::AsValue(expected)) => infer_generics(expected, got),
+        (Type::Addr(got), Type::Addr(expected)) => infer_generics(expected, got),
+        (
+            Type::Function {
+                parameters: got_p,
+                return_type: got_rt,
+                generics: _,
+            },
+            Type::Function {
+                parameters: expected_p,
+                return_type: expected_rt,
+                generics: _,
+            },
+        ) => {
+            for (e, g) in expected_p.iter().zip(got_p) {
+                infer_generics(&e.ty, &mut g.ty);
             }
-            if let Type::Unknown = &**value {
-                **value = *expected_v.clone()
+            infer_generics(expected_rt, got_rt);
+        }
+
+        (got, expected) => {
+            if !expected.is(&Type::Unknown) && got.is(&Type::Unknown) {
+                **got = expected.clone()
             }
         }
-        _ => {}
     }
 }

@@ -2,9 +2,38 @@ use std::fmt::Display;
 
 use crate::{
     Expression, Program, Statement,
-    expressions::{HashMapItem, InfixOperator, PrefixOperator},
+    expressions::{ExpressionType, HashMapItem, InfixOperator, PrefixOperator},
     types::{FunctionParameterType, Type, TypeVarId},
 };
+
+macro_rules! display_expr_ty {
+    ( $( $name: ident => $str: expr ),* ) => {
+        impl Display for ExpressionType {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.write_str(match self {
+                    $(
+                        ExpressionType::$name => $str,
+                    )*
+                })
+            }
+        }
+    };
+}
+
+macro_rules! expr_type {
+    ( $($expr: pat => $ty: ident),* ) => {
+        impl Expression {
+            pub fn r#type(&self) -> ExpressionType {
+                use Expression::*;
+                match self {
+                    $(
+                        $expr => ExpressionType::$ty,
+                    )*
+                }
+            }
+        }
+    };
+}
 
 impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -17,10 +46,8 @@ impl Display for Expression {
             E::String(val) => format!("\"{val}\""),
             E::Char(val) => format!("'{val}'"),
             E::Null => "null".to_string(),
-            E::Copy(ident) => format!("copy {ident}"),
             E::TypeOf(expr) => format!("typeof {expr}"),
             E::Type(ty) => format!("{ty}"),
-            E::AddrOf(ident) => format!("&{ident}"),
             E::Try(expr) => format!("{expr}?"),
             E::Infix {
                 left,
@@ -199,6 +226,7 @@ impl Display for PrefixOperator {
             PrefixOperator::Not => "!",
             PrefixOperator::Neg => "-",
             PrefixOperator::Deref => "*",
+            PrefixOperator::AddrOf => "&",
         })
     }
 }
@@ -275,3 +303,49 @@ impl std::ops::Index<usize> for Program {
         &self.statements[index]
     }
 }
+
+expr_type!(
+    Identifier(_) => Identifier,
+    Integer(_) => Integer,
+    Float(_) => Float,
+    Boolean(_) => Boolean,
+    String(_) => String,
+    Char(_) => Char,
+    Null => Null,
+    TypeOf(_) => TypeOf,
+    Type(_) => Type,
+    Try(_) => Try,
+    Infix{..} => Infix,
+    Prefix{..} => Prefix,
+    Scope{..} => Scope,
+    IfElse{..} => IfElse,
+    Function{..} => Function,
+    Call{..} => Call,
+    Array{..} => Array,
+    HashMap{..} => HashMap,
+    Index{..} => Index
+);
+
+// exclusive
+
+display_expr_ty!(
+    Identifier => "identifier",
+    Integer => "integer literal",
+    Float => "float literal",
+    Boolean => "boolean literal",
+    String => "string literal",
+    Char => "char literal",
+    Null => "null literal",
+    TypeOf => "type of",
+    Type => "exclusive type",
+    Try => "try",
+    Infix => "infix",
+    Prefix => "prefix",
+    Scope => "scope",
+    IfElse => "if else",
+    Function => "function",
+    Call => "call",
+    Array => "array literal",
+    HashMap => "hash-map literal",
+    Index => "index"
+);

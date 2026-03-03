@@ -2,7 +2,7 @@ use std::{error::Error, fmt::Display};
 
 use crate::{
     Literal,
-    expressions::{Identifier, InfixOperator, PrefixOperator},
+    expressions::{ExpressionType, Identifier, InfixOperator, PrefixOperator},
     types::Type,
 };
 
@@ -22,12 +22,16 @@ pub enum CheckerError {
     AlreadyDefinedConstant(Identifier),
     AlreadyDefined(Identifier),
     IsAConstant(Identifier),
+    RefToAConstant(Identifier),
+    RefToAValue(ExpressionType),
+    RefToANullableValue(Type),
     UnavailableForCast(Type, Type),
     ArrayHasMultipleDifferentType(Type, Type),
     HashMaphHasMultipleDifferentKeyTypes(Type, Type),
     HashMaphHasMultipleDifferentValueTypes(Type, Type),
     IsNotNullable(Type),
     CannotUseTry(Type),
+    CannotUseTryInBinding,
     InfiniteType,
 }
 
@@ -67,6 +71,9 @@ impl Display for CheckerError {
             E::AlreadyDefinedConstant(ident) => format!("`{ident}` is already defined in the current scope as a \"constant\" and cannot be overwritten. Try using an another identifier name"),
             E::AlreadyDefined(ident) => format!("`{ident}` is already defined in the current scope. Try using an another identifier name"),
             E::IsAConstant(ident) => format!("Cannot assign a value to `{ident}` because it's a \"constant\""),
+            E::RefToAConstant(ident) => format!("Cannot have a pointer to `{ident}` because is a constant"),
+            E::RefToAValue(expr) => format!("Cannot have a pointer to type of `{expr}` expression"),
+            E::RefToANullableValue(ty) => format!("Cannot have a pointer to a nullable type of `{ty}` expression"),
             E::UnavailableForCast(t1, t2) => format!("Cannot cast a value typeof `{t2}` to a type `{t1}`"),
             E::ArrayHasMultipleDifferentType(t1, t2) => format!("Array has multiple types of values, `{t1}` and `{t2}`"),
             E::CannotbeIndexedBy(t1, t2) => format!("Type `{t1}` cannot be indexed by `{t2}`"),
@@ -75,6 +82,7 @@ impl Display for CheckerError {
             E::HashMaphHasMultipleDifferentValueTypes(t1, t2) => format!("Hashmap has multipe types of values, `{t1}` and `{t2}`"),
             E::IsNotNullable(ty) => format!("Try expression expects a nullable type but got `{ty}`"),
             E::CannotUseTry(ty) => format!("Try expression cannot be used in a function that returns a value type of `{ty}`"),
+            E::CannotUseTryInBinding => "Try expression cannot be used in binding statements".to_string(),
             E::InfiniteType => "Recursive type variables are not allowed".to_string(),
 
         })

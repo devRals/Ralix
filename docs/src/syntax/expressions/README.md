@@ -19,9 +19,9 @@ Literals are the most basic type of expression. They represent a fixed value in 
 
 An identifier is a name that refers to a variable, constant, or function.
 
-```rust
-let x = 5;
-let y = x; // `x` is an identifier
+```c
+int x = 5;
+int y = x; // `x` is an identifier
 ```
 
 ## Prefix Expressions
@@ -31,6 +31,7 @@ A prefix expression has the operator before the operand.
 - `-` (negation): `-10`
 - `!` (logical NOT): `!true`
 - `*` (dereference): `*ptr`
+- `&` (address of): `&value`
 
 ## Infix Expressions
 
@@ -53,7 +54,7 @@ bool are_equal = x == y;
 An `if` expression allows for conditional execution. It must have an `else` block.
 
 ```c
-let result =
+str result =
     if x > 5: "greater"
     else: "not greater"
 ;
@@ -87,22 +88,13 @@ int y = {
 }; // x is dropped, y is 6
 ```
 
-## `copy` Expressions
-
-A `copy` expression is used to create a shallow copy of a value.
-
-```rust
-let a = [1, 2, 3];
-let b = copy a;
-```
-
 ## `typeof` Expressions
 
 A `typeof` expression returns the type of a value.
 
-```rust
-let x = 10;
-let type_of_x = typeof x; // `type_of_x` is `type[int]`
+```py
+int x = 10;
+type[int] type_of_x = typeof x; // `type_of_x` is `type[int]`
 ```
 
 > [!IMPORTANT]
@@ -112,15 +104,6 @@ let type_of_x = typeof x; // `type_of_x` is `type[int]`
 ```rust
 arr[int] my_arr = []; // Empty arrays automatically bind `unknown` type generic
 typeof my_arr // `arr[unknown]`
-```
-
-## `&` (Address Of) Expressions
-
-The `&` operator creates a pointer to a value.
-
-```c
-int x = 10;
-int* ptr_to_x = &x;
 ```
 
 ## Function Literals

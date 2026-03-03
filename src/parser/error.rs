@@ -17,6 +17,7 @@ pub enum ParserError {
     UnknownPrefixOp(Literal),
     CannotAssignTo(Expression),
     CannotBindUsing(Type),
+    IsNotHashable(Type),
     UnacceptableConst,
 }
 
@@ -55,7 +56,8 @@ impl Display for ParserError {
             E::UnacceptableConst => {
                 "`const` keyword can only be used in binding statements".to_string()
             }
-            E::CannotBindUsing(ty) => format!("`{ty}` cannot be used in binding statements"),
+            E::CannotBindUsing(ty) => format!("Type `{ty}` cannot be used in binding statements"),
+            E::IsNotHashable(ty) => format!("Type `{ty}` cannot be hashed"),
         })
     }
 }
