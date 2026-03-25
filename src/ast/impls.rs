@@ -216,6 +216,11 @@ impl Display for InfixOperator {
             InfixOperator::LessEq => "<=",
             InfixOperator::Greater => ">",
             InfixOperator::GreatEq => ">=",
+            InfixOperator::BitwiseAnd => "&",
+            InfixOperator::BitwiseOr => "|",
+            InfixOperator::BitwiseXOr => "^",
+            InfixOperator::BitShiftRight => ">>",
+            InfixOperator::BitShiftLeft => "<<",
         })
     }
 }
@@ -227,6 +232,7 @@ impl Display for PrefixOperator {
             PrefixOperator::Neg => "-",
             PrefixOperator::Deref => "*",
             PrefixOperator::AddrOf => "&",
+            PrefixOperator::BitwiseNot => "~",
         })
     }
 }

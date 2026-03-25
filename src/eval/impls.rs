@@ -32,7 +32,7 @@ macro_rules! impl_prefix_op {
     ($(
         [$op_trait: ty => $method: ident : {$(
             $objects: pat => $evaluation: expr
-        ),*}, $op_err_ty: ident]
+        ),*}, $op_default_err_ty: ident]
     ),*) => {
         $(
             impl $op_trait for Object {
@@ -44,7 +44,7 @@ macro_rules! impl_prefix_op {
                             $objects => $evaluation,
                         )*
                         o => return EvalResult::Err(EvaluationError::UnsupportedPrefixOperation(
-                            PrefixOperator::$op_err_ty, o.r#type()
+                            PrefixOperator::$op_default_err_ty, o.r#type()
                         ))
                     }.into()
                 }
@@ -79,7 +79,19 @@ impl_infix_op![
     [ops::Rem => rem : {
         (Int(v1), Int(v2)) => Object::from(v1 % v2),
         (Float(v1), Float(v2)) => Object::from(v1 % v2)
-    }, Remainder]
+    }, Remainder],
+
+    [ops::BitAnd => bitand : {
+        (Int(v1), Int(v2)) => Object::from(v1 & v2)
+    }, BitwiseAnd],
+
+    [ops::BitOr => bitor : {
+        (Int(v1), Int(v2)) => Object::from(v1 | v2)
+    }, BitwiseOr],
+
+    [ops::BitXor => bitxor : {
+        (Int(v1), Int(v2)) => Object::from(v1 ^ v2)
+    }, BitwiseOr]
 ];
 
 impl_prefix_op![

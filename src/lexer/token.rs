@@ -40,9 +40,17 @@ pub enum Token {
     /// "#"
     Hash,
     /// "@"
-    WhoKnowsWhatThisIs,
+    AtSign,
     /// ?
     QuestionMark,
+    /// ^
+    Caret,
+    /// ~
+    Tilde,
+    /// >>
+    ShiftRight,
+    /// <<
+    ShiftLeft,
 
     /// "=="
     Equal,
@@ -58,7 +66,7 @@ pub enum Token {
     /// "*"
     Asterisk,
     /// "%"
-    InAHundred,
+    Percent,
 
     /// "++"
     Increase,
@@ -211,15 +219,19 @@ impl Display for Token {
             T::Pipe => "|",
             T::Ampersant => "&",
             T::Hash => "#",
-            T::WhoKnowsWhatThisIs => "@",
+            T::AtSign => "@",
             T::QuestionMark => "?",
+            T::Caret => "^",
+            T::Tilde => "~",
 
             T::Equal => "==",
             T::NotEqual => "!=",
             T::Plus => "+",
             T::Minus => "-",
             T::Slash => "/",
-            T::InAHundred => "%",
+            T::Percent => "%",
+            T::ShiftRight => ">>",
+            T::ShiftLeft => "<<",
 
             T::Asterisk => "*",
             T::Increase => "++",

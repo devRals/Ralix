@@ -25,7 +25,16 @@ impl TypeChecker<'_> {
 
             (
                 Type::Int,
-                O::Add | O::Subtract | O::Multiply | O::Divide | O::Remainder,
+                O::Add
+                | O::Subtract
+                | O::Multiply
+                | O::Divide
+                | O::Remainder
+                | O::BitwiseAnd
+                | O::BitwiseOr
+                | O::BitwiseXOr
+                | O::BitShiftLeft
+                | O::BitShiftRight,
                 Type::Int,
             ) => Ok(Type::Int),
 
@@ -61,17 +70,16 @@ impl TypeChecker<'_> {
         match (operator, right_ty) {
             (O::Not, Type::Bool) => Ok(Type::Bool),
             (O::Neg, Type::Float) => Ok(Type::Float),
-            (O::Neg, Type::Int) => Ok(Type::Int),
+            (O::Neg | O::BitwiseNot, Type::Int) => Ok(Type::Int),
             (O::AddrOf, ty) => match right {
                 // You can't get address of a non-existing binding
                 // because of that address of returns a nullable
                 // For example from a hashmap:
                 // `map[str,str] x = #{ "a": "b" }; &x["c"];`
                 // there is not a value that `x` has holding with key "c"
-                Expression::Index {..} =>
-                    Ok(Type::Nullable(Type::Addr(ty.into()).into())),
+                Expression::Index { .. } => Ok(Type::Nullable(Type::Addr(ty.into()).into())),
                 _ => Ok(Type::Addr(ty.into())),
-            }
+            },
             (O::Deref, target) => match target {
                 Type::Addr(t) => Ok(*t),
                 Type::Nullable(t) => {

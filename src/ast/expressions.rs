@@ -21,6 +21,11 @@ pub enum InfixOperator {
     GreatEq,
     Less,
     LessEq,
+    BitwiseAnd,
+    BitwiseOr,
+    BitwiseXOr,
+    BitShiftRight,
+    BitShiftLeft,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
@@ -29,6 +34,7 @@ pub enum PrefixOperator {
     Neg,
     Deref,
     AddrOf,
+    BitwiseNot,
 }
 
 /// (Condition, Consequence)

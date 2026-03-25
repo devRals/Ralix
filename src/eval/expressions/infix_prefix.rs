@@ -4,6 +4,11 @@ use crate::{
     try_eval_result,
 };
 
+enum BitShiftDirection {
+    Left,
+    Right,
+}
+
 impl Evaluator<'_> {
     pub fn evaluate_infix_expression(
         &mut self,
@@ -29,10 +34,43 @@ impl Evaluator<'_> {
             InfixOperator::GreatEq => Object::from(left_obj >= right_obj).into(),
             InfixOperator::Or => Self::evaluate_or(left_obj, right_obj),
             InfixOperator::And => Self::evaluate_and(left_obj, right_obj),
+            InfixOperator::BitwiseAnd => left_obj & right_obj,
+            InfixOperator::BitwiseOr => left_obj | right_obj,
+            InfixOperator::BitwiseXOr => left_obj ^ right_obj,
+            InfixOperator::BitShiftLeft => {
+                Self::evaluate_bitshift(left_obj, right_obj, BitShiftDirection::Left)
+            }
+            InfixOperator::BitShiftRight => {
+                Self::evaluate_bitshift(left_obj, right_obj, BitShiftDirection::Right)
+            }
         }
     }
 
-    pub fn evaluate_or(left: Object, right: Object) -> EvalResult<Object> {
+    fn evaluate_bitshift(
+        left: Object,
+        right: Object,
+        dir: BitShiftDirection,
+    ) -> EvalResult<Object> {
+        let op = match dir {
+            BitShiftDirection::Left => InfixOperator::BitShiftLeft,
+            BitShiftDirection::Right => InfixOperator::BitShiftRight,
+        };
+
+        match (left, right) {
+            (Object::Int(v1), Object::Int(v2)) => Object::Int(match dir {
+                BitShiftDirection::Left => v1 << v2,
+                BitShiftDirection::Right => v1 >> v2,
+            })
+            .into(),
+            (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
+                o1.r#type(),
+                op,
+                o2.r#type(),
+            )),
+        }
+    }
+
+    fn evaluate_or(left: Object, right: Object) -> EvalResult<Object> {
         match (left, right) {
             (Object::Boolean(v1), Object::Boolean(v2)) => Object::from(v1 || v2).into(),
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
@@ -43,7 +81,7 @@ impl Evaluator<'_> {
         }
     }
 
-    pub fn evaluate_and(left: Object, right: Object) -> EvalResult<Object> {
+    fn evaluate_and(left: Object, right: Object) -> EvalResult<Object> {
         match (left, right) {
             (Object::Boolean(v1), Object::Boolean(v2)) => Object::from(v1 && v2).into(),
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
@@ -69,7 +107,18 @@ impl Evaluator<'_> {
             PrefixOperator::Not => !obj,
             PrefixOperator::Neg => -obj,
             PrefixOperator::Deref => self.evaluate_deref_expression(obj),
+            PrefixOperator::BitwiseNot => self.evaluate_bitwisenot(obj),
             PrefixOperator::AddrOf => unreachable!(),
+        }
+    }
+
+    pub fn evaluate_bitwisenot(&mut self, value: Object) -> EvalResult<Object> {
+        match value {
+            Object::Int(v) => Object::from(!v).into(),
+            o => EvalResult::Err(EvaluationError::UnsupportedPrefixOperation(
+                PrefixOperator::BitwiseNot,
+                o.r#type(),
+            )),
         }
     }
 

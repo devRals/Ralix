@@ -25,7 +25,7 @@ fn test_lexer() {
         Pipe,
         Ampersant,
         Hash,
-        WhoKnowsWhatThisIs,
+        AtSign,
         QuestionMark,
         Equal,
         NotEqual,

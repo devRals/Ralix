@@ -11,7 +11,7 @@ impl Parser<'_> {
             Token::Minus => InfixOperator::Subtract,
             Token::Asterisk => InfixOperator::Multiply,
             Token::Slash => InfixOperator::Divide,
-            Token::InAHundred => InfixOperator::Remainder,
+            Token::Percent => InfixOperator::Remainder,
             Token::Or => InfixOperator::Or,
             Token::And => InfixOperator::And,
             Token::Equal => InfixOperator::Equals,
@@ -20,6 +20,11 @@ impl Parser<'_> {
             Token::GreatEqual => InfixOperator::GreatEq,
             Token::LessThan => InfixOperator::Less,
             Token::LessEqual => InfixOperator::LessEq,
+            Token::Ampersant => InfixOperator::BitwiseAnd,
+            Token::Pipe => InfixOperator::BitwiseOr,
+            Token::Caret => InfixOperator::BitwiseXOr,
+            Token::ShiftRight => InfixOperator::BitShiftRight,
+            Token::ShiftLeft => InfixOperator::BitShiftLeft,
             t => return Err(ParserError::UnknownInfixOp(t.literal())),
         };
 
@@ -40,6 +45,7 @@ impl Parser<'_> {
             Token::Minus => PrefixOperator::Neg,
             Token::Asterisk => PrefixOperator::Deref,
             Token::Ampersant => PrefixOperator::AddrOf,
+            Token::Tilde => PrefixOperator::BitwiseNot,
             t => return Err(ParserError::UnknownInfixOp(t.literal())),
         };
 

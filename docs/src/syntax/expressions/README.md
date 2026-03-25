@@ -32,6 +32,7 @@ A prefix expression has the operator before the operand.
 - `!` (logical NOT): `!true`
 - `*` (dereference): `*ptr`
 - `&` (address of): `&value`
+- `~` (bitwise NOT): `~10`
 
 ## Infix Expressions
 
@@ -40,6 +41,7 @@ An infix expression has the operator between the operands.
 - **Arithmetic**: `+`, `-`, `*`, `/`
 - **Comparison**: `==`, `!=`, `<`, `>`, `<=`, `>=`
 - **Logical**: `&&`, `||`
+- Bitwise: `|`, `^`, `&`
 
 ```c
 int x = 10;
@@ -47,7 +49,31 @@ int y = -4;
 
 int sum = x + y;
 bool are_equal = x == y;
+int bit_or = x | y;
 ```
+
+> [!NOTE]
+> Every `int` and `float` values in ralix are 64-bits and this cannot be changed.
+> Why? Because I suck
+
+Ralix follow C-style precedence which look like this:
+
+| Operator(s) | Precedence |
+| ----------- | ---------- |
+| Default expr parsing precedence | Lowest |
+| `\|\|` | LogicalOr |
+| `&&` | LogicalAnd |
+| `\|` | BitwiseOr |
+| `^` | BitwiseXOr |
+| `&` | BitwiseAnd |
+| `==`, `!=` | Equals |
+| `>`, `<`, `>=`, `<=` | LessGreater |
+| `>>`, `<<` | Shift |
+| `+`, `-` | Sum |
+| `*`, `/`, `%` | Product |
+| `!`, `-`, `*`, `~` | Prefix |
+| `func(param)` | FunctionCall |
+| `hash_map["key"]`, `Namespace::Item`, `Class.attribute` | Access |
 
 ## `if` Expressions
 

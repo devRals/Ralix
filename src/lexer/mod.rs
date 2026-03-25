@@ -70,12 +70,37 @@ impl Lexer<'_> {
 
     fn number_token(&mut self) -> Token {
         let mut result = String::new();
+
         let mut is_float = false;
+        let mut is_hex = false;
+        let mut is_octal = false;
+        let mut is_binary = false;
+
+        if let Some('0') = self.current_char
+            && matches!(self.peek_char, Some('b' | 'o' | 'x'))
+        {
+            match self.peek_char.unwrap() {
+                'b' => is_binary = true,
+                'o' => is_octal = true,
+                'x' => is_hex = true,
+                _ => {}
+            }
+
+            result.push(self.current_char.unwrap());
+            result.push(self.peek_char.unwrap());
+
+            self.read_char();
+            self.read_char();
+        }
 
         while let Some(ch) = self.current_char
-            && (ch.is_ascii_digit() || ch == '_' || ch == '.')
+            && (ch.is_ascii_hexdigit() || ch == '_' || ch == '.')
         {
             if ch == '.' {
+                if is_binary || is_octal || is_hex {
+                    break;
+                }
+
                 if is_float {
                     break;
                 } else {
@@ -234,16 +259,18 @@ impl Lexer<'_> {
                 '!' => token!(Bang ['=' => NotEqual]),
                 '|' => token!(Pipe ['|' => Or]),
                 '&' => token!(Ampersant ['&' => And]),
-                '@' => token!(WhoKnowsWhatThisIs),
+                '^' => token!(Caret),
+                '~' => token!(Tilde),
+                '@' => token!(AtSign),
                 '#' => token!(Hash),
                 '?' => token!(QuestionMark),
                 '+' => token!(Plus ['+' => Increase]),
                 '-' => token!(Minus ['>' => ThinArrow, '-' => Decrease]),
                 '/' => token!(Slash),
                 '*' => token!(Asterisk),
-                '%' => token!(InAHundred),
-                '>' => token!(GreaterThan ['=' => GreatEqual]),
-                '<' => token!(LessThan ['=' => LessEqual]),
+                '%' => token!(Percent),
+                '>' => token!(GreaterThan ['=' => GreatEqual, '>' => ShiftRight]),
+                '<' => token!(LessThan ['=' => LessEqual, '<' => ShiftLeft]),
                 ',' => token!(Comma),
                 '.' => token!(Notation ['.' => TwoDots]),
                 ';' => token!(SemiColon),

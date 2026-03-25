@@ -15,40 +15,54 @@ mod types;
 
 #[derive(PartialEq, PartialOrd)]
 pub enum Precedence {
-    /// Default expression parsing precedence
-    Lowest,
-    // `true || false`
-    BooleanLogic,
-    /// `true != false, 1 == 1`
-    Equals,
-    /// `10 > 9; 99 < 100;`
-    LessGreater,
-    /// `10 - 8; 30 - 25;`
-    Sum,
-    /// `2 * 5; 10 / 2;`
-    Product,
-    /// `!true; -10; *ptr;`
-    Prefix,
-    /// `func(param1, param2);`
-    Call,
-    /// Index `arr[2] || hash_map["key"]`;
-    /// Namespace `Enum::Item`;
-    /// Notation `Class.attribute`
-    Access,
+    Lowest, // Default expression parsing precedence
+
+    LogicalOr,  // ||
+    LogicalAnd, // &&
+
+    BitwiseOr,  // |
+    BitwiseXOr, // ^
+    BitwiseAnd, // &
+
+    Equals,      // !=  ==
+    LessGreater, // > >= < <=
+
+    Shift, // <<, >>
+
+    Sum,     // + -
+    Product, // * / %
+
+    Prefix, // ! - * ~
+
+    Call, // `func(param1, param2);`
+    Access, // Index `arr[2] || hash_map["key"]`;
+          // Namespace `Enum::Item`;
+          // Notation `Class.attribute`
 }
 
 impl Precedence {
     fn of(token: &Token) -> Precedence {
         use Token as T;
         match token {
+            T::Or => Precedence::LogicalOr,
+            T::And => Precedence::LogicalAnd,
+
+            T::Pipe => Precedence::BitwiseOr,
+            T::Caret => Precedence::BitwiseXOr,
+            T::Ampersant => Precedence::BitwiseAnd,
+
             T::Equal | T::NotEqual => Precedence::Equals,
             T::LessThan | T::GreaterThan | T::LessEqual | T::GreatEqual => Precedence::LessGreater,
-            T::Or | T::And => Precedence::BooleanLogic,
+
+            T::ShiftLeft | T::ShiftRight => Precedence::Shift,
+
             T::Plus | T::Minus => Precedence::Sum,
-            T::Asterisk | T::Slash => Precedence::Product,
-            T::InAHundred => Precedence::Product,
+            T::Asterisk | T::Slash | T::Percent => Precedence::Product,
+
+            /* Prefix is seperated in it's own parser function */
             T::LParen => Precedence::Call,
             T::LBracket | T::Namespace | T::Notation | T::QuestionMark => Precedence::Access,
+
             _ => Precedence::Lowest,
         }
     }
@@ -68,9 +82,12 @@ impl Parser<'_> {
             Token::TyInt | Token::TyChar | Token::TyBool | Token::TyFloat | Token::TyString => {
                 Expression::Type(Type::from_token(&self.current_token).unwrap())
             }
-            Token::Minus | Token::Bang | Token::Not | Token::Asterisk | Token::Ampersant => {
-                self.parse_prefix_expression()?
-            }
+            Token::Minus
+            | Token::Bang
+            | Token::Not
+            | Token::Asterisk
+            | Token::Ampersant
+            | Token::Tilde => self.parse_prefix_expression()?,
             Token::LBrace => self.parse_scope_expression()?,
             Token::LParen => self.parse_lparen_items()?,
             Token::TypeOf => self.parse_typeof_expression()?,
@@ -94,7 +111,7 @@ impl Parser<'_> {
             initial_expression = match self.current_token {
                 Token::Asterisk
                 | Token::Slash
-                | Token::InAHundred
+                | Token::Percent
                 | Token::Plus
                 | Token::Minus
                 | Token::Equal
@@ -104,7 +121,12 @@ impl Parser<'_> {
                 | Token::LessThan
                 | Token::LessEqual
                 | Token::GreaterThan
-                | Token::GreatEqual => self.parse_infix_expression(initial_expression)?,
+                | Token::GreatEqual
+                | Token::Ampersant
+                | Token::Pipe
+                | Token::Caret
+                | Token::ShiftRight
+                | Token::ShiftLeft => self.parse_infix_expression(initial_expression)?,
                 Token::LParen => self.parse_call_expression(initial_expression)?,
                 Token::LBracket => self.parse_index_expression(initial_expression)?,
                 Token::QuestionMark => self.parse_try_expression(initial_expression)?,
