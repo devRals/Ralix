@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-cfb025c1.js";
+            window.path_to_searchindex_js = "../../searchindex-3a02f8d0.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-54f10d66.js"></script>
@@ -190,17 +190,17 @@
 </ul>
 <h2 id="identifiers"><a class="header" href="#identifiers">Identifiers</a></h2>
 <p>An identifier is a name that refers to a variable, constant, or function.</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>let x = 5;
-let y = x; // `x` is an identifier
-<span class="boring">}</span></code></pre>
+<pre><code class="language-c">int x = 5;
+int y = x; // `x` is an identifier
+</code></pre>
 <h2 id="prefix-expressions"><a class="header" href="#prefix-expressions">Prefix Expressions</a></h2>
 <p>A prefix expression has the operator before the operand.</p>
 <ul>
 <li><code>-</code> (negation): <code>-10</code></li>
 <li><code>!</code> (logical NOT): <code>!true</code></li>
 <li><code>*</code> (dereference): <code>*ptr</code></li>
+<li><code>&amp;</code> (address of): <code>&amp;value</code></li>
+<li><code>~</code> (bitwise NOT): <code>~10</code></li>
 </ul>
 <h2 id="infix-expressions"><a class="header" href="#infix-expressions">Infix Expressions</a></h2>
 <p>An infix expression has the operator between the operands.</p>
@@ -208,16 +208,47 @@ let y = x; // `x` is an identifier
 <li><strong>Arithmetic</strong>: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code></li>
 <li><strong>Comparison</strong>: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></li>
 <li><strong>Logical</strong>: <code>&amp;&amp;</code>, <code>||</code></li>
+<li>Bitwise: <code>|</code>, <code>^</code>, <code>&amp;</code></li>
 </ul>
 <pre><code class="language-c">int x = 10;
 int y = -4;
 
 int sum = x + y;
 bool are_equal = x == y;
+int bit_or = x | y;
 </code></pre>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Every <code>int</code> and <code>float</code> values in ralix are 64-bits and this cannot be changed.
+Why? Because I suck</p>
+</blockquote>
+<p>Ralix follow C-style precedence which look like this:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operator(s)</th><th>Precedence</th></tr>
+</thead>
+<tbody>
+<tr><td>Default expr parsing precedence</td><td>Lowest</td></tr>
+<tr><td><code>||</code></td><td>LogicalOr</td></tr>
+<tr><td><code>&amp;&amp;</code></td><td>LogicalAnd</td></tr>
+<tr><td><code>|</code></td><td>BitwiseOr</td></tr>
+<tr><td><code>^</code></td><td>BitwiseXOr</td></tr>
+<tr><td><code>&amp;</code></td><td>BitwiseAnd</td></tr>
+<tr><td><code>==</code>, <code>!=</code></td><td>Equals</td></tr>
+<tr><td><code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code></td><td>LessGreater</td></tr>
+<tr><td><code>&gt;&gt;</code>, <code>&lt;&lt;</code></td><td>Shift</td></tr>
+<tr><td><code>+</code>, <code>-</code></td><td>Sum</td></tr>
+<tr><td><code>*</code>, <code>/</code>, <code>%</code></td><td>Product</td></tr>
+<tr><td><code>!</code>, <code>-</code>, <code>*</code>, <code>~</code></td><td>Prefix</td></tr>
+<tr><td><code>func(param)</code></td><td>FunctionCall</td></tr>
+<tr><td><code>hash_map["key"]</code>, <code>Namespace::Item</code>, <code>Class.attribute</code></td><td>Access</td></tr>
+</tbody>
+</table>
+</div>
 <h2 id="if-expressions"><a class="header" href="#if-expressions"><code>if</code> Expressions</a></h2>
 <p>An <code>if</code> expression allows for conditional execution. It must have an <code>else</code> block.</p>
-<pre><code class="language-c">let result =
+<pre><code class="language-c">str result =
     if x &gt; 5: "greater"
     else: "not greater"
 ;
@@ -240,20 +271,11 @@ int first = my_arr[0];
     x + 1 // This is the return value of the scope
 }; // x is dropped, y is 6
 </code></pre>
-<h2 id="copy-expressions"><a class="header" href="#copy-expressions"><code>copy</code> Expressions</a></h2>
-<p>A <code>copy</code> expression is used to create a shallow copy of a value.</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>let a = [1, 2, 3];
-let b = copy a;
-<span class="boring">}</span></code></pre>
 <h2 id="typeof-expressions"><a class="header" href="#typeof-expressions"><code>typeof</code> Expressions</a></h2>
 <p>A <code>typeof</code> expression returns the type of a value.</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>let x = 10;
-let type_of_x = typeof x; // `type_of_x` is `type[int]`
-<span class="boring">}</span></code></pre>
+<pre><code class="language-py">int x = 10;
+type[int] type_of_x = typeof x; // `type_of_x` is `type[int]`
+</code></pre>
 <blockquote class="blockquote-tag blockquote-tag-important">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</p>
 <p><code>typeof</code> expression only returns the type of the value during runtime.
@@ -264,11 +286,6 @@ Example:</p>
 </span>arr[int] my_arr = []; // Empty arrays automatically bind `unknown` type generic
 typeof my_arr // `arr[unknown]`
 <span class="boring">}</span></code></pre>
-<h2 id="-address-of-expressions"><a class="header" href="#-address-of-expressions"><code>&amp;</code> (Address Of) Expressions</a></h2>
-<p>The <code>&amp;</code> operator creates a pointer to a value.</p>
-<pre><code class="language-c">int x = 10;
-int* ptr_to_x = &amp;x;
-</code></pre>
 <h2 id="function-literals"><a class="header" href="#function-literals">Function Literals</a></h2>
 <p>A function literal is an anonymous function. When you want to bind a function
 you’d probably want to create a <code>function statement</code> instead</p>
