@@ -4,7 +4,8 @@ Expressions are constructs that produce a value.
 
 ## Literals
 
-Literals are the most basic type of expression. They represent a fixed value in the source code.
+Literals are the most basic type of expression. They represent a fixed value in
+the source code.
 
 - **Integer literals**: `10`, `_`
 - **Float literals**: `3.14`
@@ -105,7 +106,8 @@ int first = my_arr[0];
 
 ## Scope Expressions
 
-A scope expression creates a new scope. The last expression in the scope is the value of the scope expression.
+A scope expression creates a new scope. The last expression in the scope is the
+value of the scope expression.
 
 ```c
 int y = {

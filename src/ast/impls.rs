@@ -2,7 +2,8 @@ use std::fmt::Display;
 
 use crate::{
     Expression, Program, Statement,
-    expressions::{ExpressionType, HashMapItem, InfixOperator, PrefixOperator},
+    expressions::{ExpressionType, HashMapItem, ImportedItem, InfixOperator, PrefixOperator},
+    statements::Binding,
     types::{FunctionParameterType, Type, TypeVarId},
 };
 
@@ -160,12 +161,12 @@ impl Display for Expression {
 impl Display for Statement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&match self {
-            Self::Binding {
+            Self::Binding(Binding {
                 ident,
                 type_annotation,
                 value,
                 is_constant,
-            } => format!(
+            }) => format!(
                 "{}{} {} = {};",
                 if *is_constant { "const " } else { "" },
                 if let Some(ty_a) = type_annotation {
@@ -176,16 +177,36 @@ impl Display for Statement {
                 ident,
                 value
             ),
-            Self::Expression(expr) => expr.to_string(),
+            Self::Expression(expr) => format!("{expr};"),
             Self::Return(expr) => format!(
                 "return{}",
                 match expr {
-                    Some(e) => format!(" {e}"),
+                    Some(e) => format!(" {e};"),
                     None => ";".to_string(),
                 }
             ),
-            Self::Assign { left, value } => format!("{left} = {value}"),
-            Self::Alias { ident, ty } => format!("type {ident} = {ty}"),
+            Self::Assign { left, value } => format!("{left} = {value};"),
+            Self::Alias { ident, ty } => format!("type {ident} = {ty};"),
+            Self::Get {
+                path_names,
+                file_module_path: _,
+                imported_items,
+            } => format!(
+                "get {}{};",
+                path_names.join("."),
+                if imported_items.is_empty() {
+                    String::new()
+                } else {
+                    format!(
+                        " {{ {} }}",
+                        imported_items
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )
+                }
+            ),
         })
     }
 }
@@ -300,6 +321,20 @@ impl Display for Type {
             ),
             T::TypeVar(t) => t.to_string(),
         })
+    }
+}
+
+impl Display for ImportedItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}{}",
+            self.name,
+            self.as_naming
+                .clone()
+                .map(|x| format!(" as {x}"))
+                .unwrap_or("".to_string())
+        )
     }
 }
 

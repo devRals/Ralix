@@ -6,6 +6,7 @@ mod binding;
 mod r#const;
 mod expression;
 mod function;
+mod get_import;
 mod r#return;
 
 impl Parser<'_> {
@@ -26,6 +27,7 @@ impl Parser<'_> {
             | Token::TyMap
             | Token::Type
             | Token::Ident(_) => self.parse_binding_statement(),
+            Token::Get => self.parse_import_statement(),
             _ => self.parse_expression_statement(),
         }
     }

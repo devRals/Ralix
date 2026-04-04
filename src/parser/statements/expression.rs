@@ -9,14 +9,14 @@ impl Parser<'_> {
             return self.parse_assignment_statement(expr);
         }
 
-        self.consume_peek_token(Token::SemiColon);
-
         Ok(Statement::Expression(expr))
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
     use crate::{Expression, Lexer, Literal, Parser, Statement, SymbolTable};
 
     #[test]
@@ -37,7 +37,7 @@ mod tests {
         for (test, expected) in tests.into_iter().zip(expected) {
             let lexer = Lexer::new(test);
             let mut symbol_table = SymbolTable::default();
-            let mut parser = Parser::new(lexer, &mut symbol_table);
+            let mut parser = Parser::new(lexer, &mut symbol_table, PathBuf::from("."));
 
             let result = parser
                 .parse_expression_statement()

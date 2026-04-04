@@ -1,4 +1,7 @@
-use std::io::{BufRead, BufReader, Result, Write, stderr, stdin, stdout};
+use std::{
+    io::{BufRead, BufReader, Result, Write, stderr, stdin, stdout},
+    path::PathBuf,
+};
 
 use color_eyre::owo_colors::OwoColorize;
 
@@ -68,7 +71,7 @@ impl Repl {
                 self.force_correct_input(&mut reader, &mut out)?;
             }
 
-            let program = match parse_with_symbol_table(&self.buf, &mut st) {
+            let program = match parse_with_symbol_table(&self.buf, &mut st, PathBuf::from(".")) {
                 Ok(p) => p,
                 Err(err) => {
                     self.write_errors_and_clear(err)?;

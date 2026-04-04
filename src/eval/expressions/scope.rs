@@ -15,7 +15,7 @@ impl Evaluator<'_> {
                     self.ctx.leave_scope();
                     return result;
                 }
-                EvalResult::Err(err) => self.panic(err),
+                EvalResult::Err(err) => self.err(err),
             }
         }
         self.ctx.leave_scope();

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::{Lexer, Program, SymbolTable, Token};
 
 mod error;
@@ -14,10 +16,15 @@ pub struct Parser<'src> {
     lexer: Lexer<'src>,
 
     symbol_table: &'src mut SymbolTable,
+    working_directory: PathBuf,
 }
 
 impl<'src> Parser<'src> {
-    pub fn new(lexer: Lexer<'src>, symbol_table: &'src mut SymbolTable) -> Self {
+    pub fn new(
+        lexer: Lexer<'src>,
+        symbol_table: &'src mut SymbolTable,
+        working_directory: PathBuf,
+    ) -> Self {
         let mut parser = Parser {
             lexer,
 
@@ -25,6 +32,8 @@ impl<'src> Parser<'src> {
             current_token: Token::default(),
 
             symbol_table,
+
+            working_directory,
         };
 
         parser.next_token();
@@ -42,6 +51,8 @@ impl<'src> Parser<'src> {
                 Ok(stmt) => statements.push(stmt),
                 Err(err) => errors.push(err),
             }
+
+            self.consume_peek_token(Token::SemiColon);
 
             self.next_token();
         }
@@ -63,7 +74,9 @@ impl Parser<'_> {
     fn expect_ident(&mut self) -> ParserResult<()> {
         self.next_token();
         if !matches!(self.current_token, Token::Ident(_)) {
-            return Err(ParserError::IsNotIdentifier(self.current_token.clone()));
+            return Err(ParserDiagnostic::IsNotIdentifier(
+                self.current_token.clone(),
+            ));
         }
 
         Ok(())
@@ -72,7 +85,7 @@ impl Parser<'_> {
     fn expect_token(&mut self, token: Token) -> ParserResult<()> {
         self.next_token();
         if token != self.current_token {
-            return Err(ParserError::SyntaxError {
+            return Err(ParserDiagnostic::SyntaxError {
                 expected: token,
                 got: self.current_token.clone(),
             });

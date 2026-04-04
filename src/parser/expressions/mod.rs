@@ -1,4 +1,4 @@
-use crate::{Expression, Parser, ParserError, ParserResult, Token, types::Type};
+use crate::{Expression, Parser, ParserDiagnostic, ParserResult, Token, types::Type};
 
 mod array;
 mod function;
@@ -61,7 +61,7 @@ impl Precedence {
 
             /* Prefix is seperated in it's own parser function */
             T::LParen => Precedence::Call,
-            T::LBracket | T::Namespace | T::Notation | T::QuestionMark => Precedence::Access,
+            T::LBracket | T::Namespace | T::Dot | T::QuestionMark => Precedence::Access,
 
             _ => Precedence::Lowest,
         }
@@ -95,7 +95,7 @@ impl Parser<'_> {
             Token::Function => self.parse_function_expression()?,
             Token::LBracket => self.parse_array_literal()?,
             Token::Hash => self.parse_hashmap_literal()?,
-            t => return Err(ParserError::ExpressionMistake(t.clone())),
+            t => return Err(ParserDiagnostic::ExpressionMistake(t.clone())),
         };
 
         self.parse_primary_expressions(initial_expression, precedence)

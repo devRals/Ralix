@@ -49,7 +49,7 @@ impl Object {
     pub const FALSE: Self = Object::Boolean(false);
     pub const NULL: Self = Object::Null;
 
-    pub fn r#type(&self) -> Type {
+    pub fn r#type(&self, heap: &Heap) -> Type {
         use Object as O;
         match self {
             O::Boolean(_) => Type::Bool,
@@ -61,7 +61,10 @@ impl Object {
             O::Array(items) => Type::Array(
                 items
                     .first()
-                    .map(|i| i.r#type())
+                    .map(|i| match i.read_from(heap) {
+                        Some(o) => o.r#type(heap),
+                        None => Type::Unknown,
+                    })
                     .unwrap_or(Type::Unknown)
                     .into(),
             ),
@@ -69,7 +72,18 @@ impl Object {
                 let (k, v) = hm
                     .values()
                     .next()
-                    .map(|(k, v)| (k.r#type(), v.r#type()))
+                    .map(|(k, v)| {
+                        (
+                            match k.read_from(heap) {
+                                Some(ko) => ko.r#type(heap),
+                                None => Type::Unknown,
+                            },
+                            match v.read_from(heap) {
+                                Some(vo) => vo.r#type(heap),
+                                None => Type::Unknown,
+                            },
+                        )
+                    })
                     .unwrap_or((Type::Unknown, Type::Unknown));
 
                 Type::HashMap {
@@ -78,7 +92,10 @@ impl Object {
                 }
             }
             O::Type(t) => Type::AsValue(t.clone().into()),
-            O::Address(t) => Type::Addr(t.r#type().into()),
+            O::Address(t) => match t.read_from(heap) {
+                Some(o) => o.r#type(heap),
+                None => Type::Unknown,
+            },
             O::Function(func) => Type::Function {
                 parameters: func
                     .parameters

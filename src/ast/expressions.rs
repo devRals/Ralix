@@ -4,6 +4,29 @@ use serde::Serialize;
 
 use crate::{Expression, types::Type};
 
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub enum ExpressionType {
+    Identifier,
+    Integer,
+    Float,
+    Boolean,
+    String,
+    Char,
+    Null,
+    TypeOf,
+    Type,
+    Try,
+    Infix,
+    Prefix,
+    Scope,
+    IfElse,
+    Function,
+    Call,
+    Array,
+    HashMap,
+    Index,
+}
+
 pub type Identifier = Rc<str>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
@@ -55,24 +78,7 @@ pub struct HashMapItem {
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
-pub enum ExpressionType {
-    Identifier,
-    Integer,
-    Float,
-    Boolean,
-    String,
-    Char,
-    Null,
-    TypeOf,
-    Type,
-    Try,
-    Infix,
-    Prefix,
-    Scope,
-    IfElse,
-    Function,
-    Call,
-    Array,
-    HashMap,
-    Index,
+pub struct ImportedItem {
+    pub name: Identifier,
+    pub as_naming: Option<Identifier>,
 }

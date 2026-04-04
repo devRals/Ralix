@@ -1,11 +1,11 @@
-use std::{error::Error, fmt::Display};
+use std::{error::Error, fmt::Display, io};
 
 use crate::{Expression, Literal, Token, types::Type};
 
-pub type ParserResult<N> = Result<N, ParserError>;
+pub type ParserResult<N> = Result<N, ParserDiagnostic>;
 
-#[derive(Debug, Clone)]
-pub enum ParserError {
+#[derive(Debug)]
+pub enum ParserDiagnostic {
     SyntaxError { expected: Token, got: Token },
     IsNotIdentifier(Token),
     Undefined(Literal),
@@ -18,18 +18,19 @@ pub enum ParserError {
     CannotAssignTo(Expression),
     CannotBindUsing(Type),
     IsNotHashable(Type),
+    FileModuleError(io::Error),
     UnacceptableConst,
 }
 
 #[derive(Debug)]
 pub struct ProgramParseError {
-    all: Vec<ParserError>,
+    all: Vec<ParserDiagnostic>,
 }
 
-impl Error for ParserError {}
-impl Display for ParserError {
+impl Error for ParserDiagnostic {}
+impl Display for ParserDiagnostic {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use ParserError as E;
+        use ParserDiagnostic as E;
         f.write_str(&match self {
             E::SyntaxError { expected, got } => {
                 format!("Syntax Error: Expected `{expected}`, but found `{got}` instead")
@@ -58,6 +59,7 @@ impl Display for ParserError {
             }
             E::CannotBindUsing(ty) => format!("Type `{ty}` cannot be used in binding statements"),
             E::IsNotHashable(ty) => format!("Type `{ty}` cannot be hashed"),
+            E::FileModuleError(fme) => fme.to_string(),
         })
     }
 }
@@ -76,7 +78,7 @@ impl Display for ProgramParseError {
 impl ProgramParseError {
     pub fn new<U: IntoIterator>(errors: U) -> Self
     where
-        Vec<ParserError>: FromIterator<U::Item>,
+        Vec<ParserDiagnostic>: FromIterator<U::Item>,
     {
         Self {
             all: errors.into_iter().collect(),

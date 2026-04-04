@@ -20,7 +20,7 @@ pub struct AstArguments {
 pub fn run(args: AstArguments) -> io::Result<()> {
     let source = fs::read_to_string(args.source_file)?;
 
-    let parse_result = parse(&source);
+    let parse_result = parse(&source, PathBuf::from("."));
     let program_ast = match parse_result {
         Ok(p) => p,
         Err(err) => {

@@ -1,6 +1,6 @@
 use crate::{
     Expression, Parser, ParserResult, Statement, Token, parser::expressions::Precedence,
-    types::Type,
+    statements::Binding, types::Type,
 };
 
 impl Parser<'_> {
@@ -50,12 +50,12 @@ impl Parser<'_> {
         let value = self.parse_expression(Precedence::Lowest)?;
         self.consume_peek_token(Token::SemiColon);
 
-        Ok(Statement::Binding {
+        Ok(Statement::Binding(Binding {
             ident,
             type_annotation: Some(type_annotation),
             value,
             is_constant: false,
-        })
+        }))
     }
 
     pub fn parse_let_binding(&mut self) -> ParserResult<Statement> {
@@ -74,35 +74,40 @@ impl Parser<'_> {
 
         self.consume_peek_token(Token::SemiColon);
 
-        Ok(Statement::Binding {
+        Ok(Statement::Binding(Binding {
             ident,
             type_annotation,
             value,
             is_constant: false,
-        })
+        }))
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{Expression, Lexer, Literal, Parser, Statement, SymbolTable, types::Type};
+    use std::path::PathBuf;
+
+    use crate::{
+        Expression, Lexer, Literal, Parser, Statement, SymbolTable, statements::Binding,
+        types::Type,
+    };
 
     #[test]
     fn test_parse_binding() {
         let tests = [(
             "int a = 3;",
-            Statement::Binding {
+            Statement::Binding(Binding {
                 is_constant: false,
                 type_annotation: Some(Type::Int),
                 ident: Literal::from("a"),
                 value: Expression::Integer(3),
-            },
+            }),
         )];
 
         for (src, expected) in tests {
             let mut symbol_table = SymbolTable::default();
             let lexer = Lexer::new(src);
-            let mut parser = Parser::new(lexer, &mut symbol_table);
+            let mut parser = Parser::new(lexer, &mut symbol_table, PathBuf::from("."));
             let stmt = parser
                 .parse_binding_statement()
                 .unwrap_or_else(|err| panic!("{err}"));

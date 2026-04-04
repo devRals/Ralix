@@ -272,7 +272,7 @@ impl Lexer<'_> {
                 '>' => token!(GreaterThan ['=' => GreatEqual, '>' => ShiftRight]),
                 '<' => token!(LessThan ['=' => LessEqual, '<' => ShiftLeft]),
                 ',' => token!(Comma),
-                '.' => token!(Notation ['.' => TwoDots]),
+                '.' => token!(Dot ['.' => TwoDots]),
                 ';' => token!(SemiColon),
                 ':' => token!(Colon [':' => Namespace]),
                 '(' => token!(LParen),

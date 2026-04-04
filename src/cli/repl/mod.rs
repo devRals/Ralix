@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use ratatui::DefaultTerminal;
 
 use crate::{
@@ -134,6 +136,7 @@ impl Repl {
             self.program_result = Some(parse_with_symbol_table(
                 &self.input.buf,
                 &mut self.context.symbol_table,
+                PathBuf::from("."),
             ));
         }
     }
@@ -146,6 +149,7 @@ impl Repl {
         self.program_result = Some(parse_with_symbol_table(
             &self.input.buf,
             &mut self.context.symbol_table,
+            PathBuf::from("."),
         ));
 
         self.state = ReplState::Running;

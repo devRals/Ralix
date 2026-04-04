@@ -1,7 +1,7 @@
 mod error;
 mod expressions;
 mod statements;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 pub use error::*;
 
@@ -18,12 +18,17 @@ pub struct TypeChecker<'st> {
     symbol_table: &'st mut SymbolTable,
     fn_stack: Vec<FunctionContext>,
     typevar_bindings: HashMap<TypeVarId, Type>,
+    working_directory: PathBuf,
 }
 
 impl<'st> TypeChecker<'st> {
-    pub fn with_symbol_table(symbol_table: &'st mut SymbolTable) -> Self {
+    pub fn with_symbol_table(
+        symbol_table: &'st mut SymbolTable,
+        working_directory: PathBuf,
+    ) -> Self {
         Self {
             symbol_table,
+            working_directory,
             fn_stack: Vec::new(),
             typevar_bindings: HashMap::new(),
         }

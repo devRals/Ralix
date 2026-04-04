@@ -1,9 +1,9 @@
 use std::fmt::Display;
 
-use crate::{Object, types::Type};
+use crate::Object;
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct Addr(usize, Type);
+pub struct Addr(usize);
 
 impl std::ops::Deref for Addr {
     type Target = usize;
@@ -14,13 +14,13 @@ impl std::ops::Deref for Addr {
 
 impl Display for Addr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<addr to a `{}`>", self.1)
+        write!(f, "<addr>")
     }
 }
 
 impl Addr {
-    pub const fn new(addr: usize, ty: Type) -> Addr {
-        Addr(addr, ty)
+    pub const fn new(addr: usize) -> Addr {
+        Addr(addr)
     }
 
     pub fn read_from<'a>(&self, heap: &'a Heap) -> Option<&'a Object> {
@@ -29,10 +29,6 @@ impl Addr {
 
     pub fn read_mut_from<'a>(&self, heap: &'a mut Heap) -> Option<&'a mut Object> {
         heap.read_mut(self)
-    }
-
-    pub fn r#type(&self) -> Type {
-        self.1.clone()
     }
 }
 
@@ -48,11 +44,10 @@ impl Heap {
 
     /// Allocates a new location for the given `value`
     pub fn alloc(&mut self, value: Object) -> Addr {
-        let ty = value.r#type();
         let addr = self.store.len();
         self.store.push(value);
 
-        Addr(addr, ty)
+        Addr(addr)
     }
 
     pub fn update(&mut self, addr: Addr, value: Object) -> Option<Addr> {

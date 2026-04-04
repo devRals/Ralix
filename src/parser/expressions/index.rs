@@ -1,5 +1,5 @@
 use crate::{
-    Expression, Parser, ParserError, ParserResult, Token, parser::expressions::Precedence,
+    Expression, Parser, ParserDiagnostic, ParserResult, Token, parser::expressions::Precedence,
 };
 
 impl Parser<'_> {
@@ -10,7 +10,7 @@ impl Parser<'_> {
 
         self.next_token();
         if !self.is_current_token(Token::RBracket) {
-            return Err(ParserError::SyntaxError {
+            return Err(ParserDiagnostic::SyntaxError {
                 expected: Token::RBracket,
                 got: self.current_token.clone(),
             });

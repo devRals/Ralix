@@ -1,11 +1,13 @@
 # Statements
 
-Statements are instructions that perform an action. In Ralix, statements only .
+Statements are instructions that perform an action. In Ralix, statements only.
+Statements are separated by semicolons (";") which are optional. But it's
+recommended to use them to avoid syntax errors.
 
 ## Binding statement
 
-The binding statement is used to create a new variable binding. You can specify the
-type of the value. If you want it's type to be specified automatically you can
+The binding statement is used to create a new variable binding. You can specify
+the type of the value. If you want it's type to be specified automatically you can
 use the `let` statements
 
 ```c
@@ -53,8 +55,8 @@ MyFloat my_type_is_same_as_PI = 1.2;
 
 The `fn` statement is used to create a new function. Functions can have parameters
 and a return type. Optionally you can also bind `const fn` statements.
-This is allowed because functions are just binding statements that the value is just
-a regular function.
+This is allowed because functions are just binding statements that the value is
+just a regular function.
 
 ```c
 // Create a function `add` that takes two integers and returns an integer
@@ -107,3 +109,30 @@ nums[2] = 5.8;
 > Note that index assignment operations can only update _existing values_.
 > If you wanna add a new value to a new hash-map using a key that hash-map
 > isn't using this operation will simply do nothing
+
+## `get` statement
+
+The `get` statements can be used to import file modules for `ralix`.
+The `get` statements first executes the module using it's content.
+
+```ts
+get my_module.my_submodule; // `my_submodule` is a "module" from now on.
+```
+
+Using braces lets you bind the values instantly.
+
+```ts
+get utils.math { add, sub, mul, div }; // `add`, `sub`, `mul`, `div` are 
+                                       // automatically had bind to the scope
+                                       // as well as with the `math` module
+```
+
+### "as" keyword
+
+Using `as` keyword lets you rename the imported identifiers.
+
+```ts
+get module_a { itemA };
+get module_b { itemA as itemB }; // `itemB` will be treated as `itemA` from
+                                 // module `module_b`
+```

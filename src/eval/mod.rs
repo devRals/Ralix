@@ -5,7 +5,6 @@ use crate::{Object, Program};
 mod context;
 mod error;
 mod expressions;
-mod impls;
 mod statements;
 
 pub use context::*;
@@ -82,14 +81,14 @@ impl Evaluator<'_> {
                     Some(o) => return EvalResult::Value(o),
                     None => return EvalResult::NoValue,
                 },
-                EvalResult::Err(err) => self.panic(err),
+                EvalResult::Err(err) => self.err(err),
             }
         }
 
         result
     }
 
-    pub fn panic<M: Display>(&self, msg: M) -> ! {
-        panic!("\x1b[91mPanic!\x1b[0m: {msg}")
+    pub fn err<M: Display>(&self, msg: M) {
+        eprintln!("\x1b[91mRuntime Error!\x1b[0m: {msg}");
     }
 }

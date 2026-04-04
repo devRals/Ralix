@@ -1,4 +1,4 @@
-use crate::{Literal, Parser, ParserError, ParserResult, Token, types::Type};
+use crate::{Literal, Parser, ParserDiagnostic, ParserResult, Token, types::Type};
 
 mod type_parsers;
 
@@ -16,7 +16,7 @@ impl Parser<'_> {
             Token::Function => self.parse_function_type_definition()?,
             Token::Ident(literal) => self.parse_identifier_type_definition(literal.clone())?,
             t => {
-                return Err(ParserError::TypeMistake(Literal::from(t.literal())));
+                return Err(ParserDiagnostic::TypeMistake(Literal::from(t.literal())));
             }
         };
 

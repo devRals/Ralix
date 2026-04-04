@@ -1,5 +1,5 @@
 use crate::{
-    Expression, ParserError, ParserResult, Token, expressions::FunctionParameter,
+    Expression, ParserDiagnostic, ParserResult, Token, expressions::FunctionParameter,
     parser::expressions::Precedence, types::Type,
 };
 
@@ -38,7 +38,7 @@ impl Parser<'_> {
                 ty
             }
             _ => {
-                return Err(ParserError::SyntaxError {
+                return Err(ParserDiagnostic::SyntaxError {
                     expected: Token::ThinArrow,
                     got: self.current_token.clone(),
                 });

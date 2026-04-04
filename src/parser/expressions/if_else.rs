@@ -1,5 +1,5 @@
 use crate::{
-    Expression, Parser, ParserError, ParserResult, Token,
+    Expression, Parser, ParserDiagnostic, ParserResult, Token,
     expressions::{ElseConsequence, IfConsequence},
     parser::expressions::Precedence,
 };
@@ -20,7 +20,7 @@ impl Parser<'_> {
                 consequences.push(con);
             } else {
                 if !self.is_current_token(Token::Colon) {
-                    return Err(ParserError::SyntaxError {
+                    return Err(ParserDiagnostic::SyntaxError {
                         expected: Token::Colon,
                         got: self.current_token.clone(),
                     });

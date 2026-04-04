@@ -1,4 +1,4 @@
-use crate::{Parser, ParserError, ParserResult, Token, types::Type};
+use crate::{Parser, ParserDiagnostic, ParserResult, Token, types::Type};
 
 impl Parser<'_> {
     pub fn parse_hashmap_type_definition(&mut self) -> ParserResult<Type> {
@@ -6,14 +6,14 @@ impl Parser<'_> {
 
         let key = self.parse_type_definition()?;
         if !key.is_hashable() {
-            return Err(ParserError::IsNotHashable(key));
+            return Err(ParserDiagnostic::IsNotHashable(key));
         }
         self.expect_token(Token::Comma)?;
         let value = self.parse_type_definition()?;
 
         self.next_token();
         if !self.is_current_token(Token::RBracket) {
-            return Err(ParserError::SyntaxError {
+            return Err(ParserDiagnostic::SyntaxError {
                 expected: Token::RBracket,
                 got: self.current_token.clone(),
             });

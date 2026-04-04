@@ -1,6 +1,6 @@
 use crate::{
-    Expression, Parser, ParserError, ParserResult, Statement, Token,
-    parser::expressions::Precedence, types::Type,
+    Expression, Parser, ParserDiagnostic, ParserResult, Statement, Token,
+    parser::expressions::Precedence, statements::Binding, types::Type,
 };
 
 impl Parser<'_> {
@@ -36,7 +36,7 @@ impl Parser<'_> {
         if !self.is_current_token(Token::Colon) {
             if !self.is_current_token(Token::ThinArrow) {
                 self.symbol_table.leave_scope();
-                return Err(ParserError::SyntaxError {
+                return Err(ParserDiagnostic::SyntaxError {
                     expected: Token::ThinArrow,
                     got: self.current_token.clone(),
                 });
@@ -55,7 +55,7 @@ impl Parser<'_> {
         // Drop generics
         self.symbol_table.leave_scope();
 
-        Ok(Statement::Binding {
+        Ok(Statement::Binding(Binding {
             ident,
             type_annotation: None,
             is_constant: false,
@@ -65,6 +65,6 @@ impl Parser<'_> {
                 return_type,
                 body,
             },
-        })
+        }))
     }
 }

@@ -10,6 +10,6 @@ impl Evaluator<'_> {
 
         let obj = try_eval_result!(self.evaluate_expression(expr));
 
-        EvalResult::Value(Object::Type(obj.r#type()))
+        EvalResult::Value(Object::Type(obj.r#type(self.ctx.heap)))
     }
 }

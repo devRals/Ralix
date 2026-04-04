@@ -113,7 +113,9 @@ impl TypeChecker<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::{Lexer, Parser, Statement, SymbolTable};
+    use std::path::PathBuf;
+
+    use crate::{Lexer, Parser, Statement, SymbolTable, statements::Binding};
 
     impl TypeChecker<'_> {
         /// idx: 0 - Default - HashMap Key - Function
@@ -190,21 +192,23 @@ mod test {
         ];
 
         for (i, (input, expected_generic)) in tests.into_iter().enumerate() {
-            let lexer = Lexer::new(input);
             let mut st = SymbolTable::default();
-            let mut parser = Parser::new(lexer, &mut st);
+            let wd = PathBuf::from(".");
+
+            let lexer = Lexer::new(input);
+            let mut parser = Parser::new(lexer, &mut st, wd.clone());
             let p = parser
                 .parse_program()
                 .unwrap_or_else(|err| panic!("{i}. {err}"));
-            let mut tc = TypeChecker::with_symbol_table(&mut st);
+            let mut tc = TypeChecker::with_symbol_table(&mut st, wd);
 
             let (ident, type_annotation, value, is_constant) = match &p[0] {
-                Statement::Binding {
+                Statement::Binding(Binding {
                     ident,
                     type_annotation,
                     value,
                     is_constant,
-                } => (ident, type_annotation, value, is_constant),
+                }) => (ident, type_annotation, value, is_constant),
                 s => panic!("{s} is not expected"),
             };
 

@@ -1,12 +1,12 @@
-use std::{error::Error, fmt::Display};
+use std::{error::Error, fmt::Display, io};
 
 use crate::{
-    Literal,
+    Literal, ProgramParseError,
     expressions::{ExpressionType, Identifier, InfixOperator, PrefixOperator},
     types::Type,
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum CheckerError {
     Undefined(Literal),
     Unsatisfied(Type, Type),
@@ -31,8 +31,18 @@ pub enum CheckerError {
     HashMaphHasMultipleDifferentValueTypes(Type, Type),
     IsNotNullable(Type),
     CannotUseTry(Type),
+    ModuleLoadError(io::Error),
+    ModuleParseError(ProgramParseError),
+    ModuleTypeCheckError(ProgramCheckError),
     CannotUseTryInBinding,
     InfiniteType,
+}
+
+#[cfg(test)]
+impl PartialEq for CheckerError {
+    fn eq(&self, other: &Self) -> bool {
+        self.to_string() == other.to_string()
+    }
 }
 
 pub type CheckerResult<T> = Result<T, CheckerError>;
@@ -84,6 +94,9 @@ impl Display for CheckerError {
             E::CannotUseTry(ty) => format!("Try expression cannot be used in a function that returns a value type of `{ty}`"),
             E::CannotUseTryInBinding => "Try expression cannot be used in binding statements".to_string(),
             E::InfiniteType => "Recursive type variables are not allowed".to_string(),
+            E::ModuleLoadError(fme) => fme.to_string(),
+            E::ModuleParseError(e) => e.to_string(),
+            E::ModuleTypeCheckError(e) => e.to_string(),
 
         })
     }

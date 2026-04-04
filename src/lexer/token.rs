@@ -85,7 +85,7 @@ pub enum Token {
     /// ","
     Comma,
     /// "."
-    Notation,
+    Dot,
     /// ".."
     TwoDots,
     /// ";"
@@ -124,7 +124,8 @@ pub enum Token {
     Struct,
     Interface,
     Export,
-    Import,
+    Get,
+    As,
     Not,
     And,
     Or,
@@ -140,8 +141,11 @@ pub enum Token {
     TyString,
     /// "char"
     TyChar,
+    /// "bool"
     TyBool,
+    /// "arr[<type>]"
     TyArr,
+    /// "map[<type>]"
     TyMap,
 }
 impl Token {
@@ -162,7 +166,8 @@ impl Token {
             "match" => Token::Match,
             "struct" => Token::Struct,
             "interface" => Token::Interface,
-            "import" => Token::Import,
+            "get" => Token::Get,
+            "as" => Token::As,
             "export" => Token::Export,
             "and" => Token::And,
             "or" => Token::Or,
@@ -241,7 +246,7 @@ impl Display for Token {
             T::LessEqual => "<=",
             T::GreatEqual => ">=",
             T::Comma => ",",
-            T::Notation => ".",
+            T::Dot => ".",
             T::TwoDots => "..",
             T::SemiColon => ";",
             T::Colon => ":",
@@ -267,7 +272,8 @@ impl Display for Token {
             T::Struct => "struct",
             T::Interface => "interface",
             T::Export => "export",
-            T::Import => "import",
+            T::Get => "get",
+            T::As => "as",
             T::Not => "not",
             T::And => "and",
             T::Or => "or",

@@ -1,5 +1,5 @@
 use crate::{
-    Expression, Parser, ParserError, ParserResult, Token,
+    Expression, Parser, ParserDiagnostic, ParserResult, Token,
     expressions::{InfixOperator, PrefixOperator},
     parser::expressions::Precedence,
 };
@@ -25,7 +25,7 @@ impl Parser<'_> {
             Token::Caret => InfixOperator::BitwiseXOr,
             Token::ShiftRight => InfixOperator::BitShiftRight,
             Token::ShiftLeft => InfixOperator::BitShiftLeft,
-            t => return Err(ParserError::UnknownInfixOp(t.literal())),
+            t => return Err(ParserDiagnostic::UnknownInfixOp(t.literal())),
         };
 
         let precedence = Precedence::of(&self.current_token);
@@ -46,7 +46,7 @@ impl Parser<'_> {
             Token::Asterisk => PrefixOperator::Deref,
             Token::Ampersant => PrefixOperator::AddrOf,
             Token::Tilde => PrefixOperator::BitwiseNot,
-            t => return Err(ParserError::UnknownInfixOp(t.literal())),
+            t => return Err(ParserDiagnostic::UnknownInfixOp(t.literal())),
         };
 
         self.next_token();

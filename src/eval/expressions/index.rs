@@ -22,8 +22,8 @@ impl Evaluator<'_> {
                 self.evaluate_hashmap_index_expression(hash_map, index)
             }
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedIndexOperation(
-                o1.r#type(),
-                o2.r#type(),
+                o1.r#type(self.ctx.heap),
+                o2.r#type(self.ctx.heap),
             )),
         }
     }

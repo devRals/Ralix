@@ -63,6 +63,8 @@ impl TypeChecker<'_> {
 
 #[cfg(test)]
 mod test {
+    use std::path::PathBuf;
+
     use crate::{
         CheckerError::*, Expression, Lexer, Parser, SymbolTable, TypeChecker, types::Type::*,
     };
@@ -117,13 +119,15 @@ mod test {
 
         for (i, (input, expected_result)) in tests.into_iter().enumerate() {
             let mut st = SymbolTable::default();
+            let wd = PathBuf::from(".");
+
             let lexer = Lexer::new(input);
-            let mut parser = Parser::new(lexer, &mut st);
+            let mut parser = Parser::new(lexer, &mut st, wd.clone());
             let map = parser
                 .parse_hashmap_literal()
                 .unwrap_or_else(|err| panic!("{err}"));
 
-            let mut tc = TypeChecker::with_symbol_table(&mut st);
+            let mut tc = TypeChecker::with_symbol_table(&mut st, wd);
             if let Expression::HashMap { items } = map {
                 let tc_result = tc.check_hashmap_literal(&items);
                 assert_eq!(

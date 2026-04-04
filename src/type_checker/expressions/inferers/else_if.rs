@@ -74,6 +74,7 @@ mod tests {
         use crate::{
             CheckerError::*, Expression, Lexer, Parser, SymbolTable, TypeChecker, types::Type::*,
         };
+        use std::path::PathBuf;
 
         let tests = [
             ("if true: 10", Ok(Nullable(Int.into()))),
@@ -103,11 +104,13 @@ mod tests {
         for (i, (input, expected_result)) in tests.into_iter().enumerate() {
             let mut st = SymbolTable::default();
             let lexer = Lexer::new(input);
-            let mut parser = Parser::new(lexer, &mut st);
+            let wd = PathBuf::from(".");
+
+            let mut parser = Parser::new(lexer, &mut st, wd.clone());
             let if_expr = parser
                 .parse_if_expression()
                 .unwrap_or_else(|err| panic!("{err}"));
-            let mut tc = TypeChecker::with_symbol_table(&mut st);
+            let mut tc = TypeChecker::with_symbol_table(&mut st, wd);
 
             if let Expression::IfElse {
                 consequences,

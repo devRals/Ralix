@@ -15,7 +15,7 @@ fn test_lexer() {
         null if else fn const return
         true false while for continue
         break match struct interface
-        export import not and or
+        export not and or
     "#;
     let expected_tokens = [
         String(Literal::from("meow")),
@@ -40,7 +40,7 @@ fn test_lexer() {
         LessEqual,
         GreatEqual,
         Comma,
-        Notation,
+        Dot,
         TwoDots,
         SemiColon,
         Colon,
@@ -67,7 +67,6 @@ fn test_lexer() {
         Struct,
         Interface,
         Export,
-        Import,
         Not,
         And,
         Or,

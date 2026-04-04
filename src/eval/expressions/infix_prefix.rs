@@ -3,6 +3,18 @@ use crate::{
     expressions::{InfixOperator, PrefixOperator},
     try_eval_result,
 };
+use std::cmp;
+
+impl cmp::PartialOrd for Object {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        match (self, other) {
+            (Object::Int(v1), Object::Int(v2)) => v1.partial_cmp(v2),
+            (Object::Float(v1), Object::Float(v2)) => v1.partial_cmp(v2),
+            (Object::Char(v1), Object::Char(v2)) => v1.partial_cmp(v2),
+            _ => None,
+        }
+    }
+}
 
 enum BitShiftDirection {
     Left,
@@ -16,37 +28,93 @@ impl Evaluator<'_> {
         operator: InfixOperator,
         right: Expression,
     ) -> EvalResult<Object> {
+        use Object::*;
+
         let left_obj = try_eval_result!(self.evaluate_expression(left));
         let right_obj = try_eval_result!(self.evaluate_expression(right));
 
+        macro_rules! impl_infix_op {
+            ($op: ident => {
+                $(
+                    $pattern: pat => $result: expr
+                ),* $(,)?
+            }) => {
+                match (left_obj, right_obj) {
+                    $(
+                        $pattern => $result
+                    ),*
+                    ,(o1, o2) => return EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
+                        o1.r#type(self.ctx.heap), InfixOperator::$op, o2.r#type(self.ctx.heap)
+                    ))
+                }
+            };
+        }
+
         // All of the op implementions for `Object` returns an `EvalResult`
         match operator {
-            InfixOperator::Add => left_obj + right_obj,
-            InfixOperator::Subtract => left_obj - right_obj,
-            InfixOperator::Multiply => left_obj * right_obj,
-            InfixOperator::Divide => left_obj / right_obj,
-            InfixOperator::Remainder => left_obj % right_obj,
+            InfixOperator::Add => impl_infix_op!(Add => {
+                (Int(v1), Int(v2)) => Object::from(v1 + v2),
+                (Float(v1), Float(v2)) => Object::from(v1 + v2),
+                (String(v1), String(v2)) => Object::from(std::string::String::from(&*v1) + &*v2),
+            })
+            .into(),
+
+            InfixOperator::Subtract => impl_infix_op!(Subtract => {
+                (Int(v1), Int(v2)) => Object::from(v1 - v2),
+                (Float(v1), Float(v2)) => Object::from(v1 - v2)
+            })
+            .into(),
+
+            InfixOperator::Multiply => impl_infix_op!(Multiply => {
+                (Int(v1), Int(v2)) => Object::from(v1 * v2),
+                (Float(v1), Float(v2)) => Object::from(v1 * v2)
+            })
+            .into(),
+
+            InfixOperator::Divide => impl_infix_op!(Divide => {
+
+                (Int(v1), Int(v2)) => Object::from(v1 / v2),
+                (Float(v1), Float(v2)) => Object::from(v1 / v2)
+            })
+            .into(),
+            InfixOperator::Remainder => impl_infix_op!(Remainder => {
+
+                (Int(v1), Int(v2)) => Object::from(v1 % v2),
+                (Float(v1), Float(v2)) => Object::from(v1 % v2)
+            })
+            .into(),
+            InfixOperator::BitwiseAnd => impl_infix_op!(BitwiseAnd => {
+                (Int(v1), Int(v2)) => Object::from(v1 & v2)
+            })
+            .into(),
+            InfixOperator::BitwiseOr => impl_infix_op!(BitwiseOr => {
+                (Int(v1), Int(v2)) => Object::from(v1 | v2)
+            })
+            .into(),
+            InfixOperator::BitwiseXOr => impl_infix_op!(BitwiseXOr => {
+                (Int(v1), Int(v2)) => Object::from(v1 ^ v2)
+            })
+            .into(),
+
             InfixOperator::Equals => Object::from(left_obj == right_obj).into(),
             InfixOperator::NotEquals => Object::from(left_obj != right_obj).into(),
             InfixOperator::Less => Object::from(left_obj < right_obj).into(),
             InfixOperator::LessEq => Object::from(left_obj <= right_obj).into(),
             InfixOperator::Greater => Object::from(left_obj > right_obj).into(),
             InfixOperator::GreatEq => Object::from(left_obj >= right_obj).into(),
-            InfixOperator::Or => Self::evaluate_or(left_obj, right_obj),
-            InfixOperator::And => Self::evaluate_and(left_obj, right_obj),
-            InfixOperator::BitwiseAnd => left_obj & right_obj,
-            InfixOperator::BitwiseOr => left_obj | right_obj,
-            InfixOperator::BitwiseXOr => left_obj ^ right_obj,
+            InfixOperator::Or => self.evaluate_or(left_obj, right_obj),
+            InfixOperator::And => self.evaluate_and(left_obj, right_obj),
             InfixOperator::BitShiftLeft => {
-                Self::evaluate_bitshift(left_obj, right_obj, BitShiftDirection::Left)
+                self.evaluate_bitshift(left_obj, right_obj, BitShiftDirection::Left)
             }
             InfixOperator::BitShiftRight => {
-                Self::evaluate_bitshift(left_obj, right_obj, BitShiftDirection::Right)
+                self.evaluate_bitshift(left_obj, right_obj, BitShiftDirection::Right)
             }
         }
     }
 
     fn evaluate_bitshift(
+        &self,
         left: Object,
         right: Object,
         dir: BitShiftDirection,
@@ -63,31 +131,31 @@ impl Evaluator<'_> {
             })
             .into(),
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
-                o1.r#type(),
+                o1.r#type(self.ctx.heap),
                 op,
-                o2.r#type(),
+                o2.r#type(self.ctx.heap),
             )),
         }
     }
 
-    fn evaluate_or(left: Object, right: Object) -> EvalResult<Object> {
+    fn evaluate_or(&self, left: Object, right: Object) -> EvalResult<Object> {
         match (left, right) {
             (Object::Boolean(v1), Object::Boolean(v2)) => Object::from(v1 || v2).into(),
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
-                o1.r#type(),
+                o1.r#type(self.ctx.heap),
                 InfixOperator::Or,
-                o2.r#type(),
+                o2.r#type(self.ctx.heap),
             )),
         }
     }
 
-    fn evaluate_and(left: Object, right: Object) -> EvalResult<Object> {
+    fn evaluate_and(&self, left: Object, right: Object) -> EvalResult<Object> {
         match (left, right) {
             (Object::Boolean(v1), Object::Boolean(v2)) => Object::from(v1 && v2).into(),
             (o1, o2) => EvalResult::Err(EvaluationError::UnsupportedInfixOperation(
-                o1.r#type(),
+                o1.r#type(self.ctx.heap),
                 InfixOperator::And,
-                o2.r#type(),
+                o2.r#type(self.ctx.heap),
             )),
         }
     }
@@ -103,9 +171,31 @@ impl Evaluator<'_> {
 
         let obj = try_eval_result!(self.evaluate_expression(right));
 
+        macro_rules! impl_prefix_op {
+            ($op: ident => {
+                $(
+                    $pattern: pat => $result: expr
+                ),* $(,)?
+            }) => {
+                match obj {
+                    $(
+                        $pattern => $result,
+                    )*
+                    o => return EvalResult::Err(EvaluationError::UnsupportedPrefixOperation(PrefixOperator::$op, o.r#type(self.ctx.heap)))
+                }
+            };
+        }
+
         match operator {
-            PrefixOperator::Not => !obj,
-            PrefixOperator::Neg => -obj,
+            PrefixOperator::Not => impl_prefix_op!(Not => {
+                Object::Boolean(v) => Object::from(!v)
+            })
+            .into(),
+            PrefixOperator::Neg => impl_prefix_op!(Neg => {
+                Object::Int(v) => Object::from(-v),
+                Object::Float(v) => Object::from(-v),
+            })
+            .into(),
             PrefixOperator::Deref => self.evaluate_deref_expression(obj),
             PrefixOperator::BitwiseNot => self.evaluate_bitwisenot(obj),
             PrefixOperator::AddrOf => unreachable!(),
@@ -117,7 +207,7 @@ impl Evaluator<'_> {
             Object::Int(v) => Object::from(!v).into(),
             o => EvalResult::Err(EvaluationError::UnsupportedPrefixOperation(
                 PrefixOperator::BitwiseNot,
-                o.r#type(),
+                o.r#type(self.ctx.heap),
             )),
         }
     }
@@ -126,7 +216,9 @@ impl Evaluator<'_> {
         match obj {
             Object::Address(addr) => self.ctx.heap.read(&addr).cloned().into(),
             Object::Null => EvalResult::Value(Object::NULL),
-            o => EvalResult::Err(EvaluationError::CannotBeDereferenced(o.r#type())),
+            o => EvalResult::Err(EvaluationError::CannotBeDereferenced(
+                o.r#type(self.ctx.heap),
+            )),
         }
     }
 

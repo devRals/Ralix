@@ -36,7 +36,7 @@ impl Evaluator<'_> {
         let func = match try_eval_result!(self.evaluate_expression(function)) {
             Object::Function(func) => func,
             Object::Type(ty) => return self.evaluate_type_casting(ty, arguments[0].clone()),
-            o => return EvalResult::Err(EvaluationError::IsNotAFunction(o.r#type())),
+            o => return EvalResult::Err(EvaluationError::IsNotAFunction(o.r#type(self.ctx.heap))),
         };
 
         self.ctx.enter_scope();

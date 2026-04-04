@@ -1,6 +1,6 @@
 use crate::{
-    Expression, Parser, ParserError, ParserResult, Statement, Token, expressions::PrefixOperator,
-    parser::expressions::Precedence,
+    Expression, Parser, ParserDiagnostic, ParserResult, Statement, Token,
+    expressions::PrefixOperator, parser::expressions::Precedence,
 };
 
 impl Parser<'_> {
@@ -12,7 +12,7 @@ impl Parser<'_> {
                 operator: PrefixOperator::Deref,
                 ..
             } => {}
-            _ => return Err(ParserError::CannotAssignTo(expr)),
+            _ => return Err(ParserDiagnostic::CannotAssignTo(expr)),
         };
 
         self.skip_peek_token(Token::Assign);

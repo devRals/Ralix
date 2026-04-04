@@ -1,4 +1,4 @@
-use crate::{ParserError, ParserResult, Statement, Token};
+use crate::{ParserDiagnostic, ParserResult, Statement, Token, statements::Binding};
 
 use super::Parser;
 
@@ -8,18 +8,18 @@ impl Parser<'_> {
         let stmt = self.parse_statement()?;
 
         match stmt {
-            Statement::Binding {
+            Statement::Binding(Binding {
                 ident,
                 type_annotation,
                 value,
                 ..
-            } => Ok(Statement::Binding {
+            }) => Ok(Statement::Binding(Binding {
                 ident,
                 type_annotation,
                 value,
                 is_constant: true,
-            }),
-            _ => Err(ParserError::UnacceptableConst),
+            })),
+            _ => Err(ParserDiagnostic::UnacceptableConst),
         }
     }
 }

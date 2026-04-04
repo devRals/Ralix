@@ -1,13 +1,19 @@
+use std::path::PathBuf;
+
 use serde::Serialize;
 
 use crate::{
     Literal,
-    expressions::{ElseConsequence, FunctionParameter, HashMapItem, Identifier, IfConsequence},
+    expressions::{
+        ElseConsequence, FunctionParameter, HashMapItem, Identifier, IfConsequence, ImportedItem,
+    },
+    statements::Binding,
     types::{Type, TypeVarId},
 };
 
 pub mod expressions;
 mod impls;
+pub mod statements;
 pub mod types;
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
@@ -15,12 +21,7 @@ pub enum Statement {
     Expression(Expression),
     Return(Option<Expression>),
 
-    Binding {
-        ident: Identifier,
-        type_annotation: Option<Type>,
-        value: Expression,
-        is_constant: bool,
-    },
+    Binding(Binding),
 
     Assign {
         left: Expression,
@@ -30,6 +31,12 @@ pub enum Statement {
     Alias {
         ident: Identifier,
         ty: Type,
+    },
+
+    Get {
+        path_names: Vec<Identifier>,
+        file_module_path: PathBuf,
+        imported_items: Vec<ImportedItem>,
     },
 }
 
