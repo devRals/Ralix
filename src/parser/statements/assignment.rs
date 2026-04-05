@@ -12,7 +12,7 @@ impl Parser<'_> {
                 operator: PrefixOperator::Deref,
                 ..
             } => {}
-            _ => return Err(ParserDiagnostic::CannotAssignTo(expr)),
+            _ => return Err(ParserDiagnostic::CannotAssignTo(expr.into())),
         };
 
         self.skip_peek_token(Token::Assign);

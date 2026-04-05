@@ -1,4 +1,4 @@
-use crate::{CheckerError, CheckerResult, Expression, TypeChecker, types::Type};
+use crate::{CheckerResult, Expression, TypeChecker, TypeCheckerDiagnostic, types::Type};
 
 impl TypeChecker<'_> {
     pub fn check_index_expression(
@@ -13,12 +13,12 @@ impl TypeChecker<'_> {
             (Type::Array(arr_ty), Type::Int) => Ok(Type::Nullable(arr_ty)),
             (Type::HashMap { key, value }, index_ty) => match index_ty.is(&key) {
                 true => Ok(Type::Nullable(value)),
-                false => Err(CheckerError::CannotbeIndexedBy(
+                false => Err(TypeCheckerDiagnostic::CannotbeIndexedBy(
                     Type::HashMap { key, value },
                     index_ty,
                 )),
             },
-            (t1, t2) => Err(CheckerError::CannotbeIndexedBy(t1, t2)),
+            (t1, t2) => Err(TypeCheckerDiagnostic::CannotbeIndexedBy(t1, t2)),
         }
     }
 }

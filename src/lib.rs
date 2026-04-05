@@ -89,13 +89,15 @@ pub fn execute_with_context<P: AsRef<Path>>(
 
 pub fn parse<P: AsRef<Path>>(source: &str, working_directory: P) -> Result<Program, ExecuteError> {
     let mut st = SymbolTable::default();
-    parse_with_symbol_table(source, &mut st, working_directory)
+    let mut module_cache = type_checker::ModuleCache::new();
+    parse_with_symbol_table(source, &mut st, working_directory, &mut module_cache)
 }
 
 pub fn parse_with_symbol_table<P: AsRef<Path>>(
     source: &str,
     symbol_table: &mut SymbolTable,
     working_directory: P,
+    module_cache: &mut type_checker::ModuleCache,
 ) -> Result<Program, ExecuteError> {
     let wd = match path::absolute(working_directory) {
         Ok(path) => path,
@@ -103,7 +105,7 @@ pub fn parse_with_symbol_table<P: AsRef<Path>>(
     };
 
     let lexer = Lexer::new(source);
-    let mut parser = Parser::new(lexer, symbol_table, wd.clone());
+    let mut parser = Parser::new(lexer, symbol_table, wd);
     let program = match parser.parse_program() {
         Ok(p) => p,
         Err(parse_error) => {
@@ -111,7 +113,7 @@ pub fn parse_with_symbol_table<P: AsRef<Path>>(
         }
     };
 
-    let mut checker = TypeChecker::with_symbol_table(symbol_table, wd);
+    let mut checker = TypeChecker::with_symbol_table(symbol_table, module_cache);
     if let Err(check_error) = checker.check_program(&program) {
         return Err(ExecuteErrorBase::TypeCheckerError(check_error).into());
     }

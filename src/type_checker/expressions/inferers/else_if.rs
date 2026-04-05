@@ -1,5 +1,6 @@
 use crate::{
-    CheckerError, CheckerResult, Expression, TypeChecker, expressions::IfConsequence, types::Type,
+    CheckerResult, Expression, TypeChecker, TypeCheckerDiagnostic, expressions::IfConsequence,
+    types::Type,
 };
 
 type ElseConsequence = Expression;
@@ -18,7 +19,7 @@ impl TypeChecker<'_> {
             let cons_ty = self.check_expression(cons)?;
 
             if !condition_ty.satisfies(&Type::Bool) {
-                return Err(CheckerError::Unsatisfied(condition_ty, Type::Bool));
+                return Err(TypeCheckerDiagnostic::Unsatisfied(condition_ty, Type::Bool));
             }
 
             if is_first {
@@ -38,7 +39,7 @@ impl TypeChecker<'_> {
             }
 
             if !cons_ty.satisfies(&first_branch_ty) {
-                return Err(CheckerError::IfBranchesUnsatisfied(
+                return Err(TypeCheckerDiagnostic::IfBranchesUnsatisfied(
                     first_branch_ty,
                     cons_ty,
                 ));
@@ -48,7 +49,7 @@ impl TypeChecker<'_> {
         if let Some(else_con) = else_consequence {
             let else_con_ty = self.check_expression(else_con)?;
             if !else_con_ty.satisfies(&first_branch_ty) {
-                return Err(CheckerError::IfBranchesUnsatisfied(
+                return Err(TypeCheckerDiagnostic::IfBranchesUnsatisfied(
                     first_branch_ty,
                     else_con_ty,
                 ));
@@ -68,11 +69,11 @@ impl TypeChecker<'_> {
 }
 
 mod tests {
-
     #[test]
     fn test_infer_if_expression() {
         use crate::{
-            CheckerError::*, Expression, Lexer, Parser, SymbolTable, TypeChecker, types::Type::*,
+            Expression, Lexer, Parser, SymbolTable, TypeChecker, TypeCheckerDiagnostic::*,
+            type_checker::ModuleCache, types::Type::*,
         };
         use std::path::PathBuf;
 
@@ -105,12 +106,13 @@ mod tests {
             let mut st = SymbolTable::default();
             let lexer = Lexer::new(input);
             let wd = PathBuf::from(".");
+            let mut mc = ModuleCache::default();
 
-            let mut parser = Parser::new(lexer, &mut st, wd.clone());
+            let mut parser = Parser::new(lexer, &mut st, wd);
             let if_expr = parser
                 .parse_if_expression()
                 .unwrap_or_else(|err| panic!("{err}"));
-            let mut tc = TypeChecker::with_symbol_table(&mut st, wd);
+            let mut tc = TypeChecker::with_symbol_table(&mut st, &mut mc);
 
             if let Expression::IfElse {
                 consequences,

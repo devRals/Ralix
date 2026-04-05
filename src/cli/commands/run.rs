@@ -10,7 +10,7 @@ pub struct RunArguments {
 
 pub fn run(args: RunArguments) -> io::Result<()> {
     match args.file {
-        Some(f) => execute_file_module(&f, PathBuf::from("."))
+        Some(f) => execute_file_module(&f, f.parent().unwrap())
             .map(|_| ())
             .map_err(|err| match *err {
                 ExecuteErrorBase::IoError(e) => e,

@@ -8,6 +8,7 @@ use color_eyre::owo_colors::OwoColorize;
 use crate::{
     Environment, EvalResult, Evaluator, Heap, Object, SymbolTable, parse_with_symbol_table,
     repl::render::{CONTINUATION_PROMPT, PROMPT},
+    type_checker,
 };
 
 enum ReplResult {
@@ -46,6 +47,7 @@ impl Repl {
         let mut env = Environment::default();
         let mut heap = Heap::new();
         let mut st = SymbolTable::default();
+        let mut tc_module_cache = type_checker::ModuleCache::new();
 
         let user = env!("USER").cyan();
         let bin_name = env!("CARGO_PKG_NAME").magenta();
@@ -66,12 +68,57 @@ impl Repl {
             write!(out, "{} ", self.last_repl_result.prompt())?;
             out.flush()?;
             reader.read_line(&mut self.buf)?;
+            self.buf.pop(); // remove "\n"
+
+            match self.buf.as_str() {
+                "st" => {
+                    writeln!(out, "{st:#?}\n")?;
+                    self.buf.clear();
+                    continue;
+                }
+                "heap" => {
+                    writeln!(out, "{heap:#?}\n")?;
+                    self.buf.clear();
+                    continue;
+                }
+                "tc_cache" => {
+                    writeln!(out, "{tc_module_cache:#?}\n")?;
+                    self.buf.clear();
+                    continue;
+                }
+                "env" => {
+                    writeln!(out, "{env:#?}\n")?;
+                    self.buf.clear();
+                    continue;
+                }
+                "help" => {
+                    let msg = format!(
+                        r#"You can get help from {home_page}
+Available Keywords are:
+    st: Debug print the `SymbolTable`
+    heap: Debug print the `Heap`
+    tc_cache: Debug print the TypeChecker::module_cache
+    env: Debug print the `Environment`
+    help: Print this message
+"#
+                    );
+                    writeln!(out, "{msg}\n")?;
+                    self.buf.clear();
+                    continue;
+                }
+                _ => {}
+            };
 
             if !self.is_input_complete() {
                 self.force_correct_input(&mut reader, &mut out)?;
             }
 
-            let program = match parse_with_symbol_table(&self.buf, &mut st, PathBuf::from(".")) {
+            let program = match parse_with_symbol_table(
+                &self.buf,
+                &mut st,
+                PathBuf::from("."),
+                &mut tc_module_cache,
+            ) {
                 Ok(p) => p,
                 Err(err) => {
                     self.write_errors_and_clear(err)?;

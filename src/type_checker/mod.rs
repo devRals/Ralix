@@ -1,9 +1,11 @@
 mod error;
 mod expressions;
+mod module_cache;
 mod statements;
-use std::{collections::HashMap, path::PathBuf};
+use std::collections::HashMap;
 
 pub use error::*;
+pub use module_cache::*;
 
 use crate::{
     Program, SymbolTable,
@@ -18,19 +20,21 @@ pub struct TypeChecker<'st> {
     symbol_table: &'st mut SymbolTable,
     fn_stack: Vec<FunctionContext>,
     typevar_bindings: HashMap<TypeVarId, Type>,
-    working_directory: PathBuf,
+    module_cache: &'st mut ModuleCache,
+    self_module: Module,
 }
 
 impl<'st> TypeChecker<'st> {
     pub fn with_symbol_table(
         symbol_table: &'st mut SymbolTable,
-        working_directory: PathBuf,
+        module_cache: &'st mut ModuleCache,
     ) -> Self {
-        Self {
+        TypeChecker {
             symbol_table,
-            working_directory,
+            module_cache,
             fn_stack: Vec::new(),
             typevar_bindings: HashMap::new(),
+            self_module: Module::default(),
         }
     }
 }
@@ -104,13 +108,13 @@ impl TypeChecker<'_> {
             }
 
             (t1, t2) if t1 == t2 => Ok(t1),
-            (t1, t2) => Err(CheckerError::Unsatisfied(t2, t1)),
+            (t1, t2) => Err(TypeCheckerDiagnostic::Unsatisfied(t2, t1)),
         }
     }
 
     pub fn bind_typevar(&mut self, id: TypeVarId, t: Type) -> CheckerResult<Type> {
         if occurs(id.clone(), &t) {
-            return Err(CheckerError::InfiniteType);
+            return Err(TypeCheckerDiagnostic::InfiniteType);
         }
 
         self.typevar_bindings.insert(id, t.clone());

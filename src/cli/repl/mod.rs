@@ -4,7 +4,7 @@ use ratatui::DefaultTerminal;
 
 use crate::{
     Context, Environment, EvalResult, Evaluator, ExecuteError, Heap, Object, Program, SymbolTable,
-    parse_with_symbol_table,
+    parse_with_symbol_table, type_checker,
 };
 
 use commands::{SlashCommand, SlashCommandBuildError};
@@ -51,6 +51,7 @@ struct ReplContext {
     env: Environment,
     symbol_table: SymbolTable,
     heap: Heap,
+    tc_module_cache: type_checker::ModuleCache,
 }
 
 enum ReplState {
@@ -107,6 +108,7 @@ impl Repl {
                 symbol_table: SymbolTable::default(),
                 env: Environment::default(),
                 heap: Heap::new(),
+                tc_module_cache: type_checker::ModuleCache::new(),
             },
 
             slash_command_result: Ok(SlashCommand::empty()),
@@ -137,6 +139,7 @@ impl Repl {
                 &self.input.buf,
                 &mut self.context.symbol_table,
                 PathBuf::from("."),
+                &mut self.context.tc_module_cache,
             ));
         }
     }
@@ -150,6 +153,7 @@ impl Repl {
             &self.input.buf,
             &mut self.context.symbol_table,
             PathBuf::from("."),
+            &mut self.context.tc_module_cache,
         ));
 
         self.state = ReplState::Running;

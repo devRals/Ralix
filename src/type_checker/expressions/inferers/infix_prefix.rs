@@ -1,5 +1,5 @@
 use crate::{
-    CheckerError, CheckerResult, Expression, TypeChecker,
+    CheckerResult, Expression, TypeChecker, TypeCheckerDiagnostic,
     expressions::{InfixOperator, PrefixOperator},
     types::Type,
 };
@@ -46,14 +46,16 @@ impl TypeChecker<'_> {
                         (Type::Nullable(_), Type::Null) | (Type::Null, Type::Nullable(_)) => {
                             Ok(Type::Bool)
                         }
-                        (t1, t2) => Err(CheckerError::InfixTypeMismatched(t1, *operator, t2)),
+                        (t1, t2) => Err(TypeCheckerDiagnostic::InfixTypeMismatched(
+                            t1, *operator, t2,
+                        )),
                     }
                 } else {
                     Ok(Type::Bool)
                 }
             }
 
-            (left_ty, operator, right_ty) => Err(CheckerError::InfixTypeMismatched(
+            (left_ty, operator, right_ty) => Err(TypeCheckerDiagnostic::InfixTypeMismatched(
                 left_ty, *operator, right_ty,
             )),
         }
@@ -86,12 +88,12 @@ impl TypeChecker<'_> {
                     if let Type::Addr(t) = *t {
                         Ok(Type::Nullable(t))
                     } else {
-                        Err(CheckerError::PrefixTypeMismatched(O::Deref, *t))
+                        Err(TypeCheckerDiagnostic::PrefixTypeMismatched(O::Deref, *t))
                     }
                 }
-                t => Err(CheckerError::PrefixTypeMismatched(O::Deref, t)),
+                t => Err(TypeCheckerDiagnostic::PrefixTypeMismatched(O::Deref, t)),
             },
-            (op, ty) => Err(CheckerError::PrefixTypeMismatched(*op, ty)),
+            (op, ty) => Err(TypeCheckerDiagnostic::PrefixTypeMismatched(*op, ty)),
         }
     }
 }

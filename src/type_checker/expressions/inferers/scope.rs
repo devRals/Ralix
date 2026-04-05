@@ -1,4 +1,4 @@
-use crate::{CheckerError, CheckerResult, Statement, TypeChecker, types::Type};
+use crate::{CheckerResult, Statement, TypeChecker, TypeCheckerDiagnostic, types::Type};
 
 impl TypeChecker<'_> {
     pub fn infer_scope_expression(&mut self, statements: &[Statement]) -> CheckerResult<Type> {
@@ -13,7 +13,10 @@ impl TypeChecker<'_> {
                     let cur_fn_ret_ty = self.current_fn_return_type();
 
                     if !ret_ty.satisfies(cur_fn_ret_ty) {
-                        return Err(CheckerError::Unsatisfied(ret_ty, cur_fn_ret_ty.clone()));
+                        return Err(TypeCheckerDiagnostic::Unsatisfied(
+                            ret_ty,
+                            cur_fn_ret_ty.clone(),
+                        ));
                     }
                 }
                 self.symbol_table.leave_scope();

@@ -1,4 +1,6 @@
-use crate::{CheckerError, CheckerResult, TypeChecker, expressions::HashMapItem, types::Type};
+use crate::{
+    CheckerResult, TypeChecker, TypeCheckerDiagnostic, expressions::HashMapItem, types::Type,
+};
 
 impl TypeChecker<'_> {
     pub fn check_hashmap_literal(&mut self, items: &[HashMapItem]) -> CheckerResult<Type> {
@@ -13,12 +15,12 @@ impl TypeChecker<'_> {
             );
 
             if !key_ty.is_hashable() {
-                return Err(CheckerError::CannotBeHashed(key_ty));
+                return Err(TypeCheckerDiagnostic::CannotBeHashed(key_ty));
             } else if key_is_first {
                 key = key_ty;
                 key_is_first = false;
             } else if !key_ty.satisfies(&key) {
-                return Err(CheckerError::HashMaphHasMultipleDifferentKeyTypes(
+                return Err(TypeCheckerDiagnostic::HashMaphHasMultipleDifferentKeyTypes(
                     key, key_ty,
                 ));
             }
@@ -44,9 +46,9 @@ impl TypeChecker<'_> {
             }
 
             if !value_ty.satisfies(&value) {
-                return Err(CheckerError::HashMaphHasMultipleDifferentValueTypes(
-                    value, value_ty,
-                ));
+                return Err(
+                    TypeCheckerDiagnostic::HashMaphHasMultipleDifferentValueTypes(value, value_ty),
+                );
             }
         }
 
@@ -66,7 +68,8 @@ mod test {
     use std::path::PathBuf;
 
     use crate::{
-        CheckerError::*, Expression, Lexer, Parser, SymbolTable, TypeChecker, types::Type::*,
+        Expression, Lexer, Parser, SymbolTable, TypeChecker, TypeCheckerDiagnostic::*,
+        type_checker::ModuleCache, types::Type::*,
     };
 
     #[test]
@@ -120,14 +123,15 @@ mod test {
         for (i, (input, expected_result)) in tests.into_iter().enumerate() {
             let mut st = SymbolTable::default();
             let wd = PathBuf::from(".");
+            let mut mc = ModuleCache::default();
 
             let lexer = Lexer::new(input);
-            let mut parser = Parser::new(lexer, &mut st, wd.clone());
+            let mut parser = Parser::new(lexer, &mut st, wd);
             let map = parser
                 .parse_hashmap_literal()
                 .unwrap_or_else(|err| panic!("{err}"));
 
-            let mut tc = TypeChecker::with_symbol_table(&mut st, wd);
+            let mut tc = TypeChecker::with_symbol_table(&mut st, &mut mc);
             if let Expression::HashMap { items } = map {
                 let tc_result = tc.check_hashmap_literal(&items);
                 assert_eq!(

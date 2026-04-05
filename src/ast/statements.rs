@@ -22,7 +22,8 @@ pub fn resolve_file_module_path<P: AsRef<Path>>(
     working_directory_path: P,
     module_names: &[Identifier],
 ) -> io::Result<PathBuf> {
-    let relative_path = PathBuf::from(&module_names.join(path::MAIN_SEPARATOR_STR));
+    let relative_path =
+        PathBuf::from(&module_names.join(path::MAIN_SEPARATOR_STR)).canonicalize()?;
     let mut path = {
         let wd = working_directory_path.as_ref();
         wd.join(relative_path)

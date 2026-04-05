@@ -116,13 +116,19 @@ The `get` statements can be used to import file modules for `ralix`.
 The `get` statements first executes the module using it's content.
 
 ```ts
-get my_module.my_submodule; // `my_submodule` is a "module" from now on.
+get my_module/my_submodule; // `my_submodule` is a "module" from now on.
+```
+
+To access parent directories you can use TwoDots ("..") token
+
+```ts
+get mod/sub_mod/.. // This is equivalent to `get mod`
 ```
 
 Using braces lets you bind the values instantly.
 
 ```ts
-get utils.math { add, sub, mul, div }; // `add`, `sub`, `mul`, `div` are 
+get utils/math { add, sub, mul, div }; // `add`, `sub`, `mul`, `div` are 
                                        // automatically had bind to the scope
                                        // as well as with the `math` module
 ```

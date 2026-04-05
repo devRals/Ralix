@@ -190,10 +190,11 @@ impl Display for Statement {
             Self::Get {
                 path_names,
                 file_module_path: _,
+                module_name: _,
                 imported_items,
             } => format!(
                 "get {}{};",
-                path_names.join("."),
+                path_names.join("/"),
                 if imported_items.is_empty() {
                     String::new()
                 } else {
@@ -207,6 +208,7 @@ impl Display for Statement {
                     )
                 }
             ),
+            Self::Out(stmt) => format!("out {stmt}"),
         })
     }
 }

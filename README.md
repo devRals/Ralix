@@ -1,15 +1,10 @@
 # Ralix
 
-**Ralix** is a lightweight, low-level interpreter written in Rust. It combines
+**Ralix** is a lightweight, mid-level interpreter written in Rust. It combines
 the familiarity of C-like syntax with the flexibility of optional semicolons
 and high-level type-system features.
 
-> ~**Warning**: Ralix supports direct pointer manipulation and dereferencing.
-> Like the C languages that inspired it, these operations are **unsafe** and can
-> lead to undefined behavior if not handled with care.~
-> This feature is deprecated! Instead Ralix uses it's own heap model in the new version.
-
-## 🚀 Features
+## Features
 
 - **First-Class Types**: Types are treated as values, allowing for flexible
   type-level logic.
@@ -22,7 +17,7 @@ and high-level type-system features.
 - **Built-in REPL**: An interactive Read-Eval-Print Loop for testing
   snippets on the fly.
 
-## 🛠 Installation
+## Installation
 
 Ensure you have the [Rust toolchain](https://rustup.rs/) installed.
 
@@ -35,7 +30,7 @@ cargo install --path .
 
 Then you should be able have an access to the **Ralix Cli** in your terminal
 
-## ⌨️ Usage
+## Usage
 
 ### Interactive Mode (REPL)
 
@@ -46,7 +41,7 @@ ralix repl
 
 ```
 
-## 📖 Language Cheat-Sheet
+## Language Cheat-Sheet
 
 ### Math & Expressions
 
@@ -54,10 +49,10 @@ Ralix is flexible with how it parses math:
 
 ```c
 // Let binding definition
-let x = 10 + 5
+let x = 10 + 5;
 
 // C like definition
-int *y = &x  // 50
+int *y = &x;  // 50
 
 ```
 
@@ -66,17 +61,17 @@ int *y = &x  // 50
 Direct memory manipulation is possible:
 
 ```c
-int a = 42
-int* ptr = &a    // Reference
-let value = *ptr // Dereference
+int a = 42;
+int* ptr = &a;    // Reference
+let value = *ptr; // Dereference
 
 ```
 
 ### Types as Values
 
-```c
-let myType = int
-myType == typeof 1 + 1 // true
+```py
+type[int] myType = int;
+myType == typeof 1 + 1; // true
 ```
 
 ---
@@ -87,7 +82,8 @@ For more examples you can check you the [official Ralix website](https://devRals
 
 - [x] **Scope Expressions**: Blocks that return values.
 - [x] **Function Definitions**: Standard function declarations.
-- [ ] **Memory Safety**: Optional safe-wrappers for pointer operations.
+- [x] **Memory Safety**: Optional safe-wrappers for pointer operations.
+- [ ] File Modules: Accessing every ralix file modules from one.
 - [ ] **Standard Library**: Basic I/O and string manipulation.
 
 ## 🤝 Contributing

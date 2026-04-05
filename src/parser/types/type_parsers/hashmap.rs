@@ -6,7 +6,7 @@ impl Parser<'_> {
 
         let key = self.parse_type_definition()?;
         if !key.is_hashable() {
-            return Err(ParserDiagnostic::IsNotHashable(key));
+            return Err(ParserDiagnostic::IsNotHashable(key.into()));
         }
         self.expect_token(Token::Comma)?;
         let value = self.parse_type_definition()?;

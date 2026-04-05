@@ -1,4 +1,4 @@
-use crate::{CheckerError, CheckerResult, Expression, TypeChecker, types::Type};
+use crate::{CheckerResult, Expression, TypeChecker, TypeCheckerDiagnostic, types::Type};
 
 impl TypeChecker<'_> {
     pub fn check_return_statement(&mut self, expr: Option<&Expression>) -> CheckerResult<()> {
@@ -9,7 +9,7 @@ impl TypeChecker<'_> {
         let func_ty = self.current_fn_return_type();
 
         if !expr_ty.satisfies(func_ty) {
-            Err(CheckerError::Unsatisfied(expr_ty, func_ty.clone()))
+            Err(TypeCheckerDiagnostic::Unsatisfied(expr_ty, func_ty.clone()))
         } else {
             Ok(())
         }

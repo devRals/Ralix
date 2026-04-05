@@ -32,6 +32,7 @@ impl Addr {
     }
 }
 
+#[derive(Debug)]
 pub struct Heap {
     store: Vec<Object>,
 }

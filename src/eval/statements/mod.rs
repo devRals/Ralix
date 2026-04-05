@@ -2,6 +2,7 @@ use crate::{EvalResult, Evaluator, Expression, Object, Statement, try_eval_resul
 
 mod assignment;
 mod binding;
+mod import_export;
 
 impl Evaluator<'_> {
     pub fn evaluate_statement(&mut self, stmt: Statement) -> EvalResult<Object> {
@@ -23,17 +24,14 @@ impl Evaluator<'_> {
                 file_module_path,
                 imported_items,
                 path_names,
-            } => {
-                println!(
-                    "{}",
-                    Statement::Get {
-                        path_names,
-                        file_module_path,
-                        imported_items
-                    }
-                );
-                EvalResult::NoValue
-            }
+                module_name,
+            } => self.evaluate_import_statement(
+                file_module_path,
+                imported_items,
+                path_names,
+                module_name,
+            ),
+            Statement::Out(stmt) => self.evaluate_export_statement(*stmt),
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    CheckerError, CheckerResult, Expression, TypeChecker,
+    CheckerResult, Expression, TypeChecker, TypeCheckerDiagnostic,
     expressions::FunctionParameter,
     types::{FunctionParameterType, Type, TypeVarId},
 };
@@ -33,7 +33,10 @@ impl TypeChecker<'_> {
         if !body_ty.satisfies(return_type) {
             self.symbol_table.leave_scope();
             self.leave_function();
-            return Err(CheckerError::Unsatisfied(body_ty, return_type.clone()));
+            return Err(TypeCheckerDiagnostic::Unsatisfied(
+                body_ty,
+                return_type.clone(),
+            ));
         }
 
         self.symbol_table.leave_scope();
@@ -66,7 +69,7 @@ impl TypeChecker<'_> {
                 generics: _,
             } => {
                 if parameters.len() != argument_types.len() {
-                    return Err(CheckerError::MismatchedArgumentCount(
+                    return Err(TypeCheckerDiagnostic::MismatchedArgumentCount(
                         parameters.len(),
                         argument_types.len(),
                     ));
@@ -76,7 +79,7 @@ impl TypeChecker<'_> {
                     let param = self.unify_typevar(param.ty.clone(), arg.clone())?;
 
                     if !arg.satisfies(&param) {
-                        return Err(CheckerError::Unsatisfied(arg.clone(), param));
+                        return Err(TypeCheckerDiagnostic::Unsatisfied(arg.clone(), param));
                     }
                 }
 
@@ -84,7 +87,10 @@ impl TypeChecker<'_> {
             }
             Type::AsValue(ty) => {
                 if argument_types.len() != 1 {
-                    return Err(CheckerError::MismatchedArgumentCount(1, arguments.len()));
+                    return Err(TypeCheckerDiagnostic::MismatchedArgumentCount(
+                        1,
+                        arguments.len(),
+                    ));
                 }
                 let first_arg_ty = argument_types.first().unwrap();
 
@@ -101,12 +107,15 @@ impl TypeChecker<'_> {
                 );
 
                 if !is_available_for_cast {
-                    return Err(CheckerError::UnavailableForCast(*ty, first_arg_ty.clone()));
+                    return Err(TypeCheckerDiagnostic::UnavailableForCast(
+                        *ty,
+                        first_arg_ty.clone(),
+                    ));
                 }
 
                 Ok(*ty)
             }
-            t => Err(CheckerError::CannotBeCalled(t)),
+            t => Err(TypeCheckerDiagnostic::CannotBeCalled(t)),
         }
     }
 }
@@ -115,7 +124,9 @@ impl TypeChecker<'_> {
 mod test {
     use std::path::PathBuf;
 
-    use crate::{Lexer, Parser, Statement, SymbolTable, statements::Binding};
+    use crate::{
+        Lexer, Parser, Statement, SymbolTable, statements::Binding, type_checker::ModuleCache,
+    };
 
     impl TypeChecker<'_> {
         /// idx: 0 - Default - HashMap Key - Function
@@ -194,13 +205,14 @@ mod test {
         for (i, (input, expected_generic)) in tests.into_iter().enumerate() {
             let mut st = SymbolTable::default();
             let wd = PathBuf::from(".");
+            let mut mc = ModuleCache::default();
 
             let lexer = Lexer::new(input);
-            let mut parser = Parser::new(lexer, &mut st, wd.clone());
+            let mut parser = Parser::new(lexer, &mut st, wd);
             let p = parser
                 .parse_program()
                 .unwrap_or_else(|err| panic!("{i}. {err}"));
-            let mut tc = TypeChecker::with_symbol_table(&mut st, wd);
+            let mut tc = TypeChecker::with_symbol_table(&mut st, &mut mc);
 
             let (ident, type_annotation, value, is_constant) = match &p[0] {
                 Statement::Binding(Binding {

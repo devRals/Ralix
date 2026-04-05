@@ -1,4 +1,4 @@
-use crate::{CheckerError, CheckerResult, Expression, TypeChecker, types::Type};
+use crate::{CheckerResult, Expression, TypeChecker, TypeCheckerDiagnostic, types::Type};
 
 impl TypeChecker<'_> {
     pub fn check_array_literal(&mut self, items: &[Expression]) -> CheckerResult<Type> {
@@ -29,7 +29,9 @@ impl TypeChecker<'_> {
             }
 
             if !item_ty.satisfies(&ty) {
-                return Err(CheckerError::ArrayHasMultipleDifferentType(ty, item_ty));
+                return Err(TypeCheckerDiagnostic::ArrayHasMultipleDifferentType(
+                    ty, item_ty,
+                ));
             }
         }
 
@@ -46,7 +48,7 @@ mod test {
     use std::path::PathBuf;
 
     use super::*;
-    use crate::*;
+    use crate::{type_checker::ModuleCache, *};
     use Type::*;
     #[test]
     fn test_array_literal_infer() {
@@ -55,7 +57,9 @@ mod test {
             ("[2, null, 10]", Ok(Array(Nullable(Int.into()).into()))),
             (
                 "[2, \"string\", 10]",
-                Err(CheckerError::ArrayHasMultipleDifferentType(Int, String)),
+                Err(TypeCheckerDiagnostic::ArrayHasMultipleDifferentType(
+                    Int, String,
+                )),
             ),
             ("[]", Ok(Array(Unknown.into()))),
             ("[null, 'a']", Ok(Array(Nullable(Char.into()).into()))),
@@ -64,13 +68,14 @@ mod test {
         for (i, (input, expected_result)) in tests.into_iter().enumerate() {
             let mut st = SymbolTable::default();
             let wd = PathBuf::from(".");
+            let mut type_checker_module_cache = ModuleCache::default();
 
             let lexer = Lexer::new(input);
-            let mut parser = Parser::new(lexer, &mut st, wd.clone());
+            let mut parser = Parser::new(lexer, &mut st, wd);
             let arr = parser
                 .parse_array_literal()
                 .unwrap_or_else(|err| panic!("{err}"));
-            let mut tc = TypeChecker::with_symbol_table(&mut st, wd);
+            let mut tc = TypeChecker::with_symbol_table(&mut st, &mut type_checker_module_cache);
 
             if let Expression::Array { items } = arr {
                 let tc_result = tc.check_array_literal(&items);

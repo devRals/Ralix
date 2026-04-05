@@ -1,5 +1,5 @@
 use crate::{
-    CheckerError, CheckerResult, Expression, TypeChecker,
+    CheckerResult, Expression, TypeChecker, TypeCheckerDiagnostic,
     expressions::Identifier,
     types::{FunctionParameterType, Type},
 };
@@ -14,9 +14,9 @@ impl TypeChecker<'_> {
     ) -> CheckerResult<()> {
         if self.symbol_table.resolve_ref(ident).is_some() {
             if is_constant {
-                return Err(CheckerError::AlreadyDefinedConstant(ident.clone()));
+                return Err(TypeCheckerDiagnostic::AlreadyDefinedConstant(ident.clone()));
             } else {
-                return Err(CheckerError::AlreadyDefined(ident.clone()));
+                return Err(TypeCheckerDiagnostic::AlreadyDefined(ident.clone()));
             }
         }
 
@@ -55,7 +55,7 @@ impl TypeChecker<'_> {
                     .define(ident.clone(), ty_a.clone(), is_constant);
                 Ok(())
             } else {
-                Err(CheckerError::Unsatisfied(value_ty, ty_a.clone()))
+                Err(TypeCheckerDiagnostic::Unsatisfied(value_ty, ty_a.clone()))
             }
         } else {
             self.symbol_table

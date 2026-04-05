@@ -1,5 +1,5 @@
 use crate::{
-    CheckerError, CheckerResult, Expression, TypeChecker,
+    CheckerResult, Expression, TypeChecker, TypeCheckerDiagnostic,
     expressions::{Identifier, PrefixOperator},
     type_checker::statements::binding::infer_generics,
 };
@@ -11,7 +11,7 @@ impl TypeChecker<'_> {
         value: &Expression,
     ) -> CheckerResult<()> {
         if self.value_exists_and_is_a_constant(left) {
-            return Err(CheckerError::IsAConstant(Identifier::from(
+            return Err(TypeCheckerDiagnostic::IsAConstant(Identifier::from(
                 left.to_string(),
             )));
         }
@@ -27,7 +27,7 @@ impl TypeChecker<'_> {
         if value_ty.satisfies(&left_ty) {
             Ok(())
         } else {
-            Err(CheckerError::Unsatisfied(left_ty, value_ty))
+            Err(TypeCheckerDiagnostic::Unsatisfied(left_ty, value_ty))
         }
     }
 

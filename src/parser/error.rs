@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display, io};
 
-use crate::{Expression, Literal, Token, types::Type};
+use crate::{Expression, Literal, Statement, Token, types::Type};
 
 pub type ParserResult<N> = Result<N, ParserDiagnostic>;
 
@@ -15,9 +15,10 @@ pub enum ParserDiagnostic {
     FloatParse(Literal),
     UnknownInfixOp(Literal),
     UnknownPrefixOp(Literal),
-    CannotAssignTo(Expression),
-    CannotBindUsing(Type),
-    IsNotHashable(Type),
+    CannotAssignTo(Box<Expression>),
+    CannotBindUsing(Box<Type>),
+    CannotExport(Box<Statement>),
+    IsNotHashable(Box<Type>),
     FileModuleError(io::Error),
     UnacceptableConst,
 }
@@ -58,6 +59,9 @@ impl Display for ParserDiagnostic {
                 "`const` keyword can only be used in binding statements".to_string()
             }
             E::CannotBindUsing(ty) => format!("Type `{ty}` cannot be used in binding statements"),
+            E::CannotExport(stmt) => {
+                format!("Only functions, constant bindings, types and type aliases can be exported but got `{stmt}`")
+            }
             E::IsNotHashable(ty) => format!("Type `{ty}` cannot be hashed"),
             E::FileModuleError(fme) => fme.to_string(),
         })

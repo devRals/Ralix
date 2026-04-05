@@ -2,7 +2,7 @@ use crate::{CheckerResult, Statement, TypeChecker, types::Type};
 
 mod assignment;
 mod binding;
-mod get;
+mod get_import_export;
 mod r#return;
 
 impl TypeChecker<'_> {
@@ -21,14 +21,16 @@ impl TypeChecker<'_> {
                 self.check_assignment_statement(left, value).map(|_| None)
             }
             Statement::Return(expr) => self.check_return_statement(expr.as_ref()).map(|_| None),
+            Statement::Alias { .. } => Ok(None),
             Statement::Get {
                 file_module_path,
                 imported_items,
                 path_names: _,
+                module_name,
             } => self
-                .check_get_statement(file_module_path, imported_items)
+                .check_get_statement(file_module_path, imported_items, module_name.clone())
                 .map(|_| None),
-            Statement::Alias { .. } => Ok(None),
+            Statement::Out(stmt) => self.check_out_statement(stmt).map(|_| None),
         }
     }
 }

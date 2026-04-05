@@ -34,10 +34,13 @@ pub enum Statement {
     },
 
     Get {
+        module_name: Identifier,
         path_names: Vec<Identifier>,
         file_module_path: PathBuf,
         imported_items: Vec<ImportedItem>,
     },
+
+    Out(Box<Statement>),
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
