@@ -1,11 +1,11 @@
 use crate::{Addr, Environment, Heap, Object, expressions::Identifier};
 
-pub struct Context<'env> {
+pub struct RuntimeContext<'env> {
     pub(crate) environment: &'env mut Environment,
     pub(crate) heap: &'env mut Heap,
 }
 
-impl Context<'_> {
+impl RuntimeContext<'_> {
     pub fn define(&mut self, key: Identifier, value: Object) {
         let addr = self.heap.alloc(value);
         self.environment.define(key, addr);

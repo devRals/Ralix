@@ -71,7 +71,7 @@ mod test {
             let mut type_checker_module_cache = ModuleCache::default();
 
             let lexer = Lexer::new(input);
-            let mut parser = Parser::new(lexer, &mut st, wd);
+            let mut parser = Parser::new(lexer, &mut st, &wd);
             let arr = parser
                 .parse_array_literal()
                 .unwrap_or_else(|err| panic!("{err}"));

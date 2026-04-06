@@ -3,10 +3,8 @@ use std::path::Path;
 use crate::{
     CheckerResult, Statement, TypeChecker, TypeCheckerDiagnostic,
     expressions::{Identifier, ImportedItem},
+    type_checker::ModuleState,
 };
-
-// FIX: even though TypeChecker has a module cache it still causes stack overflow
-// when two modules import each other
 
 impl TypeChecker<'_> {
     pub fn check_get_statement(
@@ -16,12 +14,21 @@ impl TypeChecker<'_> {
         module_name: Identifier,
     ) -> CheckerResult<()> {
         let module = match self.module_cache.get(&module_path.to_path_buf()) {
-            Some(cached) => cached,
+            Some(cached_module) => match cached_module {
+                ModuleState::Loading => {
+                    return Err(TypeCheckerDiagnostic::CircularModuleImportDetected(vec![]));
+                }
+                ModuleState::Checked(m) => m,
+            },
             None => {
                 let module = self.parse_using_module_cache(module_path, module_name.clone())?;
                 // it's O(1) so uhh... Gosh i feel like an idiot. Maybe cuz i am?
-                self.module_cache.insert(module_path.to_path_buf(), module);
-                self.module_cache.get(module_path).expect("Design error")
+                self.module_cache
+                    .insert(module_path.to_path_buf(), ModuleState::Checked(module));
+                match self.module_cache.get(module_path).expect("Design error") {
+                    ModuleState::Checked(m) => m,
+                    _ => unreachable!(),
+                }
             }
         };
 
@@ -67,6 +74,8 @@ impl TypeChecker<'_> {
             Statement::Alias { ident, ty } => (ident.clone(), ty.clone()),
             stmt => return Err(TypeCheckerDiagnostic::CannotExport(Box::new(stmt.clone()))),
         };
+
+        self.check_statement(stmt)?;
 
         self.self_module.exports.insert(name, ty);
         Ok(())

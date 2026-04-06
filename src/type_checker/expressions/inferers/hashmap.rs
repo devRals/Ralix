@@ -126,7 +126,7 @@ mod test {
             let mut mc = ModuleCache::default();
 
             let lexer = Lexer::new(input);
-            let mut parser = Parser::new(lexer, &mut st, wd);
+            let mut parser = Parser::new(lexer, &mut st, &wd);
             let map = parser
                 .parse_hashmap_literal()
                 .unwrap_or_else(|err| panic!("{err}"));

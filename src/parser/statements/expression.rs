@@ -15,7 +15,7 @@ impl Parser<'_> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
 
     use crate::{Expression, Lexer, Literal, Parser, Statement, SymbolTable};
 
@@ -37,7 +37,8 @@ mod tests {
         for (test, expected) in tests.into_iter().zip(expected) {
             let lexer = Lexer::new(test);
             let mut symbol_table = SymbolTable::default();
-            let mut parser = Parser::new(lexer, &mut symbol_table, PathBuf::from("."));
+            let wd = Path::new(".");
+            let mut parser = Parser::new(lexer, &mut symbol_table, wd);
 
             let result = parser
                 .parse_expression_statement()

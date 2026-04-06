@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::{Lexer, Program, SymbolTable, Token};
 
@@ -16,14 +16,14 @@ pub struct Parser<'src> {
     lexer: Lexer<'src>,
 
     symbol_table: &'src mut SymbolTable,
-    working_directory: PathBuf,
+    working_directory: &'src Path,
 }
 
 impl<'src> Parser<'src> {
     pub fn new(
         lexer: Lexer<'src>,
         symbol_table: &'src mut SymbolTable,
-        working_directory: PathBuf,
+        working_directory: &'src Path,
     ) -> Self {
         let mut parser = Parser {
             lexer,

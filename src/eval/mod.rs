@@ -58,11 +58,11 @@ impl Object {
 }
 
 pub struct Evaluator<'ctx> {
-    ctx: Context<'ctx>,
+    ctx: RuntimeContext<'ctx>,
 }
 
 impl<'ctx> Evaluator<'ctx> {
-    pub const fn new(ctx: Context<'ctx>) -> Self {
+    pub const fn new(ctx: RuntimeContext<'ctx>) -> Self {
         Evaluator { ctx }
     }
 }

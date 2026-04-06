@@ -108,7 +108,7 @@ mod tests {
             let wd = PathBuf::from(".");
             let mut mc = ModuleCache::default();
 
-            let mut parser = Parser::new(lexer, &mut st, wd);
+            let mut parser = Parser::new(lexer, &mut st, &wd);
             let if_expr = parser
                 .parse_if_expression()
                 .unwrap_or_else(|err| panic!("{err}"));

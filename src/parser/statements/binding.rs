@@ -85,7 +85,7 @@ impl Parser<'_> {
 
 #[cfg(test)]
 mod test {
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
 
     use crate::{
         Expression, Lexer, Literal, Parser, Statement, SymbolTable, statements::Binding,
@@ -107,7 +107,7 @@ mod test {
         for (src, expected) in tests {
             let mut symbol_table = SymbolTable::default();
             let lexer = Lexer::new(src);
-            let mut parser = Parser::new(lexer, &mut symbol_table, PathBuf::from("."));
+            let mut parser = Parser::new(lexer, &mut symbol_table, Path::new("."));
             let stmt = parser
                 .parse_binding_statement()
                 .unwrap_or_else(|err| panic!("{err}"));

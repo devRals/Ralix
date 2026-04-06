@@ -1,3 +1,3 @@
 get package;
 
-const fn blabla(int num) -> int: num + 2;
+out const fn blabla(int num) -> int: num + 2;

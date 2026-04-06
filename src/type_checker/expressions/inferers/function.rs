@@ -208,7 +208,7 @@ mod test {
             let mut mc = ModuleCache::default();
 
             let lexer = Lexer::new(input);
-            let mut parser = Parser::new(lexer, &mut st, wd);
+            let mut parser = Parser::new(lexer, &mut st, &wd);
             let p = parser
                 .parse_program()
                 .unwrap_or_else(|err| panic!("{i}. {err}"));

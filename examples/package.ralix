@@ -1,3 +1,5 @@
 // I'm a directory index file module. And i'm exporting this silly values :3
 
+get submodules;
+
 out const arr[str] CAT_SOUNDS = ["meow", "mrrow", "mrrp", "nyaa", "RAAAAAAHH!"]

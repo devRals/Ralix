@@ -1,15 +1,14 @@
 use std::{
     io::{BufRead, BufReader, Result, Write, stderr, stdin, stdout},
-    path::PathBuf,
+    path::Path,
 };
 
 use color_eyre::owo_colors::OwoColorize;
 
-use crate::{
-    Environment, EvalResult, Evaluator, Heap, Object, SymbolTable, parse_with_symbol_table,
-    repl::render::{CONTINUATION_PROMPT, PROMPT},
-    type_checker,
-};
+use crate::{EvalResult, Heap, Interpreter, Object};
+
+const CONTINUATION_PROMPT: &str = "...";
+const PROMPT: &str = ">>>";
 
 enum ReplResult {
     Success,
@@ -43,11 +42,7 @@ impl Repl {
     pub fn run(&mut self) -> Result<()> {
         let mut reader = BufReader::new(stdin());
         let mut out = stdout();
-
-        let mut env = Environment::default();
-        let mut heap = Heap::new();
-        let mut st = SymbolTable::default();
-        let mut tc_module_cache = type_checker::ModuleCache::new();
+        let mut interpreter = Interpreter::new(Path::new("."))?;
 
         let user = env!("USER").cyan();
         let bin_name = env!("CARGO_PKG_NAME").magenta();
@@ -72,22 +67,22 @@ impl Repl {
 
             match self.buf.as_str() {
                 "st" => {
-                    writeln!(out, "{st:#?}\n")?;
+                    writeln!(out, "{:#?}\n", interpreter.symbol_table)?;
                     self.buf.clear();
                     continue;
                 }
                 "heap" => {
-                    writeln!(out, "{heap:#?}\n")?;
+                    writeln!(out, "{:#?}\n", interpreter.eval_ctx.heap)?;
                     self.buf.clear();
                     continue;
                 }
                 "tc_cache" => {
-                    writeln!(out, "{tc_module_cache:#?}\n")?;
+                    writeln!(out, "{:#?}\n", interpreter.tc_ctx.module_cache)?;
                     self.buf.clear();
                     continue;
                 }
                 "env" => {
-                    writeln!(out, "{env:#?}\n")?;
+                    writeln!(out, "{:#?}\n", interpreter.eval_ctx.env)?;
                     self.buf.clear();
                     continue;
                 }
@@ -113,12 +108,7 @@ Available Keywords are:
                 self.force_correct_input(&mut reader, &mut out)?;
             }
 
-            let program = match parse_with_symbol_table(
-                &self.buf,
-                &mut st,
-                PathBuf::from("."),
-                &mut tc_module_cache,
-            ) {
+            let program = match interpreter.parse(&self.buf) {
                 Ok(p) => p,
                 Err(err) => {
                     self.write_errors_and_clear(err)?;
@@ -126,12 +116,17 @@ Available Keywords are:
                 }
             };
 
-            let mut evaluator = Evaluator::new(crate::Context {
-                environment: &mut env,
-                heap: &mut heap,
-            });
-            let value = evaluator.evaluate_program(program);
-            writeln!(out, "{}\n", self.colorize_eval_result(&value, &heap)?)?;
+            if let Err(check_err) = interpreter.check(&program) {
+                self.write_errors_and_clear(check_err)?;
+                continue;
+            }
+
+            let value = interpreter.execute(program);
+            writeln!(
+                out,
+                "{}\n",
+                self.colorize_eval_result(&value, &interpreter.eval_ctx.heap)?
+            )?;
             self.buf.clear();
         }
     }

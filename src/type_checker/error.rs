@@ -36,6 +36,7 @@ pub enum TypeCheckerDiagnostic {
     ModuleParseError(ProgramParseError),
     ModuleTypeCheckError(ProgramCheckError),
     UnknownImport(Identifier, Vec<Identifier>),
+    CircularModuleImportDetected(Vec<Identifier>),
     CannotUseTryInBinding,
     InfiniteType,
 }
@@ -100,6 +101,7 @@ impl Display for TypeCheckerDiagnostic {
             E::ModuleParseError(e) => e.to_string(),
             E::ModuleTypeCheckError(e) => e.to_string(),
             E::UnknownImport(mod_name, import_names,) => format!("Module `{mod_name}` has no exports named `{}`", import_names.join(", ")),
+            E::CircularModuleImportDetected(m_trace) => format!("A module re-imports itself in another module which is unsupported. {}", m_trace.join(" -> ")),
             E::CannotExport(stmt) => {
                 format!("Only functions, constant bindings, types and type aliases can be exported but got `{stmt}`")
             }

@@ -1,11 +1,11 @@
 mod error;
 mod expressions;
-mod module_cache;
+pub mod module_cache;
 mod statements;
-use std::collections::HashMap;
 
 pub use error::*;
 pub use module_cache::*;
+use std::collections::HashMap;
 
 use crate::{
     Program, SymbolTable,
@@ -18,7 +18,7 @@ struct FunctionContext {
 
 pub struct TypeChecker<'st> {
     symbol_table: &'st mut SymbolTable,
-    fn_stack: Vec<FunctionContext>,
+    fn_trace: Vec<FunctionContext>,
     typevar_bindings: HashMap<TypeVarId, Type>,
     module_cache: &'st mut ModuleCache,
     self_module: Module,
@@ -32,7 +32,7 @@ impl<'st> TypeChecker<'st> {
         TypeChecker {
             symbol_table,
             module_cache,
-            fn_stack: Vec::new(),
+            fn_trace: Vec::new(),
             typevar_bindings: HashMap::new(),
             self_module: Module::default(),
         }
@@ -58,17 +58,17 @@ impl TypeChecker<'_> {
     }
 
     pub fn enter_function(&mut self, fn_return_ty: Type) {
-        self.fn_stack.push(FunctionContext {
+        self.fn_trace.push(FunctionContext {
             return_type: fn_return_ty,
         });
     }
 
     pub fn leave_function(&mut self) {
-        self.fn_stack.pop();
+        self.fn_trace.pop();
     }
 
     pub fn current_fn_return_type(&self) -> &Type {
-        self.fn_stack
+        self.fn_trace
             .last()
             .map(|stack| &stack.return_type)
             .unwrap_or(&Type::Void)

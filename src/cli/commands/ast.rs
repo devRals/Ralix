@@ -5,7 +5,7 @@ use std::{
     path::PathBuf,
 };
 
-use crate::parse;
+use crate::Interpreter;
 
 #[derive(Args, Debug)]
 pub struct AstArguments {
@@ -18,9 +18,11 @@ pub struct AstArguments {
 }
 
 pub fn run(args: AstArguments) -> io::Result<()> {
+    let working_directory = args.source_file.clone().parent().unwrap().to_path_buf();
+    let mut interpreter = Interpreter::new(working_directory)?;
     let source = fs::read_to_string(args.source_file)?;
 
-    let parse_result = parse(&source, PathBuf::from("."));
+    let parse_result = interpreter.parse(&source);
     let program_ast = match parse_result {
         Ok(p) => p,
         Err(err) => {
