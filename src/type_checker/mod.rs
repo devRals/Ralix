@@ -9,6 +9,7 @@ use std::collections::HashMap;
 
 use crate::{
     Program, SymbolTable,
+    expressions::Identifier,
     types::{Type, TypeVarId},
 };
 
@@ -16,22 +17,28 @@ struct FunctionContext {
     return_type: Type,
 }
 
-pub struct TypeChecker<'st> {
-    symbol_table: &'st mut SymbolTable,
+/// Holds module names
+type ModuleTrace = Vec<Identifier>;
+
+pub struct TypeChecker<'a> {
+    symbol_table: &'a mut SymbolTable,
+    module_cache: &'a mut ModuleCache,
+    module_trace: &'a mut ModuleTrace,
     fn_trace: Vec<FunctionContext>,
     typevar_bindings: HashMap<TypeVarId, Type>,
-    module_cache: &'st mut ModuleCache,
     self_module: Module,
 }
 
-impl<'st> TypeChecker<'st> {
-    pub fn with_symbol_table(
-        symbol_table: &'st mut SymbolTable,
-        module_cache: &'st mut ModuleCache,
+impl<'a> TypeChecker<'a> {
+    pub fn new(
+        symbol_table: &'a mut SymbolTable,
+        module_cache: &'a mut ModuleCache,
+        module_trace: &'a mut ModuleTrace,
     ) -> Self {
         TypeChecker {
             symbol_table,
             module_cache,
+            module_trace,
             fn_trace: Vec::new(),
             typevar_bindings: HashMap::new(),
             self_module: Module::default(),

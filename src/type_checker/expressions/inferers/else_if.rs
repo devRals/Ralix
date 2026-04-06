@@ -107,12 +107,13 @@ mod tests {
             let lexer = Lexer::new(input);
             let wd = PathBuf::from(".");
             let mut mc = ModuleCache::default();
+            let mut module_trace = Vec::new();
 
             let mut parser = Parser::new(lexer, &mut st, &wd);
             let if_expr = parser
                 .parse_if_expression()
                 .unwrap_or_else(|err| panic!("{err}"));
-            let mut tc = TypeChecker::with_symbol_table(&mut st, &mut mc);
+            let mut tc = TypeChecker::new(&mut st, &mut mc, &mut module_trace);
 
             if let Expression::IfElse {
                 consequences,

@@ -72,8 +72,11 @@ impl Interpreter {
     }
 
     pub fn check(&mut self, program: &Program) -> Result<(), ProgramCheckError> {
-        let mut type_checker =
-            TypeChecker::with_symbol_table(&mut self.symbol_table, &mut self.tc_ctx.module_cache);
+        let mut type_checker = TypeChecker::new(
+            &mut self.symbol_table,
+            &mut self.tc_ctx.module_cache,
+            &mut self.tc_ctx.module_trace,
+        );
         type_checker.check_program(program)
     }
 

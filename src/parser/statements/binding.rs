@@ -85,7 +85,7 @@ impl Parser<'_> {
 
 #[cfg(test)]
 mod test {
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
 
     use crate::{
         Expression, Lexer, Literal, Parser, Statement, SymbolTable, statements::Binding,

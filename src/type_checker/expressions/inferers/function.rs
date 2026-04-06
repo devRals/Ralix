@@ -206,13 +206,14 @@ mod test {
             let mut st = SymbolTable::default();
             let wd = PathBuf::from(".");
             let mut mc = ModuleCache::default();
+            let mut module_trace = Vec::new();
 
             let lexer = Lexer::new(input);
             let mut parser = Parser::new(lexer, &mut st, &wd);
             let p = parser
                 .parse_program()
                 .unwrap_or_else(|err| panic!("{i}. {err}"));
-            let mut tc = TypeChecker::with_symbol_table(&mut st, &mut mc);
+            let mut tc = TypeChecker::new(&mut st, &mut mc, &mut module_trace);
 
             let (ident, type_annotation, value, is_constant) = match &p[0] {
                 Statement::Binding(Binding {

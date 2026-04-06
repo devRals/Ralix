@@ -69,13 +69,15 @@ mod test {
             let mut st = SymbolTable::default();
             let wd = PathBuf::from(".");
             let mut type_checker_module_cache = ModuleCache::default();
+            let mut module_trace = Vec::new();
 
             let lexer = Lexer::new(input);
             let mut parser = Parser::new(lexer, &mut st, &wd);
             let arr = parser
                 .parse_array_literal()
                 .unwrap_or_else(|err| panic!("{err}"));
-            let mut tc = TypeChecker::with_symbol_table(&mut st, &mut type_checker_module_cache);
+            let mut tc =
+                TypeChecker::new(&mut st, &mut type_checker_module_cache, &mut module_trace);
 
             if let Expression::Array { items } = arr {
                 let tc_result = tc.check_array_literal(&items);

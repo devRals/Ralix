@@ -15,8 +15,10 @@ impl TypeChecker<'_> {
     ) -> CheckerResult<()> {
         let module = match self.module_cache.get(&module_path.to_path_buf()) {
             Some(cached_module) => match cached_module {
-                ModuleState::Loading => {
-                    return Err(TypeCheckerDiagnostic::CircularModuleImportDetected(vec![]));
+                ModuleState::Loading(module_trace) => {
+                    return Err(TypeCheckerDiagnostic::CircularModuleImportDetected(
+                        module_trace.clone(),
+                    ));
                 }
                 ModuleState::Checked(m) => m,
             },

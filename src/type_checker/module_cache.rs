@@ -6,12 +6,12 @@ use std::{
 
 use crate::{
     CheckerResult, Lexer, Parser, SymbolTable, TypeChecker, TypeCheckerDiagnostic,
-    expressions::Identifier, types::Type,
+    expressions::Identifier, type_checker::ModuleTrace, types::Type,
 };
 
 #[derive(Debug)]
 pub enum ModuleState {
-    Loading,
+    Loading(ModuleTrace),
     Checked(Module),
 }
 
@@ -40,8 +40,11 @@ impl TypeChecker<'_> {
         let working_directory = module_path.parent().unwrap().to_path_buf();
         let mut st = SymbolTable::default();
 
-        self.module_cache
-            .insert(module_path.to_path_buf(), ModuleState::Loading);
+        self.module_trace.push(module_name.clone());
+        self.module_cache.insert(
+            module_path.to_path_buf(),
+            ModuleState::Loading(self.module_trace.clone()),
+        );
 
         let mut parser = Parser::new(Lexer::new(&module_source), &mut st, &working_directory);
         let program = match parser.parse_program() {
@@ -49,8 +52,8 @@ impl TypeChecker<'_> {
             Err(parse_err) => return Err(TypeCheckerDiagnostic::ModuleParseError(parse_err)),
         };
 
-        let mut type_checker = TypeChecker::with_symbol_table(&mut st, self.module_cache);
-        type_checker.self_module.name = module_name.clone();
+        let mut type_checker = TypeChecker::new(&mut st, self.module_cache, self.module_trace);
+        type_checker.self_module.name = module_name;
         if let Err(check_err) = type_checker.check_program(&program) {
             return Err(TypeCheckerDiagnostic::ModuleTypeCheckError(check_err));
         }

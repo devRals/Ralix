@@ -124,6 +124,7 @@ mod test {
             let mut st = SymbolTable::default();
             let wd = PathBuf::from(".");
             let mut mc = ModuleCache::default();
+            let mut mt = Vec::new();
 
             let lexer = Lexer::new(input);
             let mut parser = Parser::new(lexer, &mut st, &wd);
@@ -131,7 +132,7 @@ mod test {
                 .parse_hashmap_literal()
                 .unwrap_or_else(|err| panic!("{err}"));
 
-            let mut tc = TypeChecker::with_symbol_table(&mut st, &mut mc);
+            let mut tc = TypeChecker::new(&mut st, &mut mc, &mut mt);
             if let Expression::HashMap { items } = map {
                 let tc_result = tc.check_hashmap_literal(&items);
                 assert_eq!(
