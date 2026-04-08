@@ -18,7 +18,8 @@ impl Parser<'_> {
             Token::Const => self.parse_constant_statements(),
             Token::Function => self.parse_function_statement(),
             Token::Return => self.parse_return_statement(),
-            Token::TyInt
+            Token::Let
+            | Token::TyInt
             | Token::TyFloat
             | Token::TyString
             | Token::TyChar

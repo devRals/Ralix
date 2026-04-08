@@ -6,22 +6,21 @@ use std::{
 
 use crate::{
     CheckerResult, Lexer, Parser, SymbolTable, TypeChecker, TypeCheckerDiagnostic,
-    expressions::Identifier, type_checker::ModuleTrace, types::Type,
+    expressions::Identifier, types::Type,
 };
 
 #[derive(Debug)]
 pub enum ModuleState {
-    Loading(ModuleTrace),
+    Loading(Identifier),
     Checked(Module),
 }
 
 pub type ModuleCache = HashMap<PathBuf, ModuleState>;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct Module {
     pub name: Identifier,
     pub exports: HashMap<Identifier, Type>,
-    pub trace: Vec<Identifier>,
 }
 
 impl TypeChecker<'_> {
@@ -43,7 +42,7 @@ impl TypeChecker<'_> {
         self.module_trace.push(module_name.clone());
         self.module_cache.insert(
             module_path.to_path_buf(),
-            ModuleState::Loading(self.module_trace.clone()),
+            ModuleState::Loading(module_name.clone()),
         );
 
         let mut parser = Parser::new(Lexer::new(&module_source), &mut st, &working_directory);

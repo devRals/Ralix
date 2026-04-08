@@ -14,20 +14,27 @@ impl TypeChecker<'_> {
         module_name: Identifier,
     ) -> CheckerResult<()> {
         let module = match self.module_cache.get(&module_path.to_path_buf()) {
-            Some(cached_module) => match cached_module {
-                ModuleState::Loading(module_trace) => {
+            Some(module_state) => match module_state {
+                ModuleState::Loading(loading_module_name) => {
                     return Err(TypeCheckerDiagnostic::CircularModuleImportDetected(
-                        module_trace.clone(),
+                        loading_module_name.clone(),
+                        {
+                            let mut trace = self.module_trace.clone();
+                            trace.push(loading_module_name.clone());
+                            trace
+                        },
                     ));
                 }
-                ModuleState::Checked(m) => m,
+                ModuleState::Checked(cached_module) => cached_module,
             },
             None => {
                 let module = self.parse_using_module_cache(module_path, module_name.clone())?;
-                // it's O(1) so uhh... Gosh i feel like an idiot. Maybe cuz i am?
                 self.module_cache
                     .insert(module_path.to_path_buf(), ModuleState::Checked(module));
-                match self.module_cache.get(module_path).expect("Design error") {
+                self.module_trace.pop();
+                match self.module_cache.get(module_path).expect(
+                    "reached unreachable code. This means devRals is fucking suck at coding",
+                ) {
                     ModuleState::Checked(m) => m,
                     _ => unreachable!(),
                 }

@@ -21,7 +21,7 @@ pub struct Binding {
 pub fn resolve_file_module_path<P: AsRef<Path>>(
     working_directory_path: P,
     module_names: &[Identifier],
-) -> io::Result<PathBuf> {
+) -> io::Result<(Identifier, PathBuf)> {
     let relative_path = PathBuf::from(&module_names.join(path::MAIN_SEPARATOR_STR));
     let mut path = {
         let wd = working_directory_path.as_ref();
@@ -50,13 +50,22 @@ pub fn resolve_file_module_path<P: AsRef<Path>>(
     }
 
     if found {
-        Ok(path.canonicalize()?)
+        let canonicalized = path.canonicalize()?;
+        let mut module_name: Identifier =
+            canonicalized.file_stem().unwrap().to_string_lossy().into();
+        let mut module_path = canonicalized.clone();
+        while module_name == DIRECTORY_INDEX_MODULE_NAME.into() {
+            module_path = module_path.parent().unwrap().to_path_buf();
+            module_name = module_path.file_stem().unwrap().to_string_lossy().into();
+        }
+
+        Ok((module_name, canonicalized))
     } else {
         Err(io::Error::new(
             io::ErrorKind::InvalidFilename,
             format!(
                 "{} is an invalid path. Valid module extensions are {}",
-                path.to_string_lossy(),
+                path.canonicalize()?.to_string_lossy(),
                 RALIX_VALID_EXTENSIONS.join(", ")
             ),
         ))

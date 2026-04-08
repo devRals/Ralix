@@ -114,6 +114,7 @@ nums[2] = 5.8;
 
 The `get` statements can be used to import file modules for `ralix`.
 The `get` statements first executes the module using it's content.
+Also all modules cannot be executed twice.
 
 ```ts
 get my_module/my_submodule; // `my_submodule` is a "module" from now on.

@@ -1,14 +1,16 @@
 use std::{fmt::Display, rc::Rc};
 
-use crate::{Object, Program};
+use crate::{Program, Value};
 
 mod context;
 mod error;
 mod expressions;
+mod module_cache;
 mod statements;
 
 pub use context::*;
 pub use error::*;
+pub use module_cache::*;
 
 #[macro_export]
 macro_rules! try_eval_result {
@@ -22,14 +24,14 @@ macro_rules! try_eval_result {
     }};
 }
 
-impl From<Object> for EvalResult<Object> {
-    fn from(val: Object) -> Self {
+impl From<Value> for EvalResult<Value> {
+    fn from(val: Value) -> Self {
         EvalResult::Value(val)
     }
 }
 
-impl From<Option<Object>> for EvalResult<Object> {
-    fn from(value: Option<Object>) -> Self {
+impl From<Option<Value>> for EvalResult<Value> {
+    fn from(value: Option<Value>) -> Self {
         match value {
             Some(val) => Self::Value(val),
             None => Self::NoValue,
@@ -37,20 +39,20 @@ impl From<Option<Object>> for EvalResult<Object> {
     }
 }
 
-impl Object {
-    pub fn copy_bits(&self) -> Option<Object> {
+impl Value {
+    pub fn copy_bits(&self) -> Option<Value> {
         match self {
-            Object::Int(v) => Object::from(*v),
-            Object::Char(v) => Object::from(*v),
-            Object::Float(v) => Object::from(*v),
-            Object::Boolean(v) => Object::from(*v),
-            Object::Type(v) => Object::Type(v.clone()),
-            Object::String(v) => Object::String(
+            Value::Int(v) => Value::from(*v),
+            Value::Char(v) => Value::from(*v),
+            Value::Float(v) => Value::from(*v),
+            Value::Boolean(v) => Value::from(*v),
+            Value::Type(v) => Value::Type(v.clone()),
+            Value::String(v) => Value::String(
                 Rc::clone(v), /* Only copies the pointer that points the orijinal string value */
             ),
-            Object::Address(addr) => Object::Address(addr.clone()),
-            Object::Null => Object::NULL,
-            Object::Function(func) => Object::Function(func.clone()),
+            Value::Pointer(addr) => Value::Pointer(*addr),
+            Value::Null => Value::NULL,
+            Value::Function(func) => Value::Function(func.clone()),
             _ => return None,
         }
         .into()
@@ -68,7 +70,7 @@ impl<'ctx> Evaluator<'ctx> {
 }
 
 impl Evaluator<'_> {
-    pub fn evaluate_program(&mut self, program: Program) -> EvalResult<Object> {
+    pub fn evaluate_program(&mut self, program: Program) -> EvalResult<Value> {
         let mut result = EvalResult::NoValue;
 
         for s in program.statements {

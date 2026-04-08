@@ -1,5 +1,4 @@
 use crate::{Parser, ParserResult, Statement, Token, types::Type};
-
 impl Parser<'_> {
     pub fn parse_type_alias_statement(&mut self) -> ParserResult<Statement> {
         self.expect_ident()?;

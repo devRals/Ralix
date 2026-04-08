@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::{
-    Addr, EvalResult, Evaluator, Expression, HashKey, HashPair, Object,
-    expressions::PrefixOperator, try_eval_result,
+    Addr, EvalResult, Evaluator, Expression, HashKey, HashPair, Value, expressions::PrefixOperator,
+    try_eval_result,
 };
 
 impl Evaluator<'_> {
@@ -10,7 +10,7 @@ impl Evaluator<'_> {
         &mut self,
         left: Expression,
         value: Expression,
-    ) -> EvalResult<Object> {
+    ) -> EvalResult<Value> {
         let value_obj = try_eval_result!(self.evaluate_expression(value));
         let left_addr = self.addr_of(left);
 
@@ -25,7 +25,7 @@ impl Evaluator<'_> {
 
     pub fn addr_of(&mut self, expr: Expression) -> Option<Addr> {
         match expr {
-            Expression::Identifier(ident) => self.ctx.get_addr_cloned(&ident),
+            Expression::Identifier(ident) => self.ctx.get_addr(&ident),
             Expression::Index { left, index } => self.index_addr_of(*left, *index),
             Expression::Prefix {
                 operator: PrefixOperator::Deref,
@@ -49,8 +49,8 @@ impl Evaluator<'_> {
         let left = left_addr.read_from(self.ctx.heap)?;
 
         match (left, index_obj) {
-            (Object::HashMap(hm), index) => self.hashmap_addr_of(hm, index),
-            (Object::Array(arr), Object::Int(i)) => self.eval_array_index_lhs(arr, i as usize),
+            (Value::HashMap(hm), index) => self.hashmap_addr_of(hm, index),
+            (Value::Array(arr), Value::Int(i)) => self.eval_array_index_lhs(arr, i as usize),
             _ => None,
         }
     }
@@ -60,13 +60,13 @@ impl Evaluator<'_> {
         let right_lhs = self.ctx.heap.read(&right_lhs_addr)?;
 
         match right_lhs {
-            Object::Address(addr) => Some(addr.clone()),
+            Value::Pointer(addr) => Some(*addr),
             _ => None,
         }
     }
 
     // BUG: This operation doesn't insert any value to the hash_map
-    fn hashmap_addr_of(&self, hm: &HashMap<HashKey, HashPair>, index: Object) -> Option<Addr> {
+    fn hashmap_addr_of(&self, hm: &HashMap<HashKey, HashPair>, index: Value) -> Option<Addr> {
         let hash_key = index.hash_key()?;
 
         hm.get(&hash_key).map(|(_, v)| v).cloned()

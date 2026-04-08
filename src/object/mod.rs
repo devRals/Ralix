@@ -10,25 +10,28 @@ use crate::{
     expressions::FunctionParameter,
     types::{FunctionParameterType, Type, TypeVarId},
 };
+
 mod environment;
 mod heap;
+pub mod module;
 
 pub use environment::*;
 pub use heap::*;
+pub use module::*;
 
 pub type HashKey = u64;
 
 pub type HashPair = (Addr, Addr);
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Object {
+pub enum Value {
     Int(i64),
     Char(char),
     String(Rc<String>),
     Float(f64),
     Boolean(bool),
     Type(Type),
-    Address(Addr),
+    Pointer(Addr),
     Array(Vec<Addr>),
     HashMap(HashMap<HashKey, HashPair>),
     Null,
@@ -44,13 +47,13 @@ macro_rules! hash {
     }};
 }
 
-impl Object {
-    pub const TRUE: Self = Object::Boolean(true);
-    pub const FALSE: Self = Object::Boolean(false);
-    pub const NULL: Self = Object::Null;
+impl Value {
+    pub const TRUE: Self = Value::Boolean(true);
+    pub const FALSE: Self = Value::Boolean(false);
+    pub const NULL: Self = Value::Null;
 
     pub fn r#type(&self, heap: &Heap) -> Type {
-        use Object as O;
+        use Value as O;
         match self {
             O::Boolean(_) => Type::Bool,
             O::Char(_) => Type::Char,
@@ -68,7 +71,7 @@ impl Object {
                     .unwrap_or(Type::Unknown)
                     .into(),
             ),
-            Object::HashMap(hm) => {
+            Value::HashMap(hm) => {
                 let (k, v) = hm
                     .values()
                     .next()
@@ -92,7 +95,7 @@ impl Object {
                 }
             }
             O::Type(t) => Type::AsValue(t.clone().into()),
-            O::Address(t) => match t.read_from(heap) {
+            O::Pointer(t) => match t.read_from(heap) {
                 Some(o) => o.r#type(heap),
                 None => Type::Unknown,
             },
@@ -113,10 +116,10 @@ impl Object {
 
     pub fn hash_key(&self) -> Option<HashKey> {
         Some(match self {
-            Object::Boolean(v) => hash!(v),
-            Object::Int(v) => hash!(v),
-            Object::String(v) => hash!(v),
-            Object::Char(v) => hash!(v),
+            Value::Boolean(v) => hash!(v),
+            Value::Int(v) => hash!(v),
+            Value::String(v) => hash!(v),
+            Value::Char(v) => hash!(v),
             _ => return None,
         })
     }
@@ -138,11 +141,11 @@ impl Object {
     }
 
     pub fn is_true(&self) -> bool {
-        Object::TRUE == *self
+        Value::TRUE == *self
     }
 
     pub fn is_null(&self) -> bool {
-        matches!(self, Object::Null)
+        matches!(self, Value::Null)
     }
 }
 
@@ -195,9 +198,9 @@ impl Display for Function {
     }
 }
 
-impl Display for Object {
+impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use Object as O;
+        use Value as O;
 
         f.write_str(&match self {
             O::Boolean(val) => val.to_string(),
@@ -207,7 +210,7 @@ impl Display for Object {
             O::String(val) => val.to_string(),
             O::Null => "null".to_string(),
             O::Type(ty) => ty.to_string(),
-            O::Address(addr) => format!("<{addr:?}>"),
+            O::Pointer(addr) => format!("<{addr:?}>"),
             O::Function(func) => func.to_string(),
             O::Array(items) => format!(
                 "[{}]",
@@ -229,9 +232,9 @@ impl Display for Object {
 
 macro_rules! impl_from {
     ( $ty: ty, $wrapper: ident ) => {
-        impl From<$ty> for Object {
+        impl From<$ty> for Value {
             fn from(value: $ty) -> Self {
-                Object::$wrapper(value.into())
+                Value::$wrapper(value.into())
             }
         }
     };
@@ -242,11 +245,11 @@ impl_from!(f64, Float);
 impl_from!(char, Char);
 impl_from!(String, String);
 
-impl From<bool> for Object {
+impl From<bool> for Value {
     fn from(value: bool) -> Self {
         match value {
-            true => Object::TRUE,
-            false => Object::FALSE,
+            true => Value::TRUE,
+            false => Value::FALSE,
         }
     }
 }

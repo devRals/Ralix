@@ -4,8 +4,9 @@ use std::{
 };
 
 use crate::{
-    EvalResult, Evaluator, Lexer, Object, Parser, Program, ProgramCheckError, ProgramParseError,
-    TypeChecker, eval, expressions::Identifier, object, symbol_table::SymbolTable, type_checker,
+    EvalResult, Evaluator, Lexer, Parser, Program, ProgramCheckError, ProgramParseError,
+    TypeChecker, Value, eval, expressions::Identifier, object, symbol_table::SymbolTable,
+    type_checker,
 };
 
 #[derive(Debug, Default)]
@@ -20,6 +21,7 @@ pub struct Interpreter {
 pub struct EvalContext {
     pub env: object::Environment,
     pub heap: object::Heap,
+    pub module_cache: eval::ModuleCache,
 }
 
 #[derive(Debug, Default)]
@@ -33,24 +35,27 @@ pub enum ExecuteResult {
     IoError(io::Error),
     ParserError(ProgramParseError),
     CheckError(ProgramCheckError),
-    EvalResult(EvalResult<Object>),
+    EvalResult(EvalResult<Value>),
 }
 
 impl Interpreter {
     pub fn new(working_directory: impl AsRef<Path>) -> io::Result<Self> {
+        let working_directory = {
+            let wd = working_directory.as_ref();
+            if !wd.is_absolute() {
+                path::absolute(wd)?
+            } else {
+                wd.to_path_buf()
+            }
+        };
         Ok(Interpreter {
-            working_directory: path::absolute(working_directory)?,
+            working_directory,
             ..Default::default()
         })
     }
 
-    pub fn execute_file_module<P: AsRef<Path>>(&mut self, module_path: P) -> ExecuteResult {
-        let module_source = match fs::read_to_string(module_path) {
-            Ok(source) => source,
-            Err(path_read_error) => return ExecuteResult::IoError(path_read_error),
-        };
-
-        let program = match self.parse(&module_source) {
+    pub fn execute_from_source(&mut self, source: &str) -> ExecuteResult {
+        let program = match self.parse(source) {
             Ok(program_ast) => program_ast,
             Err(parse_error) => return ExecuteResult::ParserError(parse_error),
         };
@@ -62,10 +67,21 @@ impl Interpreter {
         ExecuteResult::EvalResult(self.execute(program))
     }
 
-    pub fn execute(&mut self, program: Program) -> EvalResult<Object> {
+    pub fn execute_file_module<P: AsRef<Path>>(&mut self, module_path: P) -> ExecuteResult {
+        let module_source = match fs::read_to_string(module_path) {
+            Ok(source) => source,
+            Err(path_read_error) => return ExecuteResult::IoError(path_read_error),
+        };
+
+        self.execute_from_source(&module_source)
+    }
+
+    pub fn execute(&mut self, program: Program) -> EvalResult<Value> {
         let mut evaluator = Evaluator::new(eval::RuntimeContext {
             environment: &mut self.eval_ctx.env,
             heap: &mut self.eval_ctx.heap,
+            module_cache: &mut self.eval_ctx.module_cache,
+            self_module: object::module::Module::default(),
         });
 
         evaluator.evaluate_program(program)

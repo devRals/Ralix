@@ -1,5 +1,5 @@
 use crate::{
-    EvalResult, Evaluator, Expression, Object, expressions::IfConsequence, try_eval_result,
+    EvalResult, Evaluator, Expression, Value, expressions::IfConsequence, try_eval_result,
 };
 
 type ElseConsequence = Expression;
@@ -9,11 +9,11 @@ impl Evaluator<'_> {
         &mut self,
         consequences: Vec<IfConsequence>,
         else_consequence: Option<ElseConsequence>,
-    ) -> EvalResult<Object> {
+    ) -> EvalResult<Value> {
         for (condition, consequence) in consequences {
             let condition_obj = try_eval_result!(self.evaluate_expression(condition));
 
-            if Object::is_true(&condition_obj) {
+            if Value::is_true(&condition_obj) {
                 let cons_obj = try_eval_result!(self.evaluate_expression(consequence));
                 return EvalResult::Value(cons_obj);
             }

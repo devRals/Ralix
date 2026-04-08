@@ -1,4 +1,4 @@
-use crate::{EvalResult, Evaluator, Expression, Object};
+use crate::{EvalResult, Evaluator, Expression, Value};
 
 mod array;
 mod function;
@@ -13,21 +13,21 @@ mod type_casting;
 mod r#typeof;
 
 impl Evaluator<'_> {
-    pub fn evaluate_expression(&mut self, expr: Expression) -> EvalResult<Object> {
+    pub fn evaluate_expression(&mut self, expr: Expression) -> EvalResult<Value> {
         match expr {
-            Expression::Integer(val) => Object::Int(val).into(),
-            Expression::Float(val) => Object::Float(val).into(),
-            Expression::String(val) => Object::String(val.to_string().into()).into(),
-            Expression::Char(val) => Object::Char(val).into(),
+            Expression::Integer(val) => Value::Int(val).into(),
+            Expression::Float(val) => Value::Float(val).into(),
+            Expression::String(val) => Value::String(val.to_string().into()).into(),
+            Expression::Char(val) => Value::Char(val).into(),
             Expression::Array { items } => self.evaluate_array_literal(items),
             Expression::HashMap { items } => self.evaluate_hashmap_literal(items),
             Expression::Boolean(val) => match val {
-                true => Object::TRUE.into(),
-                false => Object::FALSE.into(),
+                true => Value::TRUE.into(),
+                false => Value::FALSE.into(),
             },
             Expression::Index { left, index } => self.evaluate_index_expression(*left, *index),
-            Expression::Null => Object::NULL.into(),
-            Expression::Type(ty) => Object::Type(ty).into(),
+            Expression::Null => Value::NULL.into(),
+            Expression::Type(ty) => Value::Type(ty).into(),
             Expression::Try(expr) => self.evaluate_try_expression(*expr),
             Expression::Identifier(ident) => self.evaluate_identifier(ident),
             Expression::Infix {

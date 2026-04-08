@@ -1,5 +1,5 @@
 use crate::{
-    EvalResult, EvaluationError, Evaluator, Expression, FunctionEnvironment, Object,
+    EvalResult, Evaluator, Expression, FunctionEnvironment, RuntimeError, Value,
     expressions::FunctionParameter,
     try_eval_result,
     types::{Type, TypeVarId},
@@ -12,8 +12,8 @@ impl Evaluator<'_> {
         body: Expression,
         return_type: Type,
         generics: Vec<TypeVarId>,
-    ) -> EvalResult<Object> {
-        let function = Object::new_function(
+    ) -> EvalResult<Value> {
+        let function = Value::new_function(
             parameters,
             return_type,
             body,
@@ -25,18 +25,18 @@ impl Evaluator<'_> {
             generics,
         );
 
-        EvalResult::Value(Object::Function(function))
+        EvalResult::Value(Value::Function(function))
     }
 
     pub fn evaluate_call_expression(
         &mut self,
         function: Expression,
         arguments: Vec<Expression>,
-    ) -> EvalResult<Object> {
+    ) -> EvalResult<Value> {
         let func = match try_eval_result!(self.evaluate_expression(function)) {
-            Object::Function(func) => func,
-            Object::Type(ty) => return self.evaluate_type_casting(ty, arguments[0].clone()),
-            o => return EvalResult::Err(EvaluationError::IsNotAFunction(o.r#type(self.ctx.heap))),
+            Value::Function(func) => func,
+            Value::Type(ty) => return self.evaluate_type_casting(ty, arguments[0].clone()),
+            o => return EvalResult::Err(RuntimeError::IsNotAFunction(o.r#type(self.ctx.heap))),
         };
 
         self.ctx.enter_scope();
@@ -60,7 +60,7 @@ impl Evaluator<'_> {
     }
 }
 
-fn unwrap_return_value(result: EvalResult<Object>) -> EvalResult<Object> {
+fn unwrap_return_value(result: EvalResult<Value>) -> EvalResult<Value> {
     match result {
         // `into` converts the type `Option<Object>` into
         // EvalResult::Value(inner) if Some(inner)

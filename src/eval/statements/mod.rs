@@ -1,11 +1,11 @@
-use crate::{EvalResult, Evaluator, Expression, Object, Statement, try_eval_result};
+use crate::{EvalResult, Evaluator, Expression, Statement, Value, try_eval_result};
 
 mod assignment;
 mod binding;
 mod import_export;
 
 impl Evaluator<'_> {
-    pub fn evaluate_statement(&mut self, stmt: Statement) -> EvalResult<Object> {
+    pub fn evaluate_statement(&mut self, stmt: Statement) -> EvalResult<Value> {
         match stmt {
             Statement::Binding(binding) => self.evaluate_binding(binding.ident, binding.value),
             Statement::Expression(expr) => self.evaluate_expression(expr),
@@ -23,14 +23,9 @@ impl Evaluator<'_> {
             Statement::Get {
                 file_module_path,
                 imported_items,
-                path_names,
+                path_names: _,
                 module_name,
-            } => self.evaluate_import_statement(
-                file_module_path,
-                imported_items,
-                path_names,
-                module_name,
-            ),
+            } => self.evaluate_import_statement(file_module_path, imported_items, module_name),
             Statement::Out(stmt) => self.evaluate_export_statement(*stmt),
         }
     }

@@ -61,10 +61,10 @@ impl Environment {
     }
 
     /// Returns immutable referance
-    pub fn get_ptr(&self, key: &Identifier) -> Option<&Addr> {
+    pub fn get_ptr(&self, key: &Identifier) -> Option<Addr> {
         for s in self.scopes.iter().rev() {
-            if let Some(val) = s.get(key) {
-                return val.into();
+            if let Some(addr) = s.get(key) {
+                return Some(*addr);
             }
         }
         None
@@ -82,7 +82,7 @@ impl Environment {
 
     pub fn extend_from(&mut self, other: &EnvScope) {
         for (ident, value) in other {
-            self.define(ident.clone(), value.clone());
+            self.define(ident.clone(), *value);
         }
     }
 

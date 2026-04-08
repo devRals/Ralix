@@ -1,3 +1,3 @@
-get package;
+// If you import "../package.ralix" I will be imported too.
 
 out const fn blabla(int num) -> int: num + 2;

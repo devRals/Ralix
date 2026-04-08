@@ -1,7 +1,7 @@
-use crate::{EvalResult, EvaluationError, Evaluator, Literal, Object};
+use crate::{EvalResult, Evaluator, Literal, RuntimeError, Value};
 
 impl Evaluator<'_> {
-    pub fn evaluate_identifier(&mut self, ident: Literal) -> EvalResult<Object> {
+    pub fn evaluate_identifier(&mut self, ident: Literal) -> EvalResult<Value> {
         let value = self.ctx.get(&ident);
 
         match value {
@@ -9,7 +9,7 @@ impl Evaluator<'_> {
                 Some(copied) => copied.into(),
                 None => self.ctx.get_cloned(&ident).unwrap().into(),
             },
-            None => EvalResult::Err(EvaluationError::Undefined(ident)),
+            None => EvalResult::Err(RuntimeError::Undefined(ident)),
         }
     }
 }

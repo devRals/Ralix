@@ -131,6 +131,7 @@ pub enum Token {
     Or,
     Type,
     TypeOf,
+    Let,
 
     // Type Keywords
     /// "int"
@@ -181,6 +182,7 @@ impl Token {
             "typeof" => Token::TypeOf,
             "map" => Token::TyMap,
             "arr" => Token::TyArr,
+            "let" => Token::Let,
             lit => Token::Ident(Literal::from(lit)),
         }
     }
@@ -281,6 +283,7 @@ impl Display for Token {
             T::TypeOf => "typeof",
             T::TyArr => "arr",
             T::TyMap => "map",
+            T::Let => "let",
         })
     }
 }

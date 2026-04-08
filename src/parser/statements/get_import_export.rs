@@ -42,14 +42,13 @@ impl Parser<'_> {
             });
         }
 
-        let module_name = module_path_names.last().cloned().unwrap();
-
-        let path = match resolve_file_module_path(self.working_directory, &module_path_names) {
-            Ok(path) => path,
-            Err(module_path_parse_error) => {
-                return Err(ParserDiagnostic::FileModuleError(module_path_parse_error));
-            }
-        };
+        let (module_name, path) =
+            match resolve_file_module_path(self.working_directory, &module_path_names) {
+                Ok(path) => path,
+                Err(module_path_parse_error) => {
+                    return Err(ParserDiagnostic::FileModuleError(module_path_parse_error));
+                }
+            };
 
         Ok((module_name, module_path_names, path))
     }

@@ -1,7 +1,7 @@
-use crate::{EvalResult, Evaluator, Object, Statement};
+use crate::{EvalResult, Evaluator, Value, Statement};
 
 impl Evaluator<'_> {
-    pub fn evaluate_scope_expression(&mut self, statements: Vec<Statement>) -> EvalResult<Object> {
+    pub fn evaluate_scope_expression(&mut self, statements: Vec<Statement>) -> EvalResult<Value> {
         let mut result = EvalResult::NoValue;
 
         self.ctx.enter_scope();

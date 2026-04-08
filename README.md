@@ -76,9 +76,9 @@ myType == typeof 1 + 1; // true
 
 ---
 
-For more examples you can check you the [official Ralix website](https://devRals.github.io/Ralix)
+For more examples you can check out the [official Ralix website](https://devRals.github.io/Ralix)
 
-## 🗺 Roadmap
+## Roadmap
 
 - [x] **Scope Expressions**: Blocks that return values.
 - [x] **Function Definitions**: Standard function declarations.
@@ -86,7 +86,7 @@ For more examples you can check you the [official Ralix website](https://devRals
 - [ ] File Modules: Accessing every ralix file modules from one.
 - [ ] **Standard Library**: Basic I/O and string manipulation.
 
-## 🤝 Contributing
+## Contributing
 
 This is a personal project by **devRals**. Feel free to open an issue or submit
 a pull request if you have ideas for the language specification!

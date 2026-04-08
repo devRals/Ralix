@@ -1,13 +1,13 @@
-use std::{error::Error, fmt::Display};
+use std::{error::Error, fmt::Display, io};
 
 use crate::{
-    Expression, Literal, Object,
-    expressions::{InfixOperator, PrefixOperator},
+    Expression, Literal, Value,
+    expressions::{Identifier, InfixOperator, PrefixOperator},
     types::Type,
 };
 
-#[derive(Debug, Clone)]
-pub enum EvaluationError {
+#[derive(Debug)]
+pub enum RuntimeError {
     Undefined(Literal),
     UnsupportedCopyType(Type),
 
@@ -16,22 +16,25 @@ pub enum EvaluationError {
     UnsupportedIndexOperation(Type, Type),
 
     CannotBeDereferenced(Type),
-    CannotAssign(Expression, Object),
+    CannotAssign(Expression, Value),
     IsNotAFunction(Type),
+
+    ImportCycleDetected(Identifier),
+    ModuleExecuteError(io::Error),
 }
 
 #[derive(Debug)]
 pub enum EvalResult<T> {
     Value(T),
     Return(Option<T>),
-    Err(EvaluationError),
+    Err(RuntimeError),
     NoValue,
 }
 
-impl Error for EvaluationError {}
-impl Display for EvaluationError {
+impl Error for RuntimeError {}
+impl Display for RuntimeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use EvaluationError as E;
+        use RuntimeError as E;
 
         f.write_str(&match self {
             E::Undefined(lit) => format!("`{lit}` is undefined"),
@@ -50,8 +53,12 @@ impl Display for EvaluationError {
                 format!("Cannot assign value {value} using {left} expression")
             }
             E::IsNotAFunction(t) => {
-                format!("Object type `{t}` is not a function and cannot be called")
+                format!("Value type `{t}` is not a function and cannot be called")
             }
+            E::ImportCycleDetected(m_name) => {
+                format!("Module `{m_name}` re-imported in another module.")
+            }
+            E::ModuleExecuteError(m_err) => m_err.to_string(),
         })
     }
 }

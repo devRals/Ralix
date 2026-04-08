@@ -5,7 +5,7 @@ use std::{
 
 use color_eyre::owo_colors::OwoColorize;
 
-use crate::{EvalResult, Heap, Interpreter, Object};
+use crate::{EvalResult, Heap, Interpreter, Value};
 
 const CONTINUATION_PROMPT: &str = "...";
 const PROMPT: &str = ">>>";
@@ -139,7 +139,7 @@ Available Keywords are:
         Ok(())
     }
 
-    fn colorize_eval_result(&mut self, r: &EvalResult<Object>, heap: &Heap) -> Result<String> {
+    fn colorize_eval_result(&mut self, r: &EvalResult<Value>, heap: &Heap) -> Result<String> {
         self.last_repl_result = ReplResult::Success;
         Ok(match r {
             EvalResult::Return(v) => match v {
@@ -194,25 +194,25 @@ Available Keywords are:
     }
 }
 
-fn colorize_obj(obj: &Object, heap: &Heap) -> String {
+fn colorize_obj(obj: &Value, heap: &Heap) -> String {
     match obj {
-        Object::Int(v) => v.bright_yellow().to_string(),
-        Object::Float(v) => v.bright_yellow().to_string(),
-        Object::Char(v) => format!("'{v}'").bright_yellow().to_string(),
-        Object::String(v) => format!("\"{v}\"").bright_green().to_string(),
-        Object::Boolean(v) => v.cyan().to_string(),
-        Object::Type(v) => v.bright_yellow().to_string(),
-        Object::Address(v) => v.to_string().bright_black().to_string(),
-        Object::Null => "null".bright_black().to_string(),
-        Object::Function(func) => func.white().to_string(),
-        Object::Array(v) => format!(
+        Value::Int(v) => v.bright_yellow().to_string(),
+        Value::Float(v) => v.bright_yellow().to_string(),
+        Value::Char(v) => format!("'{v}'").bright_yellow().to_string(),
+        Value::String(v) => format!("\"{v}\"").bright_green().to_string(),
+        Value::Boolean(v) => v.cyan().to_string(),
+        Value::Type(v) => v.bright_yellow().to_string(),
+        Value::Pointer(v) => v.to_string().bright_black().to_string(),
+        Value::Null => "null".bright_black().to_string(),
+        Value::Function(func) => func.white().to_string(),
+        Value::Array(v) => format!(
             "[{}]",
             v.iter()
                 .map(|x| colorize_obj(heap.read(x).unwrap(), heap))
                 .collect::<Vec<_>>()
                 .join(", ")
         ),
-        Object::HashMap(v) => format!(
+        Value::HashMap(v) => format!(
             "#{{ {} }}",
             v.iter()
                 .map(|(_, (k, v))| format!(

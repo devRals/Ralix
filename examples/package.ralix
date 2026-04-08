@@ -1,5 +1,5 @@
 // I'm a directory index file module. And i'm exporting this silly values :3
 
-get submodules;
+get submodules; // Import module "submodules" and it also imports "submodules/utils"
 
 out const arr[str] CAT_SOUNDS = ["meow", "mrrow", "mrrp", "nyaa", "RAAAAAAHH!"]

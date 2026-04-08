@@ -41,7 +41,10 @@ impl<'a> TypeChecker<'a> {
             module_trace,
             fn_trace: Vec::new(),
             typevar_bindings: HashMap::new(),
-            self_module: Module::default(),
+            self_module: Module {
+                name: "self".into(),
+                exports: HashMap::new(),
+            },
         }
     }
 }

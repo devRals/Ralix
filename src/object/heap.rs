@@ -1,16 +1,9 @@
-use std::fmt::Display;
+use std::{collections::HashMap, fmt::Display};
 
-use crate::Object;
+use crate::Value;
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Eq, Hash)]
 pub struct Addr(usize);
-
-impl std::ops::Deref for Addr {
-    type Target = usize;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
 
 impl Display for Addr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -19,54 +12,58 @@ impl Display for Addr {
 }
 
 impl Addr {
-    pub const fn new(addr: usize) -> Addr {
-        Addr(addr)
-    }
-
-    pub fn read_from<'a>(&self, heap: &'a Heap) -> Option<&'a Object> {
+    pub fn read_from<'a>(&self, heap: &'a Heap) -> Option<&'a Value> {
         heap.read(self)
     }
 
-    pub fn read_mut_from<'a>(&self, heap: &'a mut Heap) -> Option<&'a mut Object> {
+    pub fn read_mut_from<'a>(&self, heap: &'a mut Heap) -> Option<&'a mut Value> {
         heap.read_mut(self)
     }
 }
 
+type HeapStore = HashMap<Addr, Value>;
+
 #[derive(Debug)]
 pub struct Heap {
-    store: Vec<Object>,
+    store: HashMap<Addr, Value>,
 }
 
 impl Heap {
     /// Constructor for [`Heap`]
-    pub const fn new() -> Heap {
-        Heap { store: Vec::new() }
+    pub fn new() -> Heap {
+        Heap {
+            store: HeapStore::new(),
+        }
     }
 
     /// Allocates a new location for the given `value`
-    pub fn alloc(&mut self, value: Object) -> Addr {
-        let addr = self.store.len();
-        self.store.push(value);
+    pub fn alloc(&mut self, value: Value) -> Addr {
+        let addr = Addr(self.store.len());
+        self.store.insert(addr, value);
 
-        Addr(addr)
+        addr
     }
 
-    pub fn update(&mut self, addr: Addr, value: Object) -> Option<Addr> {
-        let holder = self.store.get_mut(addr.0)?;
+    pub fn update(&mut self, addr: Addr, value: Value) -> Option<Addr> {
+        let holder = self.store.get_mut(&addr)?;
         *holder = value;
         Some(addr)
     }
 
-    pub fn read(&self, addr: &Addr) -> Option<&Object> {
-        self.store.get(addr.0)
+    pub fn read(&self, addr: &Addr) -> Option<&Value> {
+        self.store.get(addr)
     }
 
-    pub fn read_mut(&mut self, addr: &Addr) -> Option<&mut Object> {
-        self.store.get_mut(addr.0)
+    pub fn read_mut(&mut self, addr: &Addr) -> Option<&mut Value> {
+        self.store.get_mut(addr)
     }
 
     pub fn clear(&mut self) {
         self.store.clear();
+    }
+
+    pub fn free(&mut self, addr: &Addr) -> Option<Value> {
+        self.store.remove(addr)
     }
 }
 
