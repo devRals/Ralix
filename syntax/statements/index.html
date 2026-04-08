@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-3a02f8d0.js";
+            window.path_to_searchindex_js = "../../searchindex-b898fed7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-54f10d66.js"></script>
@@ -175,10 +175,12 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="statements"><a class="header" href="#statements">Statements</a></h1>
-<p>Statements are instructions that perform an action. In Ralix, statements only .</p>
+<p>Statements are instructions that perform an action. In Ralix, statements only.
+Statements are separated by semicolons (“;”) which are optional. But it’s
+recommended to use them to avoid syntax errors.</p>
 <h2 id="binding-statement"><a class="header" href="#binding-statement">Binding statement</a></h2>
-<p>The binding statement is used to create a new variable binding. You can specify the
-type of the value. If you want it’s type to be specified automatically you can
+<p>The binding statement is used to create a new variable binding. You can specify
+the type of the value. If you want it’s type to be specified automatically you can
 use the <code>let</code> statements</p>
 <pre><code class="language-c">// Create a variable `x` of type `int` with a value of 5
 int x = 5;
@@ -213,8 +215,8 @@ MyFloat my_type_is_same_as_PI = 1.2;
 <h2 id="fn-statement"><a class="header" href="#fn-statement"><code>fn</code> statement</a></h2>
 <p>The <code>fn</code> statement is used to create a new function. Functions can have parameters
 and a return type. Optionally you can also bind <code>const fn</code> statements.
-This is allowed because functions are just binding statements that the value is just
-a regular function.</p>
+This is allowed because functions are just binding statements that the value is
+just a regular function.</p>
 <pre><code class="language-c">// Create a function `add` that takes two integers and returns an integer
 fn add(int a, int b) -&gt; int: a + b;
 </code></pre>
@@ -253,6 +255,26 @@ nums[2] = 5.8;
 If you wanna add a new value to a new hash-map using a key that hash-map
 isn’t using this operation will simply do nothing</p>
 </blockquote>
+<h2 id="get-statement"><a class="header" href="#get-statement"><code>get</code> statement</a></h2>
+<p>The <code>get</code> statements can be used to import file modules for <code>ralix</code>.
+The <code>get</code> statements first executes the module using it’s content.
+Also all modules cannot be executed twice.</p>
+<pre><code class="language-ts">get my_module/my_submodule; // `my_submodule` is a "module" from now on.
+</code></pre>
+<p>To access parent directories you can use TwoDots (“..”) token</p>
+<pre><code class="language-ts">get mod/sub_mod/.. // This is equivalent to `get mod`
+</code></pre>
+<p>Using braces lets you bind the values instantly.</p>
+<pre><code class="language-ts">get utils/math { add, sub, mul, div }; // `add`, `sub`, `mul`, `div` are 
+                                       // automatically had bind to the scope
+                                       // as well as with the `math` module
+</code></pre>
+<h3 id="as-keyword"><a class="header" href="#as-keyword">“as” keyword</a></h3>
+<p>Using <code>as</code> keyword lets you rename the imported identifiers.</p>
+<pre><code class="language-ts">get module_a { itemA };
+get module_b { itemA as itemB }; // `itemB` will be treated as `itemA` from
+                                 // module `module_b`
+</code></pre>
 
                     </main>
 
